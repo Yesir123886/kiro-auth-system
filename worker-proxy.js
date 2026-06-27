@@ -1,6 +1,6 @@
 // ANGEL API Proxy Worker
 // 解决 HTTPS 站点访问 HTTP API 的 mixed content 限制
-// 部署后地址: https://angel-auth-pd.1354137307.workers.dev/proxy/*
+// 部署后地址: https://angel-api-proxy.<YOUR_ACCOUNT_ID>.workers.dev/proxy/*
 
 const TARGET_BASE = 'http://hp.hysafe.top:15110';
 
@@ -65,7 +65,7 @@ export default {
     return new Response(JSON.stringify({
       ok: false,
       error: 'API Proxy - use /proxy/ prefix for requests',
-      usage: 'POST https://angel-auth-pd.1354137307.workers.dev/proxy/api/issue',
+      usage: 'POST /proxy/api/generate with {creator_key, auth_id}',
     }), {
       headers: { 'Content-Type': 'application/json' },
     });
