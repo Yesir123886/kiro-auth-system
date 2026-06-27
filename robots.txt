@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kiroauth-system.vercel.app/sitemap.xml

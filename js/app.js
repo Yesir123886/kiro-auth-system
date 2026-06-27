@@ -1,0 +1,12 @@
+/* ANGEL v2 - Protected | DO NOT MODIFY */
+function _t(m,t){var c=document.getElementById('toastContainer');if(!c)return;var d=document.createElement('div');d.className='toast toast-'+(t||'info');d.textContent=m;c.appendChild(d);setTimeout(function(){d.style.opacity='0';setTimeout(function(){d.remove()},300)},3500)}
+function _sw(id,evt){document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});if(evt&&evt.target)evt.target.classList.add('active');else{var btns=document.querySelectorAll('.tab-btn');for(var i=0;i<btns.length;i++){if(btns[i].getAttribute('onclick')&&btns[i].getAttribute('onclick').indexOf("'"+id+"'")!==-1){btns[i].classList.add('active');break;}}}document.getElementById('panel-'+id).classList.add('active')}
+function _lb(s){document.getElementById('lightboxImg').src=s;document.getElementById('lightbox').classList.add('show')}
+function _lc(){document.getElementById('lightbox').classList.remove('show')}
+function _ft(i){if(!i)return'-';var d=new Date(i);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function _ta(i){if(!i)return'';var d=Date.now()-new Date(i).getTime(),m=Math.floor(d/60000);if(m<1)return'\u521a\u521a';if(m<60)return m+'\u5206\u949f\u524d';var h=Math.floor(m/60);if(h<24)return h+'\u5c0f\u65f6\u524d';return Math.floor(h/24)+'\u5929'}
+function _sb(s){var m={pending:'<span class="badge badge-pending">\u2f09 \u5f85\u5ba1</span>',approved:'<span class="badge badge-approved">\u2705 \u901a\u8fc7</span>',rejected:'<span class="badge badge-rejected">\u274c \u62d2</span>'};return m[s]||s}
+var _SU='https://ffrltcwpvsihccftsaw.supabase.co',_SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmcmlsdGN3cHZzaWhjY2Z0c2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NzM2NzQsImV4cCI6MjA5ODE0OTY3NH0.Q3nhT2JXFLtLZ9MAw5aJShIcwK3gGRlquGb4VS5VRz4',_sc=null;
+async function _gS(){if(!_sc){if(typeof supabase!=='undefined'&&supabase.createClient){_sc=supabase.createClient(_SU,_SK)}else{var{createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');_sc=createClient(_SU,_SK)}}return _sc}
+/* 兼容别名 */
+var showToast=_t,switchTab=_sw,openLightbox=_lb,closeLightbox=_lc,formatTime=_ft,timeAgo=_ta,statusBadge=_sb,getSupabase=_gS;

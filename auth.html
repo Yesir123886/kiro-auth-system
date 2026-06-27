@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>授权申请 - ANGEL 授权中心</title>
+<meta name="description" content="ANGEL 授权申请页面 - 提交卡密与授权ID，获取软件授权令牌。支持截图上传，管理员审核通过后自动生成授权令。">
+<meta name="keywords" content="ANGEL,授权申请,卡密,授权令牌,软件授权,授权验证">
+<meta name="author" content="ANGEL Team">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0a0a14">
+<link rel="canonical" href="https://kiroauth-system.vercel.app/auth.html">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="授权申请 - ANGEL 授权中心">
+<meta property="og:description" content="提交卡密与授权ID，获取软件授权令牌。">
+<meta property="og:url" content="https://kiroauth-system.vercel.app/auth.html">
+<meta property="og:image" content="https://kiroauth-system.vercel.app/assets/logo.png">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="授权申请 - ANGEL">
+<meta name="twitter:description" content="提交卡密与授权ID，获取软件授权令牌。">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<video id="bgVideo" autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;"><source src="assets/bg.mp4" type="video/mp4"></video>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.75),rgba(20,15,35,.65),rgba(10,10,20,.75));z-index:-1;"></div>
+
+<div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a> · 获取最新动态</div>
+
+<nav class="navbar">
+<a href="index.html" class="navbar-brand"><span class="angel-icon"></span> ANGEL</a>
+<div style="display:flex;gap:10px;">
+<a href="index.html" class="btn btn-outline btn-sm">🏠 首页</a>
+<a href="auth.html" class="btn btn-primary btn-sm">🔐 授权</a>
+<a href="admin.html" class="btn btn-sm" style="background:rgba(255,255,255,.08);border:1px solid var(--glass-border);color:var(--text-secondary);">⚙️ 管理</a>
+</div>
+</nav>
+
+<div class="page-header">
+<h1>🔐 授权中心</h1>
+<p>提交申请或查询已获得的授权令牌</p>
+</div>
+
+<div class="container">
+<div class="tabs">
+<button id="tabApply" class="tab-btn active" onclick="sw('apply')">📝 提交申请</button>
+<button id="tabQuery" class="tab-btn" onclick="sw('query')">🔍 授权查询</button>
+</div>
+
+<!-- ====== Tab1: 提交申请 ====== -->
+<div id="panelApply" class="tab-panel active">
+<div class="card">
+<div class="card-title">填写申请信息</div>
+<div class="form-group"><label>卡密 <span class="hint">— 购买时获得的激活码</span></label><input type="text" class="form-input" id="cardKey" placeholder="请输入卡密" maxlength="64"></div>
+<div class="form-group"><label>用户授权ID <span class="hint">— 程序「设置→复制授权ID」获取</span></label><input type="text" class="form-input" id="userAuthId" placeholder="粘贴你的授权ID（类似 3D22EC...）" maxlength="128"></div>
+<div class="form-group"><label>订单截图 <span class="hint">— 支付凭证或购买记录截图</span></label>
+<input type="file" id="screenshotInput" accept="image/*" onchange="previewImg(event)" style="display:none;">
+<div id="uploadArea" onclick="document.getElementById('screenshotInput').click()" style="border:2px dashed var(--glass-border);border-radius:10px;padding:30px;text-align:center;cursor:pointer;background:rgba(255,255,255,.02);transition:.2s;" onmouseover="this.style.borderColor='var(--accent-light)'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="font-size:32px;margin-bottom:8px;">📷</div><div style="color:var(--text-secondary);font-size:14px;">点击上传订单截图</div><div style="color:var(--text-muted);font-size:12px;margin-top:4px;">支持 JPG / PNG / WebP，最大 5MB</div></div>
+<div id="previewContainer" style="display:none;margin-top:12px;"><img id="previewImg" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--glass-border);cursor:pointer;" alt="预览" onclick="openLb(this.src)"><button type="button" onclick="clearImg();event.stopPropagation();" class="btn btn-outline btn-sm" style="margin-top:8px;">✕ 删除图片</button></div></div>
+<div class="form-group"><label>备注 <span class="hint">— 选填</span></label><textarea class="form-input" id="remark" placeholder="如有需要可填写备注..." rows="2"></textarea></div>
+<button onclick="doSubmit()" class="btn btn-primary btn-block" id="submitBtn">📤 提交授权申请</button>
+</div>
+</div>
+
+<!-- ====== Tab2: 授权查询 ====== -->
+<div id="panelQuery" class="tab-panel" style="display:none;">
+<div class="card">
+<div class="card-title">🔍 授权查询</div>
+<p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">输入卡密和授权ID，查询审批状态并获取授权令牌</p>
+
+<div class="form-group"><label>卡密</label><input type="text" class="form-input" id="qCardKey" placeholder="请输入你提交的卡密" maxlength="64"></div>
+<div class="form-group"><label>授权ID</label><input type="text" class="form-input" id="qAuthId" placeholder="请输入你的授权ID" maxlength="128"></div>
+
+<button onclick="doQuery()" class="btn btn-primary btn-block" style="margin-bottom:16px;">🔍 查询授权状态</button>
+
+<div id="qResult" style="display:none;"></div>
+</div>
+</div>
+
+</div><!-- /container -->
+
+<!-- 图片预览弹窗 -->
+<div id="lb" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="this.style.display='none'"><img id="lbImg" style="max-width:90%;max-height:90vh;border-radius:8px;"></div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+(function(){
+// ---- 视频控制 ----
+var v=document.getElementById('bgVideo'),b=document.getElementById('muteBtn');
+function sm(m){v.muted=m;b.textContent=m?'🔇':'🔊';b.style.background=m?'var(--glass-bg)':'rgba(0,210,211,.15)';}
+function tm(){sm(!v.muted);}
+window.toggleMute=tm;
+v.muted=false;v.play().catch(function(){});
+
+// ---- Toast ----
+function msg(t,type){var c=document.getElementById('toastContainer');if(!c)return;var d=document.createElement('div');d.className='toast toast-'+(type||'info');d.textContent=t;c.appendChild(d);setTimeout(function(){d.style.opacity='0';setTimeout(function(){d.remove()},300)},3000)}
+
+// ---- Tab切换 ----
+function sw(id){
+document.getElementById('tabApply').className='tab-btn'+(id==='apply'?' active':'');
+document.getElementById('tabQuery').className='tab-btn'+(id==='query'?' active':'');
+document.getElementById('panelApply').style.display=id==='apply'?'block':'none';
+document.getElementById('panelQuery').style.display=id==='query'?'block':'none';
+}
+
+// ---- 图片预览 ----
+var sFile=null;
+function previewImg(e){
+var f=e.target.files[0];if(!f)return;
+if(f.size>5*1048576){msg('图片不能超过5MB','error');return;}
+if(!['image/jpeg','image/png','image/webp'].includes(f.type)){msg('只支持JPG/PNG/WebP','error');return;}
+sFile=f;
+var r=new FileReader();
+r.onload=function(ev){document.getElementById('previewImg').src=ev.target.result;document.getElementById('previewContainer').style.display='';document.getElementById('uploadArea').style.display='none';};
+r.readAsDataURL(f);
+}
+function clearImg(){sFile=null;document.getElementById('screenshotInput').value='';document.getElementById('previewContainer').style.display='none';document.getElementById('uploadArea').style.display='';}
+function openLb(src){var lb=document.getElementById('lb');document.getElementById('lbImg').src=src;lb.style.display='flex';}
+
+// ---- 提交申请（含去重+限流+防护）----
+function doSubmit(){
+var ck=document.getElementById('cardKey').value.trim();
+var uid=document.getElementById('userAuthId').value.trim();
+if(!ck){msg('请输入卡密','error');return;}
+if(!uid){msg('请输入授权ID','error');return;}
+if(!sFile){msg('请上传订单截图','error');return;}
+
+// ====== 防护1: 去重检查（同卡密+授权ID只能申请一次）======
+var submitted=JSON.parse(localStorage.getItem('angel_submitted')||'[]');
+for(var i=0;i<submitted.length;i++){
+if(submitted[i].ck===ck&&submitted[i].uid===uid){
+msg('⚠️ 该卡密+授权ID已提交过申请，请勿重复提交','error');
+document.getElementById('qCardKey').value=ck;
+document.getElementById('qAuthId').value=uid;
+sw('query');
+doQuery(); // 自动帮用户查询当前状态
+return;
+}}
+
+// ====== 防护2: IP限流（同一IP 10分钟只能申请1次）======
+var ipKey='angel_ip_'+(function(){
+// 简单IP指纹（非完美但有效）
+var fp=navigator.userAgent.substring(0,30)+screen.width+'x'+screen.height+(navigator.language||'');
+// 尝试获取真实IP（需要后端支持时替换）
+return btoa(fp).slice(0,16);
+})();
+var lastIpTime=parseInt(localStorage.getItem(ipKey)||'0');
+var now=Date.now();
+if(now-lastIpTime<600000){ // 10分钟内
+var remain=Math.ceil((600000-(now-lastIpTime))/60000);
+msg('⚠️ 操作过于频繁，请 '+remain+' 分钟后再试','error');
+return;
+}
+
+// ====== 防护3: 输入格式校验 ======
+if(ck.length<6){msg('卡密格式不正确','error');return;}
+if(uid.length<10){msg('授权ID格式不正确（至少10位）','error');return;}
+
+// ====== 防护4: 随机延迟防自动化攻击 ======
+var btn=document.getElementById('submitBtn');
+btn.disabled=true;btn.textContent='⏳ 提交中...';
+btn.style.opacity='.6';
+
+setTimeout(function(){
+// 记录提交
+submitted.push({ck:ck,uid:uid,time:now});
+localStorage.setItem('angel_submitted',JSON.stringify(submitted));
+localStorage.setItem(ipKey,now.toString());
+
+// 模拟提交成功
+btn.disabled=false;btn.textContent='📤 提交授权申请';btn.style.opacity='';
+msg('✅ 申请提交成功！管理员审核后通知你','success');
+
+// 清空表单
+document.getElementById('cardKey').value='';
+document.getElementById('userAuthId').value='';
+clearImg();
+document.getElementById('remark').value='';
+
+// 自动切换到查询页并填入
+sw('query');
+document.getElementById('qCardKey').value=ck;
+document.getElementById('qAuthId').value=uid;
+msg('💡 已自动填入查询信息，审核通过后可在此查询令牌','info');
+},400+Math.random()*600); // 随机400-1000ms延迟
+}
+
+// ====== 授权查询（核心功能）======
+// 模拟数据库（部署Supabase后替换为真实查询）
+var dbData=[
+{ck:'ANGEL-2024-001',uid:'test_user_001',st:'approved',tok:'hysafe_aB3xK9mP2qR',time:new Date(Date.now()-3600000).toISOString(),rej:''},
+{ck:'ANGEL-2024-002',uid:'test_user_002',st:'approved',tok:'hysafe_fE7nW4xL8mQ',time:new Date(Date.now()-7200000).toISOString(),rej:''},
+{ck:'ANGEL-2024-003',uid:'test_user_003',st:'rejected',tok:'',time:new Date(Date.now()-86400000).toISOString(),rej:'订单截图不清晰，请重新提交'},
+{ck:'ANGEL-2024-004',uid:'test_user_004',st:'pending',tok:'',time:new Date(Date.now()-1800000).toISOString(),rej:''},
+];
+
+function doQuery(){
+var ck=document.getElementById('qCardKey').value.trim();
+var uid=document.getElementById('qAuthId').value.trim();
+var rc=document.getElementById('qResult');
+rc.style.display='';
+
+if(!ck||!uid){rc.innerHTML='<div style="text-align:center;padding:30px;color:var(--warning);"><div style="font-size:36px;">⚠️</div><p style="margin-top:10px;">请同时输入<strong>卡密</strong>和<strong>授权ID</strong></p></div>';rc.style.display='';return;}
+
+// 模拟加载
+rc.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-secondary);"><div class="spinner" style="margin:0 auto 12px;width:24px;height:24px;border:3px solid var(--glass-border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;"></div>正在查询...</div>';
+rc.style.display='';
+
+setTimeout(function(){
+// 查找记录（匹配卡密+授权ID）
+var found=null;
+for(var i=0;i<dbData.length;i++){
+if(dbData[i].ck===ck&&dbData[i].uid===uid){found=dbData[i];break;}
+}
+
+if(!found){
+// 未找到 - 可能是待审核或不存在
+var byCk=dbData.filter(function(r){return r.ck===ck});
+if(byCk.length>0){
+// 卡密存在但授权ID不匹配
+rc.innerHTML='<div style="text-align:center;padding:30px;background:rgba(254,202,57,.06);border-radius:12px;border:1px solid rgba(254,202,57,.15);"><div style="font-size:40px;">🔑</div><p style="margin-top:12px;font-size:15px;color:var(--warning);">授权ID不匹配</p><p style="color:var(--text-muted);font-size:13px;margin-top:6px;">该卡密已有申请记录，但授权ID与提交时不一致<br>请检查是否使用了正确的授权ID</p></div>';
+}else{
+rc.innerHTML='<div style="text-align:center;padding:30px;background:rgba(108,92,231,.06);border-radius:12px;border:1px solid rgba(108,92,231,.15);"><div style="font-size:40px;">🔍</div><p style="margin-top:12px;font-size:15px;color:var(--accent-light);">未找到相关记录</p><p style="color:var(--text-muted);font-size:13px;margin-top:6px;">该卡密暂无任何申请记录<br>如已提交申请，请联系管理员确认</p></div>';
+}
+rc.style.display='';
+return;
+}
+
+// 找到了！根据状态渲染
+var html='';
+if(found.st==='pending'){
+html='<div style="background:rgba(254,202,57,.06);border-radius:12px;border:1px solid rgba(254,202,57,.15);padding:24px;text-align:center;">';
+html+='<div style="font-size:40px;">⏳</div>';
+html+='<p style="margin-top:12px;font-size:16px;color:var(--warning);font-weight:600;">正在审核中</p>';
+html+='<div style="margin-top:16px;padding:12px;background:rgba(0,0,0,.15);border-radius:8px;font-size:13px;color:var(--text-secondary);">';
+html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>卡密：</span><span style="word-break:break-all;color:var(--text-primary);">'+found.ck+'</span></div>';
+html+='<div style="display:flex;justify-content:space-between;"><span>授权ID：</span><span style="word-break:break-all;font-size:11px;color:var(--text-secondary);">'+found.uid+'</span></div>';
+html+='<div style="display:flex;justify-content:space-between;margin-top:6px;"><span>提交时间：</span><span>'+fmt(found.time)+'</span></div>';
+html+='</div>';
+html+='<p style="margin-top:14px;font-size:12px;color:var(--text-muted);">管理员审核通过后，再次查询即可获取授权令牌</p>';
+html+='</div>';
+
+}else if(found.st==='rejected'){
+html='<div style="background:rgba(255,107,107,.06);border-radius:12px;border:1px solid rgba(255,107,107,.15);padding:24px;text-align:center;">';
+html+='<div style="font-size:40px;">❌</div>';
+html+='<p style="margin-top:12px;font-size:16px;color:var(--danger);font-weight:600;">申请被拒绝</p>';
+html+='<div style="margin-top:14px;padding:12px;background:rgba(0,0,0,.15);border-radius:8px;">';
+html+='<p style="font-size:13px;color:var(--text-secondary);">拒绝原因：</p>';
+html+='<p style="margin-top:6px;font-size:14px;color:var(--danger);">'+(found.rej||'未提供原因')+'</p>';
+html+='</div>';
+html+='<p style="margin-top:14px;font-size:12px;color:var(--text-muted);">如需重新申请，请在「提交申请」Tab中重新提交</p>';
+html+='</div>';
+
+}else if(found.st==='approved'){
+// ✅ 已通过 - 显示令牌！
+html='<div style="background:linear-gradient(135deg,rgba(0,210,211,.08),rgba(108,92,231,.08));border-radius:12px;border:1px solid rgba(0,210,211,.2);padding:28px;">';
+html+='<div style="text-align:center;margin-bottom:20px;"><div style="font-size:48px;">🎉</div>';
+html+='<p style="font-size:18px;color:var(--success);font-weight:700;margin-top:8px;">授权已通过！</p>';
+html+='<p style="font-size:13px;color:var(--text-muted);margin-top:4px;">以下是您的授权令牌，请复制到程序中使用</p></div>';
+
+// 信息核对区
+html+='<div style="padding:14px;background:rgba(0,0,0,.15);border-radius:8px;margin-bottom:18px;font-size:13px;">';
+html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--text-muted);">卡密：</span><span style="word-break:break-all;color:var(--text-primary);">'+found.ck+'</span></div>';
+html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--text-muted);">授权ID：</span><span style="word-break:break-all;font-size:11px;color:var(--text-secondary);">'+found.uid+'</span></div>';
+html+='<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">审批时间：</span><span>'+fmt(found.time)+'</span></div>';
+html+='</div>';
+
+// ★★★ 令牌区域 ★★★
+html+='<div style="position:relative;padding:16px;background:rgba(0,210,211,.1);border:2px solid rgba(0,210,211,.3);border-radius:10px;cursor:pointer;" onclick="copyTok(this,\''+found.tok+'\')">';
+html+='<div style="font-size:11px;color:var(--success);margin-bottom:6px;font-weight:600;">🎫 授权令牌（点击复制）</div>';
+html+='<code id="theTok" style="display:block;font-family:monospace;font-size:17px;letter-spacing:1px;color:#00d2d3;padding:8px;background:rgba(0,0,0,.25);border-radius:6px;word-break:break-all;user-select:all;">'+found.tok+'</code>';
+html+='<div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);"id="copyHint">👆 点击上方令牌即可复制到剪贴板</div>';
+html+='</div>';
+
+// 使用提示 - 按用户程序实际步骤
+html+='<div style="margin-top:16px;padding:14px;background:rgba(108,92,231,.06);border-radius:8px;font-size:12px;color:var(--text-secondary);line-height:2;">';
+html+='<strong style="color:var(--accent-light);font-size:13px;">📋 使用步骤：</strong><br>';
+html+='<span style="color:var(--accent-light);">1.</span> 复制上方授权令牌<br>';
+html+='<span style="color:var(--accent-light);">2.</span> 打开 <strong>辅助</strong> 进入游戏<br>';
+html+='<span style="color:var(--accent-light);">3.</span> 导入下载好的付费参数<br>';
+html+='<span style="color:var(--accent-light);">4.</span> 战斗页 → 自定义参数 → 输入复制的授权令牌';
+html+='</div>';
+html+='</div>';
+}
+
+rc.innerHTML=html;
+rc.style.display='';
+},800); // 模拟网络延迟
+}
+
+// 复制令牌
+function copyTok(el,tok){
+navigator.clipboard.writeText(tok).then(function(){
+el.style.background='rgba(0,210,211,.3)';
+el.querySelector('#copyHint').textContent='✅ 已复制到剪贴板！';
+el.querySelector('#copyHint').style.color='var(--success)';
+msg('✅ 令牌已复制！','success');
+}).catch(function(){
+// fallback
+var ta=document.createElement('textarea');ta.value=tok;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+el.querySelector('#copyHint').textContent='✅ 已复制！';
+msg('✅ 令牌已复制','success');
+});
+}
+
+function fmt(t){if(!t)return'-';var d=new Date(t);return(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'))}
+
+// CSS动画
+var s=document.createElement('style');
+s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(s);
+
+// URL参数自动填充
+var p=new URLSearchParams(window.location.search);
+var c=p.get('card');if(c){document.getElementById('qCardKey').value=c;}
+
+// 暴露全局函数
+window.sw=sw;
+window.doSubmit=doSubmit;
+window.doQuery=doQuery;
+window.previewImg=previewImg;
+window.clearImg=clearImg;
+})();
+</script>
+<style>@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}*{-webkit-font-smoothing:antialiased;}</style>
+</body>
+</html>

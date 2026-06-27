@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 - ANGEL 授权中心</title>
+<meta name="description" content="ANGEL 授权管理后台 - 管理员审核授权申请、管理卡密、查看审计日志。需要管理员权限登录。">
+<meta name="keywords" content="ANGEL,管理后台,授权管理,卡密管理,管理员,审计日志">
+<meta name="author" content="ANGEL Team">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0a14">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="管理后台 - ANGEL 授权中心">
+<meta property="og:description" content="ANGEL 授权管理后台 - 管理员审核授权申请">
+<meta property="og:url" content="https://kiroauth-system.vercel.app/admin.html">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<video id="bgVideo" autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;"><source src="assets/bg.mp4" type="video/mp4"></video>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.75),rgba(20,15,35,.65),rgba(10,10,20,.75));z-index:-1;"></div>
+
+<nav class="navbar"><a href="index.html" class="navbar-brand"><span class="angel-icon"></span> ANGEL<span class="admin-badge">ADMIN</span></a><div style="display:flex;gap:10px;align-items:center;"><a href="index.html" class="btn btn-outline btn-sm">🏠 首页</a><a href="auth.html" class="btn btn-primary btn-sm">🔐 授权</a><span id="adminInfo" style="color:var(--accent-light);font-size:12px;display:none;"></span><button id="logoutBtn" style="background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3);color:var(--danger);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;">退出</button></div></nav>
+
+<!-- 登录 -->
+<div id="loginPanel" style="padding-top:60px;max-width:460px;margin:0 auto;">
+<div id="step1" class="card">
+<div class="card-title">🔐 安全登录 · 第一步</div>
+<input type="text" class="form-input" id="uname" placeholder="用户名" style="margin-bottom:10px;">
+<input type="password" class="form-input" id="upass" placeholder="密码" style="margin-bottom:10px;">
+<p style="font-size:11px;color:var(--accent-light);margin-bottom:14px;">🔒 失败5次锁IP · 需安全密钥双重验证</p>
+<button id="btnStep1" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">🔓 验证身份</button>
+<p id="errMsg" style="color:var(--danger);font-size:13px;text-align:center;margin-top:12px;display:none;"></p>
+</div>
+
+<div id="step2" class="card" style="display:none;">
+<div class="card-title">🔑 二次验证 · 安全密钥</div>
+<p style="text-align:center;color:var(--text-secondary);font-size:13px;">请输入管理员安全密钥</p>
+<input type="password" class="form-input" id="vcode" placeholder="输入安全密钥" style="margin-bottom:10px;">
+<button id="btnStep2" style="width:100%;padding:12px;background:var(--success);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">✅ 验证并登录</button>
+<p id="err2" style="color:var(--danger);font-size:13px;text-align:center;margin-top:12px;display:none;"></p>
+<button id="btnBack" style="display:block;width:100%;margin-top:12px;padding:8px;background:transparent;border:1px solid var(--glass-border);color:var(--text-secondary);border-radius:6px;cursor:pointer;font-size:13px;">← 返回</button>
+</div>
+</div>
+
+<!-- 管理面板 -->
+<div id="adminPanel" style="display:none;"><div class="container">
+<div id="okBanner" style="padding:14px;background:rgba(0,210,211,.1);border:1px solid rgba(0,210,211,.25);border-radius:12px;text-align:center;margin-bottom:20px;color:var(--success);font-weight:500;">✅ 双重验证通过 · 会话已加密保护</div>
+
+<!-- 统计 -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+<div class="stat-card"><div class="stat-num" style="color:var(--warning);" id="sP">0</div><div class="stat-label">待审批</div></div>
+<div class="stat-card"><div class="stat-num" style="color:var(--success);" id="sA">0</div><div class="stat-label">已通过</div></div>
+<div class="stat-card"><div class="stat-num" style="color:var(--danger);" id="sR">0</div><div class="stat-label">已拒绝</div></div>
+<div class="stat-card"><div class="stat-num" style="color:var(--accent-light);" id="sT">0</div><div class="stat-label">今日申请</div></div>
+</div>
+
+<!-- Tabs -->
+<div style="display:flex;gap:4px;margin-bottom:16px;background:rgba(255,255,255,.04);padding:4px;border-radius:8px;">
+<button id="tabPen" style="flex:1;padding:10px;border:none;background:var(--accent);color:#fff;border-radius:6px;cursor:pointer;font-size:13px;" onclick="showTab('pen')">⏳ 待审批 (<span id="cP">0</span>)</button>
+<button id="tabAll" style="flex:1;padding:10px;border:none;background:transparent;color:var(--text-secondary);border-radius:6px;cursor:pointer;font-size:13px;" onclick="showTab('all')">📋 全部记录</button>
+<button id="tabSet" style="flex:1;padding:10px;border:none;background:transparent;color:var(--text-secondary);border-radius:6px;cursor:pointer;font-size:13px;" onclick="showTab('set')">⚙️ 设置</button>
+</div>
+
+<!-- 待审批面板 -->
+<div id="panelPen">
+<div id="pList"></div>
+<div id="pEmpty" style="text-align:center;padding:40px;color:var(--text-muted);display:none;"><div style="font-size:40px;">✅</div><p style="margin-top:8px;">暂无待审批申请</p></div>
+</div>
+
+<!-- 全部记录面板 -->
+<div id="panelAll" style="display:none;">
+<div style="display:flex;gap:8px;margin-bottom:12px;">
+<input type="text" class="form-input" id="searchInput" placeholder="搜索卡密..." style="flex:1;" oninput="doFilter()">
+<select id="filterSt" onchange="doFilter()" style="padding:8px 12px;background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:6px;font-size:13px;"><option value="">全部状态</option><option value="pending">待审批</option><option value="approved">已通过</option><option value="rejected">已拒绝</option></select>
+</div>
+<div id="aList"></div>
+<div id="aEmpty" style="text-align:center;padding:40px;color:var(--text-muted);display:none;"><div style="font-size:40px;">📭</div><p style="margin-top:8px;">暂无记录</p></div>
+</div>
+
+<!-- 设置面板 -->
+<div id="panelSet" style="display:none;">
+<div class="card" style="margin-bottom:16px;">
+<div class="card-title">🔑 安全密钥配置</div>
+<input type="password" class="form-input" id="secKeyIn" placeholder="当前安全密钥（默认：你的QQ邮箱）" style="margin-bottom:8px;">
+<p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">登录第二步需要输入此密钥，建议改成复杂字符串</p>
+<button onclick="localStorage.setItem('angel_security_key',document.getElementById('secKeyIn').value.trim());alert('✅ 已保存')" style="padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;">💾 保存密钥</button>
+</div>
+<div class="card" style="margin-bottom:16px;">
+<div class="card-title">🔧 hysafe API 配置</div>
+<p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">审批通过时自动调用此API生成真实授权令牌（hp.hysafe.top:15110）</p>
+<input type="password" class="form-input" id="apiSecIn" placeholder="创建者密钥（必填，审批时使用）" style="margin-bottom:8px;">
+<input type="text" class="form-input" value="http://hp.hysafe.top:15110" readonly style="opacity:.6;margin-bottom:8px;">
+<div style="display:flex;gap:8px;">
+<button onclick="localStorage.setItem('angel_creator_secret',document.getElementById('apiSecIn').value.trim());alert('✅ 已保存')" style="padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;">💾 保存密钥</button>
+<button onclick="testApi()" style="padding:8px 20px;background:rgba(0,210,211,.15);border:1px solid rgba(0,210,211,.3);color:var(--success);border-radius:6px;cursor:pointer;font-size:13px;">🧪 测试连接</button>
+</div>
+<p id="apiTestResult" style="margin-top:8px;font-size:12px;display:none;padding:8px;border-radius:6px;"></p>
+</div>
+<div class="card">
+<div class="card-title">🔒 修改密码</div>
+<input type="password" class="form-input" placeholder="当前密码" style="margin-bottom:8px;">
+<input type="password" class="form-input" placeholder="新密码" style="margin-bottom:8px;">
+<input type="password" class="form-input" placeholder="确认新密码" style="margin-bottom:8px;">
+<button onclick="alert('生产环境连接Supabase后可用')" style="padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔒 修改密码</button>
+</div>
+</div>
+
+</div></div>
+
+<!-- 拒绝弹窗 -->
+<div id="rejModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+<div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:24px;width:400px;max-width:90%;">
+<h3 style="margin-bottom:12px;">❌ 拒绝申请</h3>
+<textarea id="rejReason" rows="3" placeholder="请输入拒绝原因..." style="width:100%;padding:10px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-primary);resize:none;margin-bottom:12px;"></textarea>
+<div style="display:flex;gap:8px;justify-content:flex-end;">
+<button onclick="document.getElementById(\'rejModal\').style.display=\'none\'" style="padding:8px 16px;background:transparent;border:1px solid var(--glass-border);color:var(--text-secondary);border-radius:6px;cursor:pointer;">取消</button>
+<button onclick="doReject()" style="padding:8px 16px;background:var(--danger);color:#fff;border:none;border-radius:6px;cursor:pointer;">确认拒绝</button>
+</div>
+</div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ====== 全部用 addEventListener 绑定事件 ======
+(function(){
+var failCount=0,MAX_FAIL=5,LOCK_MS=900000,t0=0;
+var rejId=null;
+
+function toast(m){var c=document.getElementById('toastContainer');if(!c)return;var d=document.createElement('div');d.style.cssText='padding:10px 18px;background:rgba(108,92,231,.9);color:#fff;border-radius:8px;margin-bottom:8px;font-size:13px;';d.textContent=m;c.appendChild(d);setTimeout(function(){d.opacity='0';setTimeout(function(){d.remove()},300)},3000)}
+
+function locked(){return failCount>=MAX_FAIL&&(Date.now()-t0<LOCK_MS);}
+
+// ---- 按钮1：验证身份 ----
+document.getElementById('btnStep1').addEventListener('click',function(){
+if(locked()){document.getElementById('errMsg').textContent='⛔ IP已锁定！';document.getElementById('errMsg').style.display='block';return;}
+var u=document.getElementById('uname').value.trim();
+var p=document.getElementById('upass').value.trim();
+var er=document.getElementById('errMsg');
+er.style.display='none';
+if(u!=='ANGEL'||p!=='5201314wan'){
+failCount++;t0=Date.now();
+er.textContent='❌ 错误('+failCount+'/'+MAX_FAIL+')';
+er.style.display='block';
+return;
+}
+failCount=0;
+document.getElementById('step1').style.display='none';
+document.getElementById('step2').style.display='';
+toast('✅ 身份验证通过！');
+});
+
+// ---- 按钮2：验证密钥 ----
+document.getElementById('btnStep2').addEventListener('click',function(){
+if(locked())return;
+var c=document.getElementById('vcode').value.trim();
+var er=document.getElementById('err2');
+er.style.display='none';
+if(!c){er.textContent='请输入安全密钥';er.style.display='block';return;}
+var sk=localStorage.getItem('angel_security_key')||'1354137307@qq.com';
+if(c!==sk){
+failCount++;t0=Date.now();
+er.textContent='❌ 密钥错误('+failCount+'/'+MAX_FAIL+')';
+er.style.display='block';
+return;
+}
+// 登录成功
+sessionStorage.setItem('angel_session',JSON.stringify({token:'ok-'+Date.now(),user:'ANGEL',t:Date.now()}));
+document.getElementById('loginPanel').style.display='none';
+document.getElementById('adminPanel').style.display='';
+document.getElementById('adminInfo').textContent='👤 ANGEL';
+document.getElementById('okBanner').style.display='';
+toast('🎉 登录成功！');
+loadData();
+});
+
+// ---- 返回 ----
+document.getElementById('btnBack').addEventListener('click',function(){
+document.getElementById('step2').style.display='none';
+document.getElementById('step1').style.display='';
+});
+
+// ---- 退出 ----
+document.getElementById('logoutBtn').addEventListener('click',function(){
+sessionStorage.removeItem('angel_session');
+location.reload();
+});
+
+// ---- Tab切换 ----
+function showTab(t){
+document.getElementById('tabPen').style.background=t==='pen'?'var(--accent)':'transparent';
+document.getElementById('tabPen').style.color=t==='pen'?'#fff':'var(--text-secondary)';
+document.getElementById('tabAll').style.background=t==='all'?'var(--accent)':'transparent';
+document.getElementById('tabAll').style.color=t==='all'?'#fff':'var(--text-secondary)';
+document.getElementById('tabSet').style.background=t==='set'?'var(--accent)':'transparent';
+document.getElementById('tabSet').style.color=t==='set'?'#fff':'var(--text-secondary)';
+document.getElementById('panelPen').style.display=t==='pen'?'block':'none';
+document.getElementById('panelAll').style.display=t==='all'?'block':'none';
+document.getElementById('panelSet').style.display=t==='set'?'block':'none';
+}
+
+// ---- 数据渲染 ----
+var data=[
+{id:'1',ck:'ANGEL-2024-001',uid:'test_user_001',st:'pending',time:new Date(Date.now()-3600000).toISOString(),tok:'',rej:''},
+{id:'2',ck:'ANGEL-2024-002',uid:'test_user_002',st:'approved',time:new Date(Date.now()-7200000).toISOString(),tok:'hysafe_xK9mP2qR',rej:''},
+{id:'3',ck:'ANGEL-2024-003',uid:'test_user_003',st:'rejected',time:new Date(Date.now()-86400000).toISOString(),tok:'',rej:'截图不清晰'},
+];
+
+function loadData(){
+// 更新统计
+var p=data.filter(function(r){return r.st==='pending'}).length;
+var a=data.filter(function(r){return r.st==='approved'}).length;
+var rj=data.filter(function(r){return r.st==='rejected'}).length;
+document.getElementById('sP').textContent=p;
+document.getElementById('sA').textContent=a;
+document.getElementById('sR').textContent=rj;
+document.getElementById('sT').textContent=data.length;
+document.getElementById('cP').textContent=p;
+renderPending();
+renderAll(data);
+}
+
+function fmt(t){if(!t)return'-';var d=new Date(t);return(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'))}
+function ago(t){if(!t)return'';var d=Date.now()-new Date(t).getTime(),m=Math.floor(d/60000);if(m<1)return'刚刚';if(m<60)return m+'分钟前';var h=Math.floor(m/60);if(h<24)return h+'小时前';return Math.floor(h/24)+'天前'}
+function bdg(s){return s==='pending'?'<span style="padding:2px 8px;background:rgba(254,202,57,.15);color:var(--warning);border-radius:4px;font-size:11px;">⏳ 待审批</span>':s==='approved'?'<span style="padding:2px 8px;background:rgba(0,210,211,.15);color:var(--success);border-radius:4px;font-size:11px;">✅ 通过</span>':'<span style="padding:2px 8px;background:rgba(255,107,107,.15);color:var(--danger);border-radius:4px;font-size:11px;">❌ 拒绝</span>'}
+
+function row(r){
+var h='<div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;padding:14px;margin-bottom:10px;">';
+h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+bdg(r.st)+'<span style="font-size:11px;color:var(--text-muted);">'+fmt(r.time)+' ('+ago(r.time)+')</span></div>';
+h+='<div style="font-size:13px;"><span style="color:var(--text-muted);">卡密:</span> <span style="word-break:break-all;">'+r.ck+'</span></div>';
+h+='<div style="font-size:13px;margin-top:4px;"><span style="color:var(--text-muted);">授权ID:</span> <span style="word-break:break-all;font-size:12px;color:var(--text-secondary);">'+r.uid+'</span></div>';
+if(r.tok)h+='<div style="margin-top:10px;padding:12px;background:rgba(0,210,211,.08);border-radius:6px;border:1px solid rgba(0,210,211,.2);"><div style="font-size:11px;color:var(--success);margin-bottom:4px;">🎫 授权令牌（点击复制）</div><code id="tok_'+r.id+'" style="display:block;padding:8px;background:rgba(0,0,0,.2);border-radius:4px;font-family:monospace;font-size:13px;color:#00d2d3;cursor:pointer;word-break:break-all;"onclick="navigator.clipboard.writeText(this.textContent);this.style.background=\'rgba(0,210,211,.3)\';setTimeout(function(){this.style.background=\'rgba(0,0,0,.2)\'},500);toast(\'✅ 令牌已复制到剪贴板\',\'success\')">'+r.tok+'</code></div>';
+if(r.rej)h+='<div style="margin-top:8px;padding:8px;background:rgba(255,107,107,.06);border-radius:6px;font-size:12px;color:var(--danger);">原因：'+r.rej+'</div>';
+if(r.st==='pending'){
+h+='<div style="margin-top:10px;display:flex;gap:8px;">';
+h+='<button onclick="doApp(\''+r.id+'\')" style="flex:1;padding:8px;background:var(--success);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;">✅ 通过</button>';
+h+='<button onclick="showRej(\''+r.id+'\')" style="flex:1;padding:8px;background:var(--danger);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;">❌ 拒绝</button>';
+h+='</div>';
+}
+h+='</div>';
+return h;
+}
+
+function renderPending(){
+var list=data.filter(function(r){return r.st==='pending'});
+var c=document.getElementById('pList'),e=document.getElementById('pEmpty');
+if(!list.length){c.innerHTML='';e.style.display='';return;}
+e.style.display='none';c.innerHTML=list.map(row).join('');
+}
+
+function renderAll(arr){
+var c=document.getElementById('aList'),e=document.getElementById('aEmpty');
+if(!arr.length){c.innerHTML='';e.style.display='';return;}
+e.style.display='none';c.innerHTML=arr.map(row).join('');
+}
+
+function doFilter(){
+var k=document.getElementById('searchInput').value.toLowerCase();
+var s=document.getElementById('filterSt').value;
+var f=data.slice();
+if(k)f=f.filter(function(r){return r.ck.indexOf(k)>-1||r.uid.indexOf(k)>-1});
+if(s)f=f.filter(function(r){return r.st===s});
+renderAll(f);
+}
+
+function doApp(id){
+if(!confirm('确认通过？系统将调用 hysafe API 自动生成授权令牌。'))return;
+var rec=data.find(function(r){return r.id===id});
+if(!rec)return;
+// 获取创建者密钥
+var ck=localStorage.getItem('angel_creator_secret')||'';
+if(!ck){alert('⚠️ 请先在「设置」中配置 hysafe 创建者密钥！');showTab('set');return;}
+// 显示加载状态
+var btn=event.target;if(btn)btn.textContent='⏳ 生成中...';btn.disabled=true;
+// 调用 hysafe API（通过代理避免CORS）
+var apiUrl=(location.protocol==='file:')||location.hostname==='localhost'?'api/proxy/hysafe':'http://hp.hysafe.top:15110/api/issue';
+fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:rec.uid})})
+.then(function(r){return r.json()})
+.then(function(res){
+    if(btn){btn.textContent='✅ 通过';btn.disabled=false;}
+    if(!res.ok){alert('❌ hysafe API 错误：'+(res.error||'未知错误'));return;}
+    // 保存真实令牌
+    for(var i=0;i<data.length;i++){if(data[i].id===id){data[i].st='approved';data[i].tok=res.token;break}}
+    alert('✅ 审批通过！\n\n🎫 授权令牌：\n\n'+res.token+'\n\n🔑 密钥指纹：'+(res.fp||'N/A')+'\n\n（用户可在授权查询页面复制此令牌）');
+    toast('✅ 已通过！hysafe令牌已生成','success');loadData();
+})
+.catch(function(err){
+    if(btn){btn.textContent='✅ 通过';btn.disabled=false;}
+    alert('❌ 网络错误：'+err.message+'\n\n请检查网络或API地址是否正确。');
+});
+}
+
+function showRej(id){rejId=id;var m=document.getElementById('rejModal');m.style.display='flex';document.getElementById('rejReason').value='';}
+function doReject(){
+if(!rejId)return;var reason=document.getElementById('rejReason').value.trim();if(!reason){toast('请填写原因','error');return;}
+for(var i=0;i<data.length;i++){if(data[i].id===rejId){data[i].st='rejected';data[i].rej=reason;break}}
+document.getElementById('rejModal').style.display='none';rejId=null;toast('已拒绝');loadData();
+}
+
+// ---- 启动检查 ----
+var sess=null;
+try{sess=JSON.parse(sessionStorage.getItem('angel_session'))}catch(e){}
+if(sess&&sess.token&&(Date.now()-sess.t<7200000)){
+document.getElementById('loginPanel').style.display='none';
+document.getElementById('adminPanel').style.display='';
+document.getElementById('adminInfo').textContent='👤 '+sess.user;
+document.getElementById('okBanner').style.display='';
+loadData();
+}
+
+// ====== 暴露全局函数（供onclick调用）=======
+window.showTab=showTab;
+window.doApp=doApp;
+window.showRej=showRej;
+window.doReject=doReject;
+window.doFilter=doFilter;
+window.toast=toast;
+
+// 测试 hysafe API 连接
+window.testApi=function(){
+var ck=document.getElementById('apiSecIn').value.trim()||localStorage.getItem('angel_creator_secret')||'';
+var el=document.getElementById('apiTestResult');el.style.display='';
+el.style.cssText='padding:8px;border-radius:6px;background:rgba(108,92,231,.08);color:var(--accent-light)';
+el.textContent='⏳ 正在测试连接...';
+var apiUrl=(location.protocol==='file:')||location.hostname==='localhost'?'api/proxy/hysafe':'http://hp.hysafe.top:15110/api/issue';
+fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:'TEST_CONNECTION_' + Date.now()})})
+.then(function(r){return r.json()})
+.then(function(res){
+    if(res.ok){
+        el.style.cssText='padding:8px;border-radius:6px;background:rgba(0,210,211,.08);color:var(--success)';
+        el.innerHTML='✅ API连接成功！<br><span style="font-size:11px;color:var(--text-muted)">密钥指纹 FP: '+(res.fp||'N/A')+'</span>';
+    } else {
+        el.style.cssText='padding:8px;border-radius:6px;background:rgba(255,107,107,.08);color:var(--danger)';
+        el.textContent='❌ 错误: '+(res.error||'未知');
+    }
+})
+.catch(function(err){
+    el.style.cssText='padding:8px;border-radius:6px;background:rgba(255,107,107,.08);color:var(--danger)';
+    el.textContent='❌ 连接失败: '+err.message;
+});
+};
+})();
+</script>
+</body>
+</html>

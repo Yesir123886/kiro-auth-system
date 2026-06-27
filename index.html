@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANGEL 授权中心 - 软件授权管理与卡密验证系统</title>
+<meta name="description" content="ANGEL 授权中心 - 提供软件授权申请、卡密验证、云参数更新等服务。支持公益版与皇参版下载，安全可靠的授权管理系统。">
+<meta name="keywords" content="ANGEL,授权中心,卡密验证,软件授权,云参数,公益版,皇参版,授权申请">
+<meta name="author" content="ANGEL Team">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0a0a14">
+<link rel="canonical" href="https://kiroauth-system.vercel.app/index.html">
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="ANGEL 授权中心 - 软件授权管理与卡密验证系统">
+<meta property="og:description" content="ANGEL 授权中心 - 提供软件授权申请、卡密验证、云参数更新等服务。支持公益版与皇参版下载。">
+<meta property="og:url" content="https://kiroauth-system.vercel.app/index.html">
+<meta property="og:image" content="https://kiroauth-system.vercel.app/assets/logo.png">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ANGEL 授权中心">
+<meta name="twitter:description" content="软件授权管理与卡密验证系统">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<video id="bgVideo" autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;"><source src="assets/bg.mp4" type="video/mp4"></video>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.75),rgba(20,15,35,.65),rgba(10,10,20,.75));z-index:-1;"></div>
+<button id="muteBtn" onclick="toggleMute()" title="开启/关闭声音">🔇</button>
+
+<div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
+
+<nav class="navbar"><a href="index.html" class="navbar-brand"><span class="angel-icon"></span> ANGEL</a></nav>
+
+<div class="page-header">
+<h1>✦ ANGEL</h1>
+<p style="margin-bottom:36px;">授权管理中心 · 云参数更新</p>
+<div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+<a href="auth.html" class="btn btn-primary nav-big-btn">🔐 授权申请</a>
+<a href="admin.html" class="btn btn-outline nav-big-btn" style="border-color:rgba(255,255,255,0.25);color:#fff;">⚙️ 管理后台</a>
+<button id="btnScrollDl" class="btn nav-big-btn" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;">☁️ 公益/皇参</button>
+</div>
+</div>
+
+<div class="container">
+
+<!-- 使用流程 -->
+<div class="card">
+<div class="card-title">📋 使用流程</div>
+<div class="step-item"><span class="step-num">1</span><div><strong>获取卡密</strong> — QQ群 <code style="background:rgba(108,92,231,.15);color:var(--accent-light);padding:2px 8px;border-radius:4px;font-size:13px;">753430447</code> 提卡</div></div>
+<div class="step-item"><span class="step-num">2</span><div><strong>提交申请</strong> — 填写卡密+授权ID+订单截图</div></div>
+<div class="step-item"><span class="step-num">3</span><div><strong>等待审批</strong> — 管理员审核通过后生成令牌</div></div>
+<div class="step-item"><span class="step-num" style="background:linear-gradient(135deg,#00b894,#00cec9);">4</span><div><strong>激活使用</strong> — 复制令牌 → 辅助 → 战斗页 → 自定义参数 → 粘贴 ✅</div></div>
+</div>
+
+<!-- 云参数更新 -->
+<div class="card" id="dlSec">
+<div class="card-title">☁️ 云参数更新</div>
+<p style="color:var(--text-secondary);font-size:13.5px;margin-bottom:18px;">点击下方按钮从 Gitee 云端下载最新参数配置文件（JSON格式）</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+<div style="padding:20px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:10px;text-align:center;">
+<div style="font-size:28px;margin-bottom:8px;">🆓</div>
+<div style="font-weight:600;font-size:14px;margin-bottom:4px;">公益参数</div>
+<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">免费用户可用 · 基础功能</div>
+<button id="btnPub" style="padding:10px 24px;background:transparent;border:1px solid var(--accent-light);color:var(--accent-light);border-radius:6px;cursor:pointer;font-size:13px;">📥 下载 公益.json</button>
+</div>
+<div style="padding:20px;background:rgba(108,92,231,0.06);border:1px solid rgba(108,92,231,0.2);border-radius:10px;text-align:center;">
+<div style="font-size:28px;margin-bottom:8px;">💎</div>
+<div style="font-weight:600;font-size:14px;margin-bottom:4px;">付费参数</div>
+<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">需授权后使用 · 全部功能</div>
+<button id="btnPaid" style="padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">📥 下载 皇参.json</button>
+</div>
+</div>
+<p id="dlStatus" style="margin-top:14px;text-align:center;display:none;padding:12px;border-radius:8px;font-size:13px;"></p>
+</div>
+
+<footer class="footer"><p>&copy; 2026 ANGEL. All rights reserved.</p><p style="margin-top:6px;"><a href="https://t.me/Czr114514nb" target="_blank">TG频道 @Czr114514nb</a></p></footer>
+</div>
+
+<script>
+// 视频控制
+var bgV=document.getElementById('bgVideo'),mB=document.getElementById('muteBtn');
+function setM(m){bgV.muted=m;mB.textContent=m?'🔇':'🔊';}
+window.toggleMute=function(){setM(!bgV.muted);if(!bgV.muted)bgV.play().catch(function(){});};
+bgV.muted=false;bgV.play().catch(function(){bgV.muted=true;bgV.play();setM(true);});
+mB.style.animation='pulse 1s ease-in-out infinite';
+document.addEventListener('click',function(){if(bgV.muted){bgV.muted=false;bgV.play().then(function(){setM(false);mB.style.animation='none';}).catch(function(){});}});
+
+// 滚动到下载区域
+document.getElementById('btnScrollDl').addEventListener('click',function(){
+document.getElementById('dlSec').scrollIntoView({behavior:'smooth'});
+});
+
+// ====== 云参数下载（本地文件直接下载）=====
+function dl(type){
+	var el=document.getElementById('dlStatus');el.style.display='';
+	var urls={pub:'assets/公益.json',paid:'assets/皇参.json'};
+	var name=type==='pub'?'公益.json':'皇参.json';
+	el.style.cssText='display:block;padding:12px;background:rgba(108,92,231,.08);border-radius:8px;text-align:center;font-size:13px;color:var(--accent-light)';
+	el.textContent='⏳ 正在下载 '+name+'...';
+
+	// 直接下载本地文件（同源，无CORS问题）
+	var a=document.createElement('a');
+	a.href=urls[type];
+	a.download=name;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+
+	el.style.cssText='display:block;padding:14px;background:rgba(0,210,211,.08);border-radius:8px;text-align:center;font-size:13px;color:var(--success);line-height:1.6;';
+	el.innerHTML='<div style="font-size:16px;">✅ '+name+' 下载完成！</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">📁 文件已保存到浏览器默认下载目录</div>';
+}
+
+// 绑定下载按钮
+document.getElementById('btnPub').addEventListener('click',function(){dl('pub')});
+document.getElementById('btnPaid').addEventListener('click',function(){dl('paid')});
+</script>
+<style>@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+.nav-big-btn{padding:16px 40px;font-size:16px;border-radius:10px;transition:all .25s;}
+.nav-big-btn:hover{transform:translateY(-3px);}
+*{-webkit-font-smoothing:antialiased;}
+</style>
+</body>
+</html>
