@@ -9,6 +9,8 @@
 <meta name="author" content="ANGEL Team">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#0a0a14">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="canonical" href="https://kiroauth-system.vercel.app/auth.html">
 <!-- Open Graph -->
 <meta property="og:type" content="website">
@@ -22,11 +24,11 @@
 <meta name="twitter:description" content="提交卡密与授权ID，获取软件授权令牌。">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="background:#0a0a14;">
 
 <video id="bgVideo" autoplay loop muted playsinline preload="auto" style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;background:#0a0a14;"><source src="assets/bg.mp4" type="video/mp4"></video>
-<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.8),rgba(20,15,35,.7),rgba(10,10,20,.8));z-index:-1;"></div>
-<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:-1;transition:opacity .6s;"></div>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.85),rgba(20,15,35,.75),rgba(10,10,20,.85));z-index:-1;"></div>
+<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:99999;transition:opacity .8s ease;"></div>
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a> · 获取最新动态</div>
 
@@ -88,14 +90,22 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+// ====== ⚠️ 安全防护层 ======
 (function(){
-// ---- 视频控制 ----
+  var _warn='%c⚠️ ANGEL 授权中心 %c\n© 2026 ANGEL Team. All Rights Reserved.';
+  console.log(_warn,'color:#fff;background:#6c5ce7;padding:8px 12px;border-radius:4px 0 0 0;font-size:14px;font-weight:bold;','color:#6c5ce7;font-size:12px;');
+  document.addEventListener('contextmenu',function(e){e.preventDefault();});
+})();
+(function(){
+// ---- 视频控制 + 预加载 ----
 var v=document.getElementById('bgVideo'),b=document.getElementById('muteBtn'),preloader=document.getElementById('bgPreloader');
-// 视频加载完成后淡出预加载层
-v.addEventListener('loadeddata',function(){setTimeout(function(){if(preloader)preloader.style.opacity='0';},300);});
-v.addEventListener('canplay',function(){if(preloader){preloader.style.transition='opacity .5s';preloader.style.opacity='0';}});
-// 兜底：最多2秒后强制隐藏
-setTimeout(function(){if(preloader)preloader.style.opacity='0';},2000);
+if(!v){if(preloader){preloader.style.opacity='0';}}
+function hidePL(){if(preloader){preloader.style.opacity='0';setTimeout(function(){preloader.style.display='none';},800);}}
+v.addEventListener('canplaythrough',hidePL);
+v.addEventListener('loadeddata',function(){setTimeout(hidePL,500);});
+v.addEventListener('error',hidePL);
+v.addEventListener('abort',hidePL);
+setTimeout(hidePL,3000);
 function sm(m){v.muted=m;b.textContent=m?'🔇':'🔊';b.style.background=m?'var(--glass-bg)':'rgba(0,210,211,.15)';}
 function tm(){sm(!v.muted);}
 window.toggleMute=tm;

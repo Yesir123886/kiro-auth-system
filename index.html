@@ -9,6 +9,8 @@
 <meta name="author" content="ANGEL Team">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#0a0a14">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="canonical" href="https://kiroauth-system.vercel.app/index.html">
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
@@ -22,10 +24,10 @@
 <meta name="twitter:description" content="软件授权管理与卡密验证系统">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="background:#0a0a14;">
 <video id="bgVideo" autoplay loop muted playsinline preload="auto" style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;background:#0a0a14;"><source src="assets/bg.mp4" type="video/mp4"></video>
-<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.8),rgba(20,15,35,.7),rgba(10,10,20,.8));z-index:-1;"></div>
-<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:-1;transition:opacity .6s;"></div>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.85),rgba(20,15,35,.75),rgba(10,10,20,.85));z-index:-1;"></div>
+<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:99999;transition:opacity .8s ease;"></div>
 <button id="muteBtn" onclick="toggleMute()" title="开启/关闭声音">🔇</button>
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
@@ -78,9 +80,18 @@
 </div>
 
 <script>
-// 视频控制
+// ====== 安全防护 ======
+(function(){var w='%c✦ ANGEL 授权中心 %c\n© 2026 ANGEL Team';console.log(w,'color:#fff;background:#6c5ce7;padding:8px 12px;font-size:14px;font-weight:bold;','color:#6c5ce7;font-size:12px;');document.addEventListener('contextmenu',function(e){e.preventDefault();});})();
+// 视频控制 + 预加载
 var bgV=document.getElementById('bgVideo'),mB=document.getElementById('muteBtn'),preloader=document.getElementById('bgPreloader');
-if(bgV){bgV.addEventListener('canplay',function(){if(preloader)preloader.style.opacity='0';});bgV.addEventListener('loadeddata',function(){setTimeout(function(){if(preloader)preloader.style.opacity='0';},200);});setTimeout(function(){if(preloader)preloader.style.opacity='0';},1500);}
+if(bgV){
+function hidePL(){if(preloader){preloader.style.opacity='0';setTimeout(function(){preloader.style.display='none';},800);}}
+bgV.addEventListener('canplaythrough',hidePL);
+bgV.addEventListener('loadeddata',function(){setTimeout(hidePL,500);});
+bgV.addEventListener('error',hidePL);
+bgV.addEventListener('abort',hidePL);
+setTimeout(hidePL,3000);
+}
 function setM(m){bgV.muted=m;mB.textContent=m?'🔇':'🔊';}
 window.toggleMute=function(){setM(!bgV.muted);if(!bgV.muted)bgV.play().catch(function(){});};
 bgV.muted=true;bgV.play().catch(function(){});

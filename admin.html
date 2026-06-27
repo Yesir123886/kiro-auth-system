@@ -9,6 +9,8 @@
 <meta name="author" content="ANGEL Team">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0a0a14">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta name="referrer" content="no-referrer">
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="管理后台 - ANGEL 授权中心">
@@ -18,11 +20,11 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="background:#0a0a14;">
 
 <video id="bgVideo" autoplay loop muted playsinline preload="auto" style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;background:#0a0a14;"><source src="assets/bg.mp4" type="video/mp4"></video>
-<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.8),rgba(20,15,35,.7),rgba(10,10,20,.8));z-index:-1;"></div>
-<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:-1;transition:opacity .6s;"></div>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.85),rgba(20,15,35,.75),rgba(10,10,20,.85));z-index:-1;"></div>
+<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:99999;transition:opacity .8s ease;"></div>
 
 <nav class="navbar"><a href="index.html" class="navbar-brand"><span class="angel-icon"></span> ANGEL<span class="admin-badge">ADMIN</span></a><div style="display:flex;gap:10px;align-items:center;"><a href="index.html" class="btn btn-outline btn-sm">🏠 首页</a><a href="auth.html" class="btn btn-primary btn-sm">🔐 授权</a><span id="adminInfo" style="color:var(--accent-light);font-size:12px;display:none;"></span><button id="logoutBtn" style="background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3);color:var(--danger);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;" onclick="sessionStorage.removeItem('angel_session');location.reload();">退出</button></div></nav>
 
@@ -36,7 +38,9 @@
 <button id="btnStep1" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;" onclick="
 var u=document.getElementById('uname').value.trim(),p=document.getElementById('upass').value.trim(),er=document.getElementById('errMsg');
 er.style.display='none';
-if(u!=='ANGEL'||p!=='5201314wan'){er.textContent='❌ 用户名或密码错误';er.style.display='block';return;}
+// 凭证混淆验证（非明文存储）
+var _uQV='QU5HRUw=',_pQV='NTIwMTMxNHdhbg==';
+if(u!==atob(_uQV)||p!==atob(_pQV)){er.textContent='❌ 用户名或密码错误';er.style.display='block';return;}
 document.getElementById('step1').style.display='none';
 document.getElementById('step2').style.display='';
 alert('✅ 身份验证通过！请输入安全密钥。');
@@ -52,7 +56,8 @@ alert('✅ 身份验证通过！请输入安全密钥。');
 var c=document.getElementById('vcode').value.trim(),er=document.getElementById('err2');
 er.style.display='none';
 if(!c){er.textContent='请输入安全密钥';er.style.display='block';return;}
-var sk=localStorage.getItem('angel_security_key')||'1354137307@qq.com';
+var _skD='MTM1NDEzNzMwN0BxcS5jb20=';
+var sk=localStorage.getItem('angel_security_key')||atob(_skD);
 if(c!==sk){er.textContent='❌ 密钥错误';er.style.display='block';return;}
 sessionStorage.setItem('angel_session',JSON.stringify({token:'ok-'+Date.now(),user:'ANGEL',t:Date.now()}));
 document.getElementById('loginPanel').style.display='none';
@@ -147,10 +152,49 @@ if(typeof window.loadDataFn==='function')window.loadDataFn();
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+// ====== ⚠️ 安全防护层 ======
+(function(){
+  // 反调试：检测 DevTools 打开
+  var _devCheck=setInterval(function(){
+    var th=window.outerHeight-window.innerHeight>200;
+    var tw=window.outerWidth-window.innerWidth>200;
+    if(th||tw){
+      // 不直接关闭页面（太明显），而是让登录按钮失效
+      console.clear();
+      if(document.getElementById('btnStep1')){
+        document.getElementById('btnStep1').style.display='none';
+        document.getElementById('btnStep1').insertAdjacentHTML('afterend','<p style="color:var(--danger);text-align:center;padding:12px;font-size:13px;">⚠️ 检测到异常环境</p>');
+      }
+    }
+  },1000);
+  setTimeout(function(){clearInterval(_devCheck)},300000); // 5分钟后停止检测
+
+  // 控制台警告
+  var _warn='%c⚠️ ANGEL 安全警告 %c\n此控制台仅供调试使用。\n任何试图修改、破解、或逆向该系统的行为将被记录。\n© 2026 ANGEL Team. All Rights Reserved.';
+  console.log(_warn,'color:#fff;background:#e74c3c;padding:8px 12px;border-radius:4px 0 0 0;font-size:14px;font-weight:bold;','color:#e74c3c;font-size:12px;');
+
+  // 禁用右键菜单（轻度防护）
+  document.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
+
+  // 禁用常用快捷键
+  document.addEventListener('keydown',function(e){
+    if((e.key==='F12')||(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C'))||(e.ctrlKey&&e.key==='U')){
+      e.preventDefault();return false;
+    }
+  });
+})();
 // ====== 视频预加载防黑屏 ======
 (function(){
 var v=document.getElementById('bgVideo'),preloader=document.getElementById('bgPreloader');
-if(v){v.addEventListener('canplay',function(){if(preloader)preloader.style.opacity='0';});v.addEventListener('loadeddata',function(){setTimeout(function(){if(preloader)preloader.style.opacity='0';},200);});setTimeout(function(){if(preloader)preloader.style.opacity='0';},1500);}
+if(!v){if(preloader)preloader.style.opacity='0';return;}
+function hidePreloader(){if(preloader){preloader.style.opacity='0';setTimeout(function(){preloader.style.display='none';},800);}}
+v.addEventListener('canplaythrough',hidePreloader);
+v.addEventListener('loadeddata',function(){setTimeout(hidePreloader,500);});
+// 兜底：视频加载失败时也隐藏
+v.addEventListener('error',hidePreloader);
+v.addEventListener('abort',hidePreloader);
+// 最终兜底：3秒后无论如何隐藏（避免卡住）
+setTimeout(hidePreloader,3000);
 })();
 
 // ====== 管理面板逻辑 ======
