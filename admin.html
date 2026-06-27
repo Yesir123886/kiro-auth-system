@@ -306,7 +306,7 @@ if(!ck){alert('⚠️ 请先在「设置」中配置 hysafe 创建者密钥！')
 var btn=event.target;if(btn)btn.textContent='⏳ 生成中...';btn.disabled=true;
 
 // 使用 Worker 代理解决 HTTPS→HTTP mixed content 限制
-var API_PROXY='https://angel-auth-pd.1354137307.workers.dev/proxy';
+var API_PROXY='https://angel-api-proxy.1354137307.workers.dev/proxy';
 var targetUrl=API_PROXY+'/api/issue';
 fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:rec.uid})})
 .then(function(r){return r.json()})
@@ -382,7 +382,7 @@ el.style.cssText='padding:8px;border-radius:6px;background:rgba(108,92,231,.08);
 el.textContent='⏳ 正在测试连接...';
 
 // 使用 Worker 代理解决 HTTPS→HTTP mixed content 限制
-var API_PROXY='https://angel-auth-pd.1354137307.workers.dev/proxy';
+var API_PROXY='https://angel-api-proxy.1354137307.workers.dev/proxy';
 var targetUrl=API_PROXY+'/api/issue';
 
 function showResult(success,msg,color){
