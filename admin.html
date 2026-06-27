@@ -94,7 +94,7 @@
 <div class="card-title">🔧 hysafe API 配置</div>
 <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">审批通过时自动调用此API生成真实授权令牌（hp.hysafe.top:15110）</p>
 <input type="password" class="form-input" id="apiSecIn" placeholder="创建者密钥（必填，审批时使用）" style="margin-bottom:8px;">
-<input type="text" class="form-input" value="http://hp.hysafe.top:15110" readonly style="opacity:.6;margin-bottom:8px;">
+<input type="text" class="form-input" value="http://hp.hysafe.top:15110 (通过 Worker 代理访问)" readonly style="opacity:.6;margin-bottom:8px;">
 <div style="display:flex;gap:8px;">
 <button onclick="localStorage.setItem('angel_creator_secret',document.getElementById('apiSecIn').value.trim());alert('✅ 已保存')" style="padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;">💾 保存密钥</button>
 <button onclick="testApi()" style="padding:8px 20px;background:rgba(0,210,211,.15);border:1px solid rgba(0,210,211,.3);color:var(--success);border-radius:6px;cursor:pointer;font-size:13px;">🧪 测试连接</button>
@@ -305,8 +305,9 @@ if(!ck){alert('⚠️ 请先在「设置」中配置 hysafe 创建者密钥！')
 // 显示加载状态
 var btn=event.target;if(btn)btn.textContent='⏳ 生成中...';btn.disabled=true;
 
-// 调用 hysafe API
-var targetUrl='http://hp.hysafe.top:15110/api/issue';
+// 使用 Worker 代理解决 HTTPS→HTTP mixed content 限制
+var API_PROXY='https://angel-auth-pd.1354137307.workers.dev/proxy';
+var targetUrl=API_PROXY+'/api/issue';
 fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:rec.uid})})
 .then(function(r){return r.json()})
 .then(function(res){
@@ -380,42 +381,29 @@ var el=document.getElementById('apiTestResult');el.style.display='';
 el.style.cssText='padding:8px;border-radius:6px;background:rgba(108,92,231,.08);color:var(--accent-light)';
 el.textContent='⏳ 正在测试连接...';
 
-// 使用多种方式尝试连接（兼容HTTPS→HTTP限制）
-var targetUrl='http://hp.hysafe.top:15110/api/issue';
+// 使用 Worker 代理解决 HTTPS→HTTP mixed content 限制
+var API_PROXY='https://angel-auth-pd.1354137307.workers.dev/proxy';
+var targetUrl=API_PROXY+'/api/issue';
 
 function showResult(success,msg,color){
   el.style.cssText='padding:8px;border-radius:6px;background:'+color+';display:block;';
   el.innerHTML=msg;
 }
 
-// 方式1：直接请求
+// 方式1：通过 Worker 代理（解决 HTTPS→HTTP 限制）
 fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:'TEST_'+Date.now()})})
 .then(function(r){return r.json()})
 .then(function(res){
     if(res.ok){
         showResult(true,'✅ API连接成功！<br><span style="font-size:11px;color:var(--text-muted)">密钥指纹 FP: '+(res.fp||'N/A')+'</span>','rgba(0,210,211,.08)');
     } else {
-        showResult(false,'❌ API返回错误: '+(res.error||'未知错误'),'rgba(255,107,107,.08)');
+        showResult(false,'❌ API返回错误: '+(res.error||res.message||'未知错误'),'rgba(255,107,107,.08)');
     }
 })
 .catch(function(err){
-  // 方式1失败，尝试CORS代理
-  var proxyUrl='https://api.allorigins.win/raw?url='+encodeURIComponent(targetUrl);
-  fetch(proxyUrl,{method:'POST',headers:{'Content-Type':'application/json','X-Proxy-Request':'true'},body:JSON.stringify({creatorKey:ck,publicId:'TEST_'+Date.now()})})
-  .then(function(r){return r.text()})
-  .then(function(text){
-      try{var res=JSON.parse(text);
-          if(res.ok){showResult(true,'✅ 通过代理连接成功！<br><span style="font-size:11px;color:var(--text-muted)">FP: '+(res.fp||'N/A')+'</span>','rgba(0,210,211,.08)');}
-          else{showResult(false,'❌ API错误(代理): '+(res.error||text.slice(0,100)),'rgba(255,107,107,.08)');}
-      }catch(e){
-          // 可能代理不支持POST
-          showResult(false,'⚠️ 连接受限：浏览器阻止 HTTPS 站点访问 HTTP 接口<br><br><b>解决方案：</b><br>1. 让 hysafe API 支持 HTTPS<br>2. 或者部署一个中转服务器<br><br>详情：'+err.message+'<br>（这不影响本地测试，仅线上环境受影响）','rgba(254,202,57,.12)');
-      }
-  })
-  .catch(function(err2){
-      showResult(false,'⚠️ 无法连接到 hysafe API<br><br><b>可能原因：</b><br>• 浏览器安全策略阻止（HTTPS→HTTP）<br>• API 服务未启动<br>• 网络不通<br><br>错误：'+err.message,'rgba(254,202,57,.12)');
-  });
+    showResult(false,'⚠️ 无法连接到 hysafe API<br><br><b>可能原因：</b><br>• Worker 代理未部署或地址错误<br>• hysafe API 服务未启动<br>• 网络不通<br><br>错误：'+err.message+'<br><br><b>请先部署 worker-proxy.js 到 Cloudflare Workers</b>','rgba(254,202,57,.12)');
 });
+};
 };
 })();
 </script>
