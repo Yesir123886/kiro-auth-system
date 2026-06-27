@@ -392,7 +392,6 @@ function showResult(success,msg,color){
   el.innerHTML=msg;
 }
 var WORKER_URL='https://angelapiproxy.1354137307.workers.dev';
-var PROXY_URL=WORKER_URL+'/proxy';
 
 // 步骤1：检查 Worker 是否在线
 fetch(WORKER_URL+'/ping',{method:'GET'})
@@ -401,7 +400,7 @@ fetch(WORKER_URL+'/ping',{method:'GET'})
   if(!ping.ok) throw new Error('Worker离线');
   el.innerHTML='⏳ 步骤2/2：连接 hysafe API...<br><span style="font-size:11px;color:var(--text-muted)">Worker 正常，目标: '+ping.target+'</span>';
   // 步骤2：测试 hysafe API
-  return fetch(PROXY_URL+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creator_key:ck,auth_id:'TEST_'+Date.now()})});
+  return fetch(WORKER_URL+'/proxy/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creator_key:ck,auth_id:'TEST_'+Date.now()})});
 })
 .then(function(r){return r.json();})
 .then(function(res){
