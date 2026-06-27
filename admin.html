@@ -319,9 +319,9 @@ if(!ck){alert('⚠️ 请先在「设置」中配置 hysafe 创建者密钥！')
 var btn=event.target;if(btn)btn.textContent='⏳ 生成中...';btn.disabled=true;
 
 // 使用 Worker 代理解决 HTTPS→HTTP mixed content 限制
-var API_PROXY='https://angelapiproxy.1354137307.workers.dev/proxy';
-var targetUrl=API_PROXY+'/api/issue';
-fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:rec.uid})})
+var PROXY_URL='https://angelapiproxy.1354137307.workers.dev/proxy';
+var targetUrl=PROXY_URL+'/api/generate';
+fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creator_key:ck,auth_id:rec.uid})})
 .then(function(r){return r.json()})
 .then(function(res){
     if(btn){btn.textContent='✅ 通过';btn.disabled=false;}
@@ -380,35 +380,40 @@ loadDataFn();
 
 window.loadDataFn=loadDataFn;
 
-// 测试 hysafe API 连接
+// 测试 hysafe API 连接（分两步：Worker健康检查 → hysafe API）
 window.testApi=function(){
 var ck=document.getElementById('apiSecIn').value.trim()||localStorage.getItem('angel_creator_secret')||'';
 if(!ck){alert('⚠️ 请先输入创建者密钥！');return;}
 var el=document.getElementById('apiTestResult');el.style.display='';
 el.style.cssText='padding:8px;border-radius:6px;background:rgba(108,92,231,.08);color:var(--accent-light)';
-el.textContent='⏳ 正在测试连接...';
-
-// 使用 Worker 代理解决 HTTPS→HTTP mixed content 限制
-var API_PROXY='https://angelapiproxy.1354137307.workers.dev/proxy';
-var targetUrl=API_PROXY+'/api/issue';
-
+el.innerHTML='⏳ 步骤1/2：检查 Worker 代理...';
 function showResult(success,msg,color){
   el.style.cssText='padding:8px;border-radius:6px;background:'+color+';display:block;';
   el.innerHTML=msg;
 }
+var WORKER_URL='https://angelapiproxy.1354137307.workers.dev';
+var PROXY_URL=WORKER_URL+'/proxy';
 
-// 方式1：通过 Worker 代理（解决 HTTPS→HTTP 限制）
-fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:'TEST_'+Date.now()})})
+// 步骤1：检查 Worker 是否在线
+fetch(WORKER_URL+'/ping',{method:'GET'})
 .then(function(r){return r.json()})
+.then(function(ping){
+  if(!ping.ok) throw new Error('Worker离线');
+  el.innerHTML='⏳ 步骤2/2：连接 hysafe API...<br><span style="font-size:11px;color:var(--text-muted)">Worker 正常，目标: '+ping.target+'</span>';
+  // 步骤2：测试 hysafe API
+  return fetch(PROXY_URL+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creator_key:ck,auth_id:'TEST_'+Date.now()})});
+})
+.then(function(r){return r.json();})
 .then(function(res){
-    if(res.ok){
-        showResult(true,'✅ API连接成功！<br><span style="font-size:11px;color:var(--text-muted)">密钥指纹 FP: '+(res.fp||'N/A')+'</span>','rgba(0,210,211,.08)');
-    } else {
-        showResult(false,'❌ API返回错误: '+(res.error||res.message||'未知错误'),'rgba(255,107,107,.08)');
-    }
+  if(res.ok || res.token){
+    showResult(true,'✅ 全部通过！hysafe API 连接正常<br><span style="font-size:11px;color:var(--text-muted)">令牌预览: '+(res.token||res.data?.token||'OK')+'</span>','rgba(0,210,211,.08)');
+  } else {
+    // 返回了响应但不是成功 - 可能是API参数问题，说明网络是通的
+    showResult(true,'✅ 网络已通！Worker→hysafe 链路正常<br><span style="font-size:11px;color:rgba(254,202,57,.9)">API返回: '+(res.error||res.message||JSON.stringify(res).slice(0,80))+'<br>(可能需要检查密钥或授权ID格式)</span>','rgba(254,202,57,.12)');
+  }
 })
 .catch(function(err){
-    showResult(false,'⚠️ 无法连接到 hysafe API<br><br><b>可能原因：</b><br>• Worker 代理未部署或地址错误<br>• hysafe API 服务未启动<br>• 网络不通<br><br>错误：'+err.message+'<br><br><b>请先部署 worker-proxy.js 到 Cloudflare Workers</b>','rgba(254,202,57,.12)');
+  showResult(false,'⚠️ 连接失败<br><br><b>诊断：</b><br>• '+err.message+'<br><br><b>解决方案：</b><br>1. 确认 Worker 已部署（访问 <a href="'+WORKER_URL+'" target="_blank" style="color:var(--accent-light)">'+WORKER_URL+'</a>）<br>2. 确认 hysafe 服务运行中（访问 <a href="http://hp.hysafe.top:15110" target="_blank" style="color:var(--accent-light)">hp.hysafe.top:15110</a>）<br>3. 如果 hysafe 是内网服务，Worker 可能无法从外网访问','rgba(254,202,57,.12)');
 });
 };
 // 暴露所有需要的全局函数

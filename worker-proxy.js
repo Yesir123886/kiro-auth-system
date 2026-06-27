@@ -1,71 +1,76 @@
-// ANGEL API Proxy Worker
-// 解决 HTTPS 站点访问 HTTP API 的 mixed content 限制
-// 部署后地址: https://angel-api-proxy.<YOUR_ACCOUNT_ID>.workers.dev/proxy/*
+// ANGEL API Proxy Worker - v2
+// 部署地址: https://angelapiproxy.1354137307.workers.dev
 
 const TARGET_BASE = 'http://hp.hysafe.top:15110';
 
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    // 只代理 /proxy/ 路径的请求
-    if (url.pathname.startsWith('/proxy/')) {
-      const targetPath = url.pathname.slice(7); // 去掉 '/proxy/'
-      const targetUrl = TARGET_BASE + '/' + targetPath + url.search;
-
-      try {
-        const newRequest = new Request(targetUrl, {
-          method: request.method,
-          headers: {
-            'Content-Type': request.headers.get('Content-Type') || 'application/json',
-            'Origin': TARGET_BASE,
-          },
-          body: request.method !== 'GET' && request.method !== 'HEAD' ? request.body : undefined,
-          redirect: 'follow',
-        });
-
-        const response = await fetch(newRequest);
-
-        // 创建新响应并添加 CORS 头
-        const newResponse = new Response(response.body, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Content-Type': response.headers.get('Content-Type') || 'application/json',
-          },
-        });
-
-        return newResponse;
-      } catch (err) {
-        return new Response(JSON.stringify({
-          ok: false,
-          error: 'Proxy error: ' + err.message,
-        }), {
-          status: 502,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
+    // 健康检查 - 立即返回，不依赖目标服务器
+    if (url.pathname === '/ping' || url.pathname === '/') {
+      return new Response(JSON.stringify({
+        ok: true,
+        status: 'Worker 运行正常',
+        target: TARGET_BASE,
+        time: new Date().toISOString(),
+      }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
     }
 
-    // 处理 CORS 预检
+    // CORS 预检
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
         },
       });
     }
 
-    // 默认返回提示
+    // 代理 /proxy/ 路径
+    if (url.pathname.startsWith('/proxy/')) {
+      const targetPath = url.pathname.slice(7);
+      const targetUrl = TARGET_BASE + '/' + targetPath + url.search;
+
+      try {
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 8000); // 8秒超时
+
+        const resp = await fetch(targetUrl, {
+          method: request.method,
+          headers: { 'Content-Type': request.headers.get('Content-Type') || 'application/json' },
+          body: request.method !== 'GET' ? request.body : undefined,
+          signal: controller.signal,
+          redirect: 'follow',
+        });
+
+        return new Response(resp.body, {
+          status: resp.status,
+          statusText: resp.statusText,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': resp.headers.get('Content-Type') || 'application/json',
+          },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({
+          ok: false,
+          error: err.name === 'AbortError' ? '连接超时(8s)：目标服务器无响应' : 'Proxy error: ' + err.message,
+          target: targetUrl,
+        }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        });
+      }
+    }
+
+    // 默认
     return new Response(JSON.stringify({
       ok: false,
-      error: 'API Proxy - use /proxy/ prefix for requests',
-      usage: 'POST /proxy/api/generate with {creator_key, auth_id}',
+      usage: 'GET /ping (健康检查) | POST /proxy/api/* (代理请求)',
     }), {
       headers: { 'Content-Type': 'application/json' },
     });
