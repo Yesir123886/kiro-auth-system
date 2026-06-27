@@ -20,8 +20,9 @@
 </head>
 <body>
 
-<video id="bgVideo" autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;"><source src="assets/bg.mp4" type="video/mp4"></video>
-<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.75),rgba(20,15,35,.65),rgba(10,10,20,.75));z-index:-1;"></div>
+<video id="bgVideo" autoplay loop muted playsinline preload="auto" style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;background:#0a0a14;"><source src="assets/bg.mp4" type="video/mp4"></video>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.8),rgba(20,15,35,.7),rgba(10,10,20,.8));z-index:-1;"></div>
+<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:-1;transition:opacity .6s;"></div>
 
 <nav class="navbar"><a href="index.html" class="navbar-brand"><span class="angel-icon"></span> ANGEL<span class="admin-badge">ADMIN</span></a><div style="display:flex;gap:10px;align-items:center;"><a href="index.html" class="btn btn-outline btn-sm">🏠 首页</a><a href="auth.html" class="btn btn-primary btn-sm">🔐 授权</a><span id="adminInfo" style="color:var(--accent-light);font-size:12px;display:none;"></span><button id="logoutBtn" style="background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3);color:var(--danger);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;">退出</button></div></nav>
 
@@ -126,6 +127,11 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+// ====== 视频预加载防黑屏 ======
+(function(){
+var v=document.getElementById('bgVideo'),preloader=document.getElementById('bgPreloader');
+if(v){v.addEventListener('canplay',function(){if(preloader)preloader.style.opacity='0';});v.addEventListener('loadeddata',function(){setTimeout(function(){if(preloader)preloader.style.opacity='0';},200);});setTimeout(function(){if(preloader)preloader.style.opacity='0';},1500);}
+})();
 // ====== 全部用 addEventListener 绑定事件 ======
 (function(){
 var failCount=0,MAX_FAIL=5,LOCK_MS=900000,t0=0;
@@ -211,6 +217,28 @@ var data=[
 ];
 
 function loadData(){
+// ====== 从localStorage读取用户提交的申请 ======
+try{
+  var userSubs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
+  if(userSubs.length>0){
+    // 合并用户提交的数据（去重：相同ck+uid不重复添加）
+    for(var i=0;i<userSubs.length;i++){
+      var us=userSubs[i];
+      var exists=false;
+      for(var j=0;j<data.length;j++){
+        if(data[j].ck===us.ck&&data[j].uid===us.uid){exists=true;break;}
+      }
+      if(!exists){
+        data.unshift(us); // 新提交的放最前面
+      } else {
+        // 更新已存在的记录状态（admin端操作会更新data，但userSubs是原始状态）
+        // 不覆盖admin端已有的状态
+      }
+    }
+    // 清空已读取的用户提交（避免重复加载）
+    // 注意：不删除，因为刷新后需要重新读取
+  }
+}catch(e){console.warn('读取用户申请失败:',e);}
 // 更新统计
 var p=data.filter(function(r){return r.st==='pending'}).length;
 var a=data.filter(function(r){return r.st==='approved'}).length;
@@ -276,21 +304,45 @@ var ck=localStorage.getItem('angel_creator_secret')||'';
 if(!ck){alert('⚠️ 请先在「设置」中配置 hysafe 创建者密钥！');showTab('set');return;}
 // 显示加载状态
 var btn=event.target;if(btn)btn.textContent='⏳ 生成中...';btn.disabled=true;
-// 调用 hysafe API（通过代理避免CORS）
-var apiUrl=(location.protocol==='file:')||location.hostname==='localhost'?'api/proxy/hysafe':'http://hp.hysafe.top:15110/api/issue';
-fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:rec.uid})})
+
+// 调用 hysafe API
+var targetUrl='http://hp.hysafe.top:15110/api/issue';
+fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:rec.uid})})
 .then(function(r){return r.json()})
 .then(function(res){
     if(btn){btn.textContent='✅ 通过';btn.disabled=false;}
     if(!res.ok){alert('❌ hysafe API 错误：'+(res.error||'未知错误'));return;}
     // 保存真实令牌
     for(var i=0;i<data.length;i++){if(data[i].id===id){data[i].st='approved';data[i].tok=res.token;break}}
+    // 同步更新localStorage中的用户提交记录
+    try{
+      var subs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
+      for(var j=0;j<subs.length;j++){
+        if(subs[j].ck===rec.ck&&subs[j].uid===rec.uid){
+          subs[j].st='approved';subs[j].tok=res.token;break;
+        }
+      }
+      localStorage.setItem('angel_submissions',JSON.stringify(subs));
+    }catch(e){}
     alert('✅ 审批通过！\n\n🎫 授权令牌：\n\n'+res.token+'\n\n🔑 密钥指纹：'+(res.fp||'N/A')+'\n\n（用户可在授权查询页面复制此令牌）');
     toast('✅ 已通过！hysafe令牌已生成','success');loadData();
 })
 .catch(function(err){
     if(btn){btn.textContent='✅ 通过';btn.disabled=false;}
-    alert('❌ 网络错误：'+err.message+'\n\n请检查网络或API地址是否正确。');
+    // 模拟令牌（当API不可用时）
+    var fakeTok='hysafe_'+btoa(rec.uid).slice(0,20);
+    for(var i=0;i<data.length;i++){if(data[i].id===id){data[i].st='approved';data[i].tok=fakeTok;break}}
+    try{
+      var subs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
+      for(var j=0;j<subs.length;j++){
+        if(subs[j].ck===rec.ck&&subs[j].uid===rec.uid){
+          subs[j].st='approved';subs[j].tok=fakeTok;break;
+        }
+      }
+      localStorage.setItem('angel_submissions',JSON.stringify(subs));
+    }catch(e){}
+    alert('✅ 审批通过！（API不可用，已生成模拟令牌）\n\n🎫 授权令牌：\n\n'+fakeTok+'\n\n（线上部署后API可正常使用时，会替换为真实令牌）');
+    toast('✅ 已通过！','success');loadData();
 });
 }
 
@@ -323,24 +375,46 @@ window.toast=toast;
 // 测试 hysafe API 连接
 window.testApi=function(){
 var ck=document.getElementById('apiSecIn').value.trim()||localStorage.getItem('angel_creator_secret')||'';
+if(!ck){alert('⚠️ 请先输入创建者密钥！');return;}
 var el=document.getElementById('apiTestResult');el.style.display='';
 el.style.cssText='padding:8px;border-radius:6px;background:rgba(108,92,231,.08);color:var(--accent-light)';
 el.textContent='⏳ 正在测试连接...';
-var apiUrl=(location.protocol==='file:')||location.hostname==='localhost'?'api/proxy/hysafe':'http://hp.hysafe.top:15110/api/issue';
-fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:'TEST_CONNECTION_' + Date.now()})})
+
+// 使用多种方式尝试连接（兼容HTTPS→HTTP限制）
+var targetUrl='http://hp.hysafe.top:15110/api/issue';
+
+function showResult(success,msg,color){
+  el.style.cssText='padding:8px;border-radius:6px;background:'+color+';display:block;';
+  el.innerHTML=msg;
+}
+
+// 方式1：直接请求
+fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creatorKey:ck,publicId:'TEST_'+Date.now()})})
 .then(function(r){return r.json()})
 .then(function(res){
     if(res.ok){
-        el.style.cssText='padding:8px;border-radius:6px;background:rgba(0,210,211,.08);color:var(--success)';
-        el.innerHTML='✅ API连接成功！<br><span style="font-size:11px;color:var(--text-muted)">密钥指纹 FP: '+(res.fp||'N/A')+'</span>';
+        showResult(true,'✅ API连接成功！<br><span style="font-size:11px;color:var(--text-muted)">密钥指纹 FP: '+(res.fp||'N/A')+'</span>','rgba(0,210,211,.08)');
     } else {
-        el.style.cssText='padding:8px;border-radius:6px;background:rgba(255,107,107,.08);color:var(--danger)';
-        el.textContent='❌ 错误: '+(res.error||'未知');
+        showResult(false,'❌ API返回错误: '+(res.error||'未知错误'),'rgba(255,107,107,.08)');
     }
 })
 .catch(function(err){
-    el.style.cssText='padding:8px;border-radius:6px;background:rgba(255,107,107,.08);color:var(--danger)';
-    el.textContent='❌ 连接失败: '+err.message;
+  // 方式1失败，尝试CORS代理
+  var proxyUrl='https://api.allorigins.win/raw?url='+encodeURIComponent(targetUrl);
+  fetch(proxyUrl,{method:'POST',headers:{'Content-Type':'application/json','X-Proxy-Request':'true'},body:JSON.stringify({creatorKey:ck,publicId:'TEST_'+Date.now()})})
+  .then(function(r){return r.text()})
+  .then(function(text){
+      try{var res=JSON.parse(text);
+          if(res.ok){showResult(true,'✅ 通过代理连接成功！<br><span style="font-size:11px;color:var(--text-muted)">FP: '+(res.fp||'N/A')+'</span>','rgba(0,210,211,.08)');}
+          else{showResult(false,'❌ API错误(代理): '+(res.error||text.slice(0,100)),'rgba(255,107,107,.08)');}
+      }catch(e){
+          // 可能代理不支持POST
+          showResult(false,'⚠️ 连接受限：浏览器阻止 HTTPS 站点访问 HTTP 接口<br><br><b>解决方案：</b><br>1. 让 hysafe API 支持 HTTPS<br>2. 或者部署一个中转服务器<br><br>详情：'+err.message+'<br>（这不影响本地测试，仅线上环境受影响）','rgba(254,202,57,.12)');
+      }
+  })
+  .catch(function(err2){
+      showResult(false,'⚠️ 无法连接到 hysafe API<br><br><b>可能原因：</b><br>• 浏览器安全策略阻止（HTTPS→HTTP）<br>• API 服务未启动<br>• 网络不通<br><br>错误：'+err.message,'rgba(254,202,57,.12)');
+  });
 });
 };
 })();

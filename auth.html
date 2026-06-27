@@ -24,8 +24,9 @@
 </head>
 <body>
 
-<video id="bgVideo" autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;"><source src="assets/bg.mp4" type="video/mp4"></video>
-<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.75),rgba(20,15,35,.65),rgba(10,10,20,.75));z-index:-1;"></div>
+<video id="bgVideo" autoplay loop muted playsinline preload="auto" style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;background:#0a0a14;"><source src="assets/bg.mp4" type="video/mp4"></video>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.8),rgba(20,15,35,.7),rgba(10,10,20,.8));z-index:-1;"></div>
+<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:-1;transition:opacity .6s;"></div>
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a> · 获取最新动态</div>
 
@@ -89,11 +90,21 @@
 <script>
 (function(){
 // ---- 视频控制 ----
-var v=document.getElementById('bgVideo'),b=document.getElementById('muteBtn');
+var v=document.getElementById('bgVideo'),b=document.getElementById('muteBtn'),preloader=document.getElementById('bgPreloader');
+// 视频加载完成后淡出预加载层
+v.addEventListener('loadeddata',function(){setTimeout(function(){if(preloader)preloader.style.opacity='0';},300);});
+v.addEventListener('canplay',function(){if(preloader){preloader.style.transition='opacity .5s';preloader.style.opacity='0';}});
+// 兜底：最多2秒后强制隐藏
+setTimeout(function(){if(preloader)preloader.style.opacity='0';},2000);
 function sm(m){v.muted=m;b.textContent=m?'🔇':'🔊';b.style.background=m?'var(--glass-bg)':'rgba(0,210,211,.15)';}
 function tm(){sm(!v.muted);}
 window.toggleMute=tm;
-v.muted=false;v.play().catch(function(){});
+v.muted=true;
+v.play().catch(function(){});
+// 首次点击取消静音
+document.addEventListener('click',function once(){
+  if(v.muted){v.muted=false;sm(false);v.play().catch(function(){});}
+},{once:true});
 
 // ---- Toast ----
 function msg(t,type){var c=document.getElementById('toastContainer');if(!c)return;var d=document.createElement('div');d.className='toast toast-'+(type||'info');d.textContent=t;c.appendChild(d);setTimeout(function(){d.style.opacity='0';setTimeout(function(){d.remove()},300)},3000)}
@@ -165,7 +176,23 @@ btn.disabled=true;btn.textContent='⏳ 提交中...';
 btn.style.opacity='.6';
 
 setTimeout(function(){
-// 记录提交
+// 记录提交到localStorage（供admin后台读取）
+var subRecord={
+  id:'sub_'+Date.now(),
+  ck:ck,
+  uid:uid,
+  st:'pending',
+  tok:'',
+  rej:'',
+  time:new Date().toISOString(),
+  remark:document.getElementById('remark').value.trim()
+};
+// 存储完整申请记录（admin页面会读取这个key）
+var allSubs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
+allSubs.push(subRecord);
+localStorage.setItem('angel_submissions',JSON.stringify(allSubs));
+
+// 同时保留旧的防重记录（兼容）
 submitted.push({ck:ck,uid:uid,time:now});
 localStorage.setItem('angel_submitted',JSON.stringify(submitted));
 localStorage.setItem(ipKey,now.toString());
@@ -196,6 +223,19 @@ var dbData=[
 {ck:'ANGEL-2024-003',uid:'test_user_003',st:'rejected',tok:'',time:new Date(Date.now()-86400000).toISOString(),rej:'订单截图不清晰，请重新提交'},
 {ck:'ANGEL-2024-004',uid:'test_user_004',st:'pending',tok:'',time:new Date(Date.now()-1800000).toISOString(),rej:''},
 ];
+
+// 合并localStorage中的用户提交记录
+try{
+  var stored=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
+  for(var si=0;si<stored.length;si++){
+    var s=stored[si];
+    var found=false;
+    for(var di=0;di<dbData.length;di++){
+      if(dbData[di].ck===s.ck&&dbData[di].uid===s.uid){found=true;break;}
+    }
+    if(!found)dbData.push(s);
+  }
+}catch(e){}
 
 function doQuery(){
 var ck=document.getElementById('qCardKey').value.trim();

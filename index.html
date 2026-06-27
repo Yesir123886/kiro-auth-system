@@ -23,8 +23,9 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<video id="bgVideo" autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;"><source src="assets/bg.mp4" type="video/mp4"></video>
-<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.75),rgba(20,15,35,.65),rgba(10,10,20,.75));z-index:-1;"></div>
+<video id="bgVideo" autoplay loop muted playsinline preload="auto" style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;background:#0a0a14;"><source src="assets/bg.mp4" type="video/mp4"></video>
+<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.8),rgba(20,15,35,.7),rgba(10,10,20,.8));z-index:-1;"></div>
+<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:-1;transition:opacity .6s;"></div>
 <button id="muteBtn" onclick="toggleMute()" title="开启/关闭声音">🔇</button>
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
@@ -78,12 +79,15 @@
 
 <script>
 // 视频控制
-var bgV=document.getElementById('bgVideo'),mB=document.getElementById('muteBtn');
+var bgV=document.getElementById('bgVideo'),mB=document.getElementById('muteBtn'),preloader=document.getElementById('bgPreloader');
+if(bgV){bgV.addEventListener('canplay',function(){if(preloader)preloader.style.opacity='0';});bgV.addEventListener('loadeddata',function(){setTimeout(function(){if(preloader)preloader.style.opacity='0';},200);});setTimeout(function(){if(preloader)preloader.style.opacity='0';},1500);}
 function setM(m){bgV.muted=m;mB.textContent=m?'🔇':'🔊';}
 window.toggleMute=function(){setM(!bgV.muted);if(!bgV.muted)bgV.play().catch(function(){});};
-bgV.muted=false;bgV.play().catch(function(){bgV.muted=true;bgV.play();setM(true);});
+bgV.muted=true;bgV.play().catch(function(){});
 mB.style.animation='pulse 1s ease-in-out infinite';
-document.addEventListener('click',function(){if(bgV.muted){bgV.muted=false;bgV.play().then(function(){setM(false);mB.style.animation='none';}).catch(function(){});}});
+document.addEventListener('click',function once(){
+  if(bgV&&bgV.muted){bgV.muted=false;setM(false);bgV.play().then(function(){}).catch(function(){});}
+},{once:true});
 
 // 滚动到下载区域
 document.getElementById('btnScrollDl').addEventListener('click',function(){
