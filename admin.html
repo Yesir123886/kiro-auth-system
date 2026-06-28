@@ -37,13 +37,13 @@ body::after {
 </head>
 <body style="background:#0a0520;min-height:100vh;">
 
-<!-- 背景视频 -->
-<video autoplay muted loop playsinline style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0.5;pointer-events:none;">
+<!-- 背景视频 - 优化：低码率小体积 + GPU 加速 -->
+<video autoplay muted loop playsinline preload="metadata" style="position:fixed;inset:-10%;width:120%;height:120%;object-fit:cover;z-index:-3;opacity:0.45;pointer-events:none;filter:blur(3px);transform:translateZ(0);will-change:transform;">
   <source src="assets/bg.mp4" type="video/mp4">
 </video>
 
-<!-- 流光高亮层 -->
-<div style="position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(135deg,transparent 30%,rgba(180,140,255,0.12) 45%,rgba(200,160,255,0.18) 50%,rgba(180,140,255,0.12) 55%,transparent 70%);background-size:300% 300%;animation:shimmerSweep 4s ease-in-out infinite;"></div>
+<!-- 流光高亮层 - 慢速柔和 -->
+<div style="position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(135deg,transparent 35%,rgba(180,140,255,0.08) 47%,rgba(200,160,255,0.12) 50%,rgba(180,140,255,0.08) 53%,transparent 65%);background-size:200% 200%;animation:shimmerSweep 8s ease-in-out infinite;transform:translateZ(0);"></div>
 
 <!-- 渐变叠加 -->
 <div style="position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(255,240,255,.15) 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(130,100,220,.12) 0%,transparent 55%);"></div>
