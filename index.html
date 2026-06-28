@@ -67,19 +67,19 @@
 <!-- 云参数更新 -->
 <div class="card" id="dlSec">
 <div class="card-title">☁️ 云参数更新</div>
-<p style="color:var(--text-secondary);font-size:13.5px;margin-bottom:18px;">点击下方按钮从云端下载最新参数配置文件（JSON格式）</p>
+<p style="color:var(--text-secondary);font-size:13.5px;margin-bottom:18px;">实时从 Gitee 云端获取最新参数（上传即生效，无需部署）</p>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
 <div style="padding:20px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:10px;text-align:center;">
 <div style="font-size:28px;margin-bottom:8px;">🆓</div>
 <div style="font-weight:600;font-size:14px;margin-bottom:4px;">公益参数</div>
 <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">免费用户可用 · 基础功能</div>
-<a id="btnPub" href="https://pd-but.pages.dev/公益.json" download="公益.json" style="display:inline-block;padding:10px 24px;background:transparent;border:1px solid var(--accent-light);color:var(--accent-light);border-radius:6px;cursor:pointer;font-size:13px;text-decoration:none;">📥 下载 公益.json</a>
+<a id="btnPub" href="/api/params/公益.json" download="公益.json" style="display:inline-block;padding:10px 24px;background:transparent;border:1px solid var(--accent-light);color:var(--accent-light);border-radius:6px;cursor:pointer;font-size:13px;text-decoration:none;">📥 下载 公益.json</a>
 </div>
 <div style="padding:20px;background:rgba(108,92,231,0.06);border:1px solid rgba(108,92,231,0.2);border-radius:10px;text-align:center;">
 <div style="font-size:28px;margin-bottom:8px;">💎</div>
 <div style="font-weight:600;font-size:14px;margin-bottom:4px;">付费参数</div>
 <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">需授权后使用 · 全部功能</div>
-<a id="btnPaid" href="https://pd-but.pages.dev/皇参.json" download="皇参.json" style="display:inline-block;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;text-decoration:none;">📥 下载 皇参.json</a>
+<a id="btnPaid" href="/api/params/皇参.json" download="皇参.json" style="display:inline-block;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;text-decoration:none;">📥 下载 皇参.json</a>
 </div>
 </div>
 <p id="dlStatus" style="margin-top:14px;text-align:center;display:none;padding:12px;border-radius:8px;font-size:13px;"></p>
@@ -97,22 +97,22 @@ document.getElementById('btnScrollDl').addEventListener('click',function(){
   document.getElementById('dlSec').scrollIntoView({behavior:'smooth'});
 });
 
-// ====== 云参数下载（同域直链，零延迟） ======
+// ====== 云参数下载（实时从 Gitee 拉取，同域 Pages Function 代理） ======
 document.getElementById('btnPub').addEventListener('click',function(){
   var el=document.getElementById('dlStatus');
   el.style.display='block';
-  el.style.background='rgba(0,210,211,.08)';
-  el.style.color='var(--success)';
-  el.innerHTML='✅ 公益.json 下载中（51 KB）<br><span style="font-size:12px;color:var(--text-secondary);">📁 请查看浏览器下载记录</span>';
-  setTimeout(function(){el.style.display='none';},4000);
+  el.style.background='rgba(108,92,231,.08)';
+  el.style.color='var(--accent-light)';
+  el.innerHTML='🔄 正在从 Gitee 获取最新公益参数...';
+  setTimeout(function(){el.style.display='none';},3000);
 });
 document.getElementById('btnPaid').addEventListener('click',function(){
   var el=document.getElementById('dlStatus');
   el.style.display='block';
-  el.style.background='rgba(0,210,211,.08)';
-  el.style.color='var(--success)';
-  el.innerHTML='✅ 皇参.json 下载中（51 KB）<br><span style="font-size:12px;color:var(--text-secondary);">📁 请查看浏览器下载记录</span>';
-  setTimeout(function(){el.style.display='none';},4000);
+  el.style.background='rgba(108,92,231,.08)';
+  el.style.color='var(--accent-light)';
+  el.innerHTML='🔄 正在从 Gitee 获取最新皇参参数...';
+  setTimeout(function(){el.style.display='none';},3000);
 });
 </script>
 <style>
