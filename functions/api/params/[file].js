@@ -9,8 +9,9 @@ export async function onRequest(context) {
   const { request } = context;
   const url = new URL(request.url);
 
-  // 提取文件名：/api/params/公益.json → 公益.json
-  const file = url.pathname.replace('/api/params/', '');
+  // 提取文件名：/api/params/%E5%85%AC%E7%9B%8A.json → 公益.json
+  const rawFile = url.pathname.replace('/api/params/', '');
+  const file = decodeURIComponent(rawFile);
 
   if (!file) {
     return new Response(JSON.stringify({ ok: false, error: '缺少文件名' }), {
@@ -19,6 +20,7 @@ export async function onRequest(context) {
     });
   }
 
+  // Gitee raw URL: 中文必须 UTF-8 编码
   const giteeUrl = GITEE_RAW + '/' + encodeURIComponent(file);
 
   try {
