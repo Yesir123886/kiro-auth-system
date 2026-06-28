@@ -4,27 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>管理后台 - ANGEL 授权中心</title>
-<meta name="description" content="ANGEL 授权管理后台 - 管理员审核授权申请、管理卡密、查看审计日志。需要管理员权限登录。">
-<meta name="keywords" content="ANGEL,管理后台,授权管理,卡密管理,管理员,审计日志">
-<meta name="author" content="ANGEL Team">
+<meta name="description" content="ANGEL 授权管理后台">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0a0a14">
-<meta http-equiv="X-Frame-Options" content="DENY">
-<meta name="referrer" content="no-referrer">
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="管理后台 - ANGEL 授权中心">
-<meta property="og:description" content="ANGEL 授权管理后台 - 管理员审核授权申请">
-<meta property="og:url" content="https://kiroauth-system.vercel.app/admin.html">
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a1a2e">
 <link rel="stylesheet" href="css/style.css">
+<!-- 覆盖旧CSS：超亮 + 泛光 -->
+<style>
+body { background: linear-gradient(135deg,#1a0a3e 0%,#2d1b69 40%,#4a2d8f 70%,#1a0a3e 100%) !important; filter: none !important; }
+#bgOverlay, #bgPreloader { display: none !important; }
+#bgVideo { display: none !important; }
+body::before {
+    content:'' !important;
+    position:fixed !important;
+    inset:0 !important;
+    z-index:-1 !important;
+    background:
+        radial-gradient(ellipse at 50% 0%,   rgba(255,240,255,.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(130,100,220,.12) 0%, transparent 55%) !important;
+}
+body::after {
+    content:'' !important;
+    position:fixed !important;
+    inset:0 !important;
+    z-index:-2 !important;
+    background: radial-gradient(ellipse at 50% 50%, rgba(180,150,255,.15) 0%, transparent 70%) !important;
+    pointer-events:none !important;
+}
+.card { background: rgba(90,90,140,.78) !important; backdrop-filter: blur(16px) brightness(1.3) !important; border: 1px solid rgba(200,190,255,.18) !important; box-shadow: 0 0 20px rgba(130,110,220,.15), 0 8px 32px rgba(0,0,0,.3) !important; }
+.navbar { background: rgba(74,74,138,.78) !important; backdrop-filter: blur(16px) brightness(1.3) !important; }
+</style>
 </head>
-<body style="background:#0a0a14;">
-
-<video id="bgVideo" autoplay loop muted playsinline preload="auto" style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;background:#0a0a14;"><source src="assets/bg.mp4" type="video/mp4"></video>
-<div id="bgOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,rgba(10,10,20,.85),rgba(20,15,35,.75),rgba(10,10,20,.85));z-index:-1;"></div>
-<div id="bgPreloader" style="position:fixed;inset:0;background:#0a0a14;z-index:99999;transition:opacity .5s ease;"></div>
+<body>
 
 <nav class="navbar"><a href="index.html" class="navbar-brand"><span class="angel-icon"></span> ANGEL<span class="admin-badge">ADMIN</span></a><div style="display:flex;gap:10px;align-items:center;"><a href="index.html" class="btn btn-outline btn-sm">🏠 首页</a><a href="auth.html" class="btn btn-primary btn-sm">🔐 授权</a><span id="adminInfo" style="color:var(--accent-light);font-size:12px;display:none;"></span><button id="logoutBtn" style="background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3);color:var(--danger);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;" onclick="sessionStorage.removeItem('angel_session');location.reload();">退出</button></div></nav>
 
@@ -38,11 +48,10 @@
 <button id="btnStep1" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;" onclick="
 var u=document.getElementById('uname').value.trim(),p=document.getElementById('upass').value.trim(),er=document.getElementById('errMsg');
 er.style.display='none';
-// 凭证混淆验证（非明文存储）
-  var _ux=[11,4,13,15,6],_px=[127,120,122,123,121,123,126,61,43,36,45],_x=0x4A;
-  var _uDec=String.fromCharCode.apply(null,_ux.map(function(b){return b^_x;}));
-  var _pDec=String.fromCharCode.apply(null,_px.map(function(b){return b^_x;}));
-  if(u!==_uDec||p!==_pDec){er.textContent='❌ 用户名或密码错误';er.style.display='block';return;}
+var _ux=[11,4,13,15,6],_px=[127,120,122,123,121,123,126,61,43,36,45],_x=0x4A;
+var _uDec=String.fromCharCode.apply(null,_ux.map(function(b){return b^_x;}));
+var _pDec=String.fromCharCode.apply(null,_px.map(function(b){return b^_x;}));
+if(u!==_uDec||p!==_pDec){er.textContent=' 用户名或密码错误';er.style.display='block';return;}
 document.getElementById('step1').style.display='none';
 document.getElementById('step2').style.display='';
 alert('✅ 身份验证通过！请输入安全密钥。');
@@ -57,18 +66,17 @@ alert('✅ 身份验证通过！请输入安全密钥。');
 <button id="btnStep2" style="width:100%;padding:12px;background:var(--success);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;" onclick="
 var c=document.getElementById('vcode').value.trim(),er=document.getElementById('err2');
 er.style.display='none';
-if(!c){er.textContent='请输入安全密钥';er.style.display='block';return;}
-  // XOR 解码安全密钥（避免明文存储）
-  var _k=[123,121,127,126,123,121,125,121,122,125,10,59,59,100,41,37,39],_x=0x4A;
-  var _dec=String.fromCharCode.apply(null,_k.map(function(b){return b^_x;}));
-  var sk=localStorage.getItem('angel_security_key')||_dec;
-if(c!==sk){er.textContent='❌ 密钥错误';er.style.display='block';return;}
+if(!c){er.textContent=' 请输入安全密钥';er.style.display='block';return;}
+var _k=[123,121,127,126,123,121,125,121,122,125,10,59,59,100,41,37,39],_x=0x4A;
+var _dec=String.fromCharCode.apply(null,_k.map(function(b){return b^_x;}));
+var sk=localStorage.getItem('angel_security_key')||_dec;
+if(c!==sk){er.textContent=' 密钥错误';er.style.display='block';return;}
 sessionStorage.setItem('angel_session',JSON.stringify({token:'ok-'+Date.now(),user:'ANGEL',t:Date.now()}));
 document.getElementById('loginPanel').style.display='none';
 document.getElementById('adminPanel').style.display='';
-document.getElementById('adminInfo').textContent='👤 ANGEL';
+document.getElementById('adminInfo').textContent=' ANGEL';
 document.getElementById('okBanner').style.display='';
-alert('🎉 登录成功！');
+alert(' 登录成功！');
 if(typeof window.loadDataFn==='function')window.loadDataFn();
 ">✅ 验证并登录</button>
 <p id="err2" style="color:var(--danger);font-size:13px;text-align:center;margin-top:12px;display:none;"></p>
@@ -80,7 +88,6 @@ if(typeof window.loadDataFn==='function')window.loadDataFn();
 <div id="adminPanel" style="display:none;"><div class="container">
 <div id="okBanner" style="padding:14px;background:rgba(0,210,211,.1);border:1px solid rgba(0,210,211,.25);border-radius:12px;text-align:center;margin-bottom:20px;color:var(--success);font-weight:500;">✅ 双重验证通过 · 会话已加密保护</div>
 
-<!-- 统计 -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
 <div class="stat-card"><div class="stat-num" style="color:var(--warning);" id="sP">0</div><div class="stat-label">待审批</div></div>
 <div class="stat-card"><div class="stat-num" style="color:var(--success);" id="sA">0</div><div class="stat-label">已通过</div></div>
@@ -88,20 +95,17 @@ if(typeof window.loadDataFn==='function')window.loadDataFn();
 <div class="stat-card"><div class="stat-num" style="color:var(--accent-light);" id="sT">0</div><div class="stat-label">今日申请</div></div>
 </div>
 
-<!-- Tabs -->
 <div style="display:flex;gap:4px;margin-bottom:16px;background:rgba(255,255,255,.04);padding:4px;border-radius:8px;">
 <button id="tabPen" style="flex:1;padding:10px;border:none;background:var(--accent);color:#fff;border-radius:6px;cursor:pointer;font-size:13px;" onclick="showTab('pen')">⏳ 待审批 (<span id="cP">0</span>)</button>
 <button id="tabAll" style="flex:1;padding:10px;border:none;background:transparent;color:var(--text-secondary);border-radius:6px;cursor:pointer;font-size:13px;" onclick="showTab('all')">📋 全部记录</button>
 <button id="tabAuth" style="flex:1;padding:10px;border:none;background:transparent;color:var(--text-secondary);border-radius:6px;cursor:pointer;font-size:13px;" onclick="showTab('auth')">🔑 授权管理</button>
 </div>
 
-<!-- 待审批面板 -->
 <div id="panelPen">
 <div id="pList"></div>
 <div id="pEmpty" style="text-align:center;padding:40px;color:var(--text-muted);display:none;"><div style="font-size:40px;">✅</div><p style="margin-top:8px;">暂无待审批申请</p></div>
 </div>
 
-<!-- 全部记录面板 -->
 <div id="panelAll" style="display:none;">
 <div style="display:flex;gap:8px;margin-bottom:12px;">
 <input type="text" class="form-input" id="searchInput" placeholder="搜索卡密..." style="flex:1;" oninput="doFilter()">
@@ -111,27 +115,23 @@ if(typeof window.loadDataFn==='function')window.loadDataFn();
 <div id="aEmpty" style="text-align:center;padding:40px;color:var(--text-muted);display:none;"><div style="font-size:40px;">📭</div><p style="margin-top:8px;">暂无记录</p></div>
 </div>
 
-<!-- 授权管理面板 -->
 <div id="panelAuth" style="display:none;">
 <div class="card" style="margin-bottom:16px;">
 <div class="card-title">🔑 授权管理中心</div>
-<p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">查看所有用户授权申请，手动审批并发送授权码。用户可在「授权查询」页面查看结果。</p>
-
-<!-- 授权申请列表 -->
+<p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">查看所有用户授权申请，手动审批并发送授权码。</p>
 <div id="authList"></div>
-<div id="authEmpty" style="text-align:center;padding:40px;color:var(--text-muted);"><div style="font-size:40px;">📭</div><p style="margin-top:8px;">暂无授权申请</p><p style="font-size:11px;color:var(--text-muted);margin-top:4px;">用户提交申请后会显示在此处</p></div>
+<div id="authEmpty" style="text-align:center;padding:40px;color:var(--text-muted);"><div style="font-size:40px;">📭</div><p style="margin-top:8px;">暂无授权申请</p></div>
 </div>
 </div>
 
 </div></div>
 
-<!-- 拒绝弹窗 -->
 <div id="rejModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
 <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:24px;width:400px;max-width:90%;">
 <h3 style="margin-bottom:12px;">❌ 拒绝申请</h3>
 <textarea id="rejReason" rows="3" placeholder="请输入拒绝原因..." style="width:100%;padding:10px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-primary);resize:none;margin-bottom:12px;"></textarea>
 <div style="display:flex;gap:8px;justify-content:flex-end;">
-<button onclick="document.getElementById(\'rejModal\').style.display=\'none\'" style="padding:8px 16px;background:transparent;border:1px solid var(--glass-border);color:var(--text-secondary);border-radius:6px;cursor:pointer;">取消</button>
+<button onclick="document.getElementById('rejModal').style.display='none'" style="padding:8px 16px;background:transparent;border:1px solid var(--glass-border);color:var(--text-secondary);border-radius:6px;cursor:pointer;">取消</button>
 <button onclick="doReject()" style="padding:8px 16px;background:var(--danger);color:#fff;border:none;border-radius:6px;cursor:pointer;">确认拒绝</button>
 </div>
 </div>
@@ -141,63 +141,27 @@ if(typeof window.loadDataFn==='function')window.loadDataFn();
 
 <script>
 var WORKER_URL="https://angelapiproxy.1354137307.workers.dev";
-// ====== ⚠️ 安全防护层（已启用） ======
 (function(){
-  // ——— 反调试：多维度检测 DevTools ———
   var _devDect=setInterval(function(){
-    var th=window.outerHeight-window.innerHeight>160;
-    var tw=window.outerWidth-window.innerWidth>160;
-    // 控制台性能检测
-    var t0=performance.now();
-    console.log('%c','font-size:0');
-    var dt=performance.now()-t0;
-    if(th||tw||dt>80){
+    var th=window.outerHeight-window.innerHeight>160,tw=window.outerWidth-window.innerWidth>160;
+    var t0=performance.now();console.log('%c','font-size:0');
+    if(th||tw||(performance.now()-t0)>80){
       console.clear();
-      document.body.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:#e74c3c;font-size:20px;font-weight:700;gap:14px;background:#0a0a14;"><span style="font-size:54px;">🚫</span>异常环境<small style="font-size:13px;color:#888;font-weight:400;">关闭开发者工具后刷新页面</small></div>';
+      document.body.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:#e74c3c;font-size:20px;font-weight:700;gap:14px;background:#1a1a2e;"><span style="font-size:54px;"> </span>异常环境<small style="font-size:13px;color:#888;font-weight:400;">关闭开发者工具后刷新页面</small></div>';
     }
   },800);
-
-  // ——— 控制台欺骗输出 ———
-  setInterval(function(){
-    console.log('%c⚠️ 安全告警：非法访问 traced · IP:'+Math.random().toString(36).slice(2,12),'color:#e74c3c;');
-  },55000);
-
-  // ——— 禁用右键 ———
-  document.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
-
-  // ——— 禁用调试快捷键 ———
+  setInterval(function(){console.log(' 安全告警 '+Math.random().toString(36).slice(2,12),'color:#e74c3c');},55000);
+  document.addEventListener('contextmenu',function(e){e.preventDefault();});
   document.addEventListener('keydown',function(e){
-    if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C'))||(e.ctrlKey&&e.key==='U')||(e.ctrlKey&&e.shiftKey&&e.key==='K')){
-      e.preventDefault();return false;
-    }
+    if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C'))||(e.ctrlKey&&e.key==='U')){e.preventDefault();}
   });
 })();
-// ====== 视频预加载防黑屏 ======
-(function(){
-var v=document.getElementById('bgVideo'),preloader=document.getElementById('bgPreloader');
-if(!v){if(preloader){preloader.style.opacity='0';setTimeout(function(){if(preloader)preloader.style.display='none';},500);}return;}
-function hidePreloader(){if(preloader&&preloader.style.display!=='none'){preloader.style.opacity='0';setTimeout(function(){if(preloader)preloader.style.display='none';},500);}}
-v.addEventListener('canplaythrough',hidePreloader);
-v.addEventListener('loadeddata',function(){setTimeout(hidePreloader,300);});
-// 兜底：视频加载失败时也隐藏
-v.addEventListener('error',hidePreloader);
-v.addEventListener('abort',hidePreloader);
-// 最终兜底：1秒后无论如何隐藏（避免黑屏卡住）
-setTimeout(hidePreloader,1000);
-})();
 
-// ====== 管理面板逻辑 ======
 (function(){
-var failCount=0,MAX_FAIL=5,LOCK_MS=900000,t0=0;
-var rejId=null;
-
-window.toastFn=function(m){var c=document.getElementById('toastContainer');if(!c)return;var d=document.createElement('div');d.style.cssText='padding:10px 18px;background:rgba(108,92,231,.9);color:#fff;border-radius:8px;margin-bottom:8px;font-size:13px;';d.textContent=m;c.appendChild(d);setTimeout(function(){d.opacity='0';setTimeout(function(){d.remove()},300)},3000)};
-// 兼容别名
+var failCount=0,MAX_FAIL=5,LOCK_MS=900000,t0=0,rejId=null;
+window.toastFn=function(m){var c=document.getElementById('toastContainer');if(!c)return;var d=document.createElement('div');d.className='toast toast-info';d.textContent=m;c.appendChild(d);setTimeout(function(){d.style.opacity='0';setTimeout(function(){d.remove()},300)},3000)};
 window.toast=window.toastFn;
 
-function locked(){return failCount>=MAX_FAIL&&(Date.now()-t0<LOCK_MS);}
-
-// ---- Tab切换 ----
 function showTab(t){
 document.getElementById('tabPen').style.background=t==='pen'?'var(--accent)':'transparent';
 document.getElementById('tabPen').style.color=t==='pen'?'#fff':'var(--text-secondary)';
@@ -208,260 +172,35 @@ document.getElementById('tabAuth').style.color=t==='auth'?'#fff':'var(--text-sec
 document.getElementById('panelPen').style.display=t==='pen'?'block':'none';
 document.getElementById('panelAll').style.display=t==='all'?'block':'none';
 document.getElementById('panelAuth').style.display=t==='auth'?'block':'none';
-if(t==='auth') renderAuthList();
 }
 window.showTab=showTab;
 
-// ---- 数据渲染 ----
 var data=[
 {id:'1',ck:'ANGEL-2024-001',uid:'test_user_001',st:'pending',time:new Date(Date.now()-3600000).toISOString(),tok:'',rej:''},
 {id:'2',ck:'ANGEL-2024-002',uid:'test_user_002',st:'approved',time:new Date(Date.now()-7200000).toISOString(),tok:'hysafe_xK9mP2qR',rej:''},
-{id:'3',ck:'ANGEL-2024-003',uid:'test_user_003',st:'rejected',time:new Date(Date.now()-86400000).toISOString(),tok:'',rej:'截图不清晰'},
 ];
 
-function loadDataFn(){
-// ====== 从localStorage读取用户提交的申请 ======
-try{
-  var userSubs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
-  if(userSubs.length>0){
-    // 合并用户提交的数据（去重：相同ck+uid不重复添加）
-    for(var i=0;i<userSubs.length;i++){
-      var us=userSubs[i];
-      var exists=false;
-      for(var j=0;j<data.length;j++){
-        if(data[j].ck===us.ck&&data[j].uid===us.uid){exists=true;break;}
-      }
-      if(!exists){
-        data.unshift(us); // 新提交的放最前面
-      } else {
-        // 更新已存在的记录状态（admin端操作会更新data，但userSubs是原始状态）
-        // 不覆盖admin端已有的状态
-      }
-    }
-    // 清空已读取的用户提交（避免重复加载）
-    // 注意：不删除，因为刷新后需要重新读取
+async function loadDataFn(){
+  var pen=document.getElementById('pList'),all=document.getElementById('aList');
+  pen.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-muted);"> 加载中...</div>';
+  all.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-muted);"> 加载中...</div>';
+  try {
+    const res = await fetch(WORKER_URL+'/proxy/api/admin/applications');
+    const j = await res.json();
+    window.data=j.data||[];
+    renderPen();renderAll();
+    document.getElementById('cP').textContent=j.pending||0;
+  } catch(err) {
+    pen.innerHTML='<div style="padding:20px;text-align:center;color:var(--danger);"> 加载失败：'+err.message+'</div>';
+    all.innerHTML='<div style="padding:20px;text-align:center;color:var(--danger);"> 加载失败：'+err.message+'</div>';
   }
-}catch(e){console.warn('读取用户申请失败:',e);}
-// 更新统计
-var p=data.filter(function(r){return r.st==='pending'}).length;
-var a=data.filter(function(r){return r.st==='approved'}).length;
-var rj=data.filter(function(r){return r.st==='rejected'}).length;
-document.getElementById('sP').textContent=p;
-document.getElementById('sA').textContent=a;
-document.getElementById('sR').textContent=rj;
-document.getElementById('sT').textContent=data.length;
-document.getElementById('cP').textContent=p;
-renderPending();
-renderAll(data);
 }
 
-function fmt(t){if(!t)return'-';var d=new Date(t);return(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'))}
-function ago(t){if(!t)return'';var d=Date.now()-new Date(t).getTime(),m=Math.floor(d/60000);if(m<1)return'刚刚';if(m<60)return m+'分钟前';var h=Math.floor(m/60);if(h<24)return h+'小时前';return Math.floor(h/24)+'天前'}
-function bdg(s){return s==='pending'?'<span style="padding:2px 8px;background:rgba(254,202,57,.15);color:var(--warning);border-radius:4px;font-size:11px;">⏳ 待审批</span>':s==='approved'?'<span style="padding:2px 8px;background:rgba(0,210,211,.15);color:var(--success);border-radius:4px;font-size:11px;">✅ 通过</span>':'<span style="padding:2px 8px;background:rgba(255,107,107,.15);color:var(--danger);border-radius:4px;font-size:11px;">❌ 拒绝</span>'}
-
-function row(r){
-var h='<div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;padding:14px;margin-bottom:10px;">';
-h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+bdg(r.st)+'<span style="font-size:11px;color:var(--text-muted);">'+fmt(r.time)+' ('+ago(r.time)+')</span></div>';
-h+='<div style="font-size:13px;"><span style="color:var(--text-muted);">卡密:</span> <span style="word-break:break-all;">'+r.ck+'</span></div>';
-h+='<div style="font-size:13px;margin-top:4px;"><span style="color:var(--text-muted);">授权ID:</span> <span style="word-break:break-all;font-size:12px;color:var(--text-secondary);">'+r.uid+'</span></div>';
-if(r.tok)h+='<div style="margin-top:10px;padding:12px;background:rgba(0,210,211,.08);border-radius:6px;border:1px solid rgba(0,210,211,.2);"><div style="font-size:11px;color:var(--success);margin-bottom:4px;">🎫 授权令牌（点击复制）</div><code id="tok_'+r.id+'" style="display:block;padding:8px;background:rgba(0,0,0,.2);border-radius:4px;font-family:monospace;font-size:13px;color:#00d2d3;cursor:pointer;word-break:break-all;"onclick="navigator.clipboard.writeText(this.textContent);this.style.background=\'rgba(0,210,211,.3)\';setTimeout(function(){this.style.background=\'rgba(0,0,0,.2)\'},500);toast(\'✅ 令牌已复制到剪贴板\',\'success\')">'+r.tok+'</code></div>';
-if(r.rej)h+='<div style="margin-top:8px;padding:8px;background:rgba(255,107,107,.06);border-radius:6px;font-size:12px;color:var(--danger);">原因：'+r.rej+'</div>';
-if(r.st==='pending'){
-h+='<div style="margin-top:10px;display:flex;gap:8px;">';
-h+='<button onclick="doApp(\''+r.id+'\')" style="flex:1;padding:8px;background:var(--success);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;">✅ 通过</button>';
-h+='<button onclick="showRej(\''+r.id+'\')" style="flex:1;padding:8px;background:var(--danger);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;">❌ 拒绝</button>';
-h+='</div>';
-}
-h+='</div>';
-return h;
-}
-
-function renderPending(){
-var list=data.filter(function(r){return r.st==='pending'});
-var c=document.getElementById('pList'),e=document.getElementById('pEmpty');
-if(!list.length){c.innerHTML='';e.style.display='';return;}
-e.style.display='none';c.innerHTML=list.map(row).join('');
-}
-
-function renderAll(arr){
-var c=document.getElementById('aList'),e=document.getElementById('aEmpty');
-if(!arr.length){c.innerHTML='';e.style.display='';return;}
-e.style.display='none';c.innerHTML=arr.map(row).join('');
-}
-
-function doFilter(){
-var k=document.getElementById('searchInput').value.toLowerCase();
-var s=document.getElementById('filterSt').value;
-var f=data.slice();
-if(k)f=f.filter(function(r){return r.ck.indexOf(k)>-1||r.uid.indexOf(k)>-1});
-if(s)f=f.filter(function(r){return r.st===s});
-renderAll(f);
-}
-
-function doApp(id){
-if(!confirm('确认通过？系统将调用 hysafe API 自动生成授权令牌。'))return;
-var rec=data.find(function(r){return r.id===id});
-if(!rec)return;
-// 获取创建者密钥
-var ck=localStorage.getItem('angel_creator_secret')||'';
-if(!ck){alert('⚠️ 请先在「设置」中配置 hysafe 创建者密钥！');showTab('set');return;}
-// 显示加载状态
-var btn=event.target;if(btn)btn.textContent='⏳ 生成中...';btn.disabled=true;
-
-// 使用 Worker 代理解决 HTTPS→HTTP mixed content 限制
-var PROXY_URL='https://angelapiproxy.1354137307.workers.dev/proxy';
-var targetUrl=PROXY_URL+'/api/generate';
-fetch(targetUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creator_key:ck,auth_id:rec.uid})})
-.then(function(r){return r.json()})
-.then(function(res){
-    if(btn){btn.textContent='✅ 通过';btn.disabled=false;}
-    if(!res.ok){alert('❌ hysafe API 错误：'+(res.error||'未知错误'));return;}
-    // 保存真实令牌
-    for(var i=0;i<data.length;i++){if(data[i].id===id){data[i].st='approved';data[i].tok=res.token;break}}
-    // 同步更新localStorage中的用户提交记录
-    try{
-      var subs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
-      for(var j=0;j<subs.length;j++){
-        if(subs[j].ck===rec.ck&&subs[j].uid===rec.uid){
-          subs[j].st='approved';subs[j].tok=res.token;break;
-        }
-      }
-      localStorage.setItem('angel_submissions',JSON.stringify(subs));
-    }catch(e){}
-    alert('✅ 审批通过！\n\n🎫 授权令牌：\n\n'+res.token+'\n\n🔑 密钥指纹：'+(res.fp||'N/A')+'\n\n（用户可在授权查询页面复制此令牌）');
-    toast('✅ 已通过！hysafe令牌已生成','success');loadDataFn();
-})
-.catch(function(err){
-    if(btn){btn.textContent='✅ 通过';btn.disabled=false;}
-    // 模拟令牌（当API不可用时）
-    var fakeTok='hysafe_'+btoa(rec.uid).slice(0,20);
-    for(var i=0;i<data.length;i++){if(data[i].id===id){data[i].st='approved';data[i].tok=fakeTok;break}}
-    try{
-      var subs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
-      for(var j=0;j<subs.length;j++){
-        if(subs[j].ck===rec.ck&&subs[j].uid===rec.uid){
-          subs[j].st='approved';subs[j].tok=fakeTok;break;
-        }
-      }
-      localStorage.setItem('angel_submissions',JSON.stringify(subs));
-    }catch(e){}
-    alert('✅ 审批通过！（API不可用，已生成模拟令牌）\n\n🎫 授权令牌：\n\n'+fakeTok+'\n\n（线上部署后API可正常使用时，会替换为真实令牌）');
-    toast('✅ 已通过！','success');loadDataFn();
-});
-}
-
-function showRej(id){rejId=id;var m=document.getElementById('rejModal');m.style.display='flex';document.getElementById('rejReason').value='';}
-function doReject(){
-if(!rejId)return;var reason=document.getElementById('rejReason').value.trim();if(!reason){toast('请填写原因','error');return;}
-for(var i=0;i<data.length;i++){if(data[i].id===rejId){data[i].st='rejected';data[i].rej=reason;break}}
-document.getElementById('rejModal').style.display='none';rejId=null;toast('已拒绝');loadDataFn();
-}
-
-// ---- 启动检查 ----
-var sess=null;
-try{sess=JSON.parse(sessionStorage.getItem('angel_session'))}catch(e){}
-if(sess&&sess.token&&(Date.now()-sess.t<7200000)){
-document.getElementById('loginPanel').style.display='none';
-document.getElementById('adminPanel').style.display='';
-document.getElementById('adminInfo').textContent='👤 '+sess.user;
-document.getElementById('okBanner').style.display='';
-loadDataFn();
-}
+function renderPen(){}
+function renderAll(){}
+function doFilter(){}
 
 window.loadDataFn=loadDataFn;
-
-// ====== 授权管理模块 ======
-function renderAuthList(){
-var list=document.getElementById('authList');
-var empty=document.getElementById('authEmpty');
-// 读取所有申请数据（localStorage + 内置data）
-var allData=data.slice();
-try{
-  var subs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
-  for(var i=0;i<subs.length;i++){
-    var s=subs[i];var exists=false;
-    for(var j=0;j<allData.length;j++){if(allData[j].ck===s.ck&&allData[j].uid===s.uid){exists=true;break;}}
-    if(!exists) allData.push(s);
-  }
-}catch(e){}
-if(allData.length===0){list.innerHTML='';empty.style.display='';return;}
-empty.style.display='none';
-list.innerHTML=allData.map(function(r){
-  var h='<div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px;margin-bottom:12px;">';
-  // 状态标签
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
-  h+=bdg(r.st);
-  h+='<span style="font-size:11px;color:var(--text-muted);">'+fmt(r.time)+'</span>';
-  h+='</div>';
-  // 信息区 - 左右布局：信息+截图
-  h+='<div style="display:grid;grid-template-columns:1fr auto;gap:12px;">';
-  h+='<div>';
-  h+='<div style="margin-bottom:6px;"><span style="color:var(--text-muted);font-size:12px;">🔑 卡密：</span><code style="word-break:break-all;color:var(--text-primary);font-size:13px;">'+r.ck+'</code></div>';
-  h+='<div style="margin-bottom:6px;"><span style="color:var(--text-muted);font-size:12px;">👤 用户ID：</span><code style="word-break:break-all;color:var(--accent-light);font-size:11px;">'+r.uid+'</code></div>';
-  if(r.tok){
-    h+='<div style="margin-top:8px;padding:10px;background:rgba(0,210,211,.08);border-radius:6px;border:1px solid rgba(0,210,211,.2);">';
-    h+='<div style="font-size:11px;color:var(--success);margin-bottom:4px;">🎫 已发授权码</div>';
-    h+='<code style="display:block;font-family:monospace;font-size:14px;color:#00d2d3;padding:4px;background:rgba(0,0,0,.2);border-radius:4px;cursor:pointer;word-break:break-all;"onclick="navigator.clipboard.writeText(this.textContent)">'+r.tok+'</code></div>';
-  }
-  if(r.rej){
-    h+='<div style="margin-top:8px;padding:8px;background:rgba(255,107,107,.06);border-radius:6px;font-size:12px;color:var(--danger);">❌ 拒绝原因：'+r.rej+'</div>';
-  }
-  if(r.remark){
-    h+='<div style="margin-top:4px;font-size:11px;color:var(--text-muted);">📝 备注：'+r.remark+'</div>';
-  }
-  h+='</div>';
-  // 截图区域（如果有）
-  if(r.img){
-    h+='<div style="width:140px;height:100px;border-radius:8px;overflow:hidden;border:1px solid var(--glass-border);cursor:pointer;" onclick="openLb(\''+r.img+'\')">';
-    h+='<img src="'+r.img+'" style="width:100%;height:100%;object-fit:cover;" alt="订单截图" onerror="this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:11px;\\\'>截图加载失败</div>\'">';
-    h+='</div>';
-  } else {
-    h+='<div style="width:140px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.02);border-radius:8px;border:1px dashed var(--glass-border);color:var(--text-muted);font-size:11px;">无截图</div>';
-  }
-  h+='</div>'; // grid end
-  // 操作按钮
-  if(r.st==='pending'){
-    h+='<div style="margin-top:12px;display:flex;gap:8px;">';
-    h+='<button onclick="authApprove(\''+r.id+'\')" style="flex:1;padding:9px;background:var(--success);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">✅ 通过并发送授权码</button>';
-    h+='<button onclick="authRejectShow(\''+r.id+'\')" style="flex:1;padding:9px;background:var(--danger);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">❌ 拒绝</button>';
-    h+='</div>';
-  }
-  h+='</div>'; // card end
-  return h;
-}).join('');
-}
-
-// 通过授权 - 弹出输入框填写授权码
-function authApprove(id){
-var rec=data.find(function(r){return r.id===id});
-if(!rec)return;
-var tok=prompt('✅ 为该用户生成授权码\n\n卡密: '+rec.ck+'\n用户ID: '+rec.uid+'\n\n请输入授权码（或留空自动生成）：','');
-if(tok===null)return;
-if(!tok.trim()) tok='ANGEL_'+btoa(rec.uid+'_'+Date.now()).slice(0,28).replace(/[+/=]/g,'').toUpperCase();
-else tok=tok.trim();
-for(var i=0;i<data.length;i++){if(data[i].id===id){data[i].st='approved';data[i].tok=tok;break}}
-// 同步localStorage
-try{
-  var subs=JSON.parse(localStorage.getItem('angel_submissions')||'[]');
-  for(var j=0;j<subs.length;j++){if(subs[j].ck===rec.ck&&subs[j].uid===rec.uid){subs[j].st='approved';subs[j].tok=tok;break}}
-  localStorage.setItem('angel_submissions',JSON.stringify(subs));
-}catch(e){}
-toastFn('✅ 已通过！授权码: '+tok,'success');
-renderAuthList();loadDataFn();
-}
-
-// 显示拒绝弹窗
-function authRejectShow(id){rejId=id;document.getElementById('rejModal').style.display='flex';document.getElementById('rejReason').value='';}
-
-// 全局暴露
-window.renderAuthList=renderAuthList;
-window.authApprove=authApprove;
-window.authRejectShow=authRejectShow;
-// 暴露所有需要的全局函数
-window.doApp=doApp;
-window.showRej=showRej;
-window.doReject=doReject;
-window.doFilter=doFilter;
 })();
 </script>
 </body>

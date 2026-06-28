@@ -295,6 +295,57 @@ export default {
       }
     }
 
+    // ====== 代理下载 Gitee 仓库里的 JSON 参数文件 ======
+    // Worker 端模拟浏览器请求 Gitee raw URL（带完整 headers + follow redirect），
+    // 拿到内容后加上 Content-Disposition: attachment 强制浏览器下载
+    if (url.pathname === '/proxy/github-json' && request.method === 'GET') {
+      const file = url.searchParams.get('file');
+      if (!file) {
+        return new Response(JSON.stringify({ ok: false, error: '缺少 file 参数' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+      const giteeUrl = 'https://gitee.com/yesirsadad/cloud-parameter-update/raw/master/' + encodeURIComponent(file);
+      try {
+        const resp = await fetch(giteeUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+            'Accept': '*/*',
+            'Referer': 'https://gitee.com/yesirsadad/cloud-parameter-update/',
+          },
+          redirect: 'follow',
+        });
+        if (!resp.ok) {
+          return new Response(JSON.stringify({ ok: false, error: 'Gitee 返回 HTTP ' + resp.status }), {
+            status: resp.status,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          });
+        }
+        const data = await resp.arrayBuffer();
+        if (!data || data.byteLength === 0) {
+          return new Response(JSON.stringify({ ok: false, error: 'Gitee 返回空数据（防盗链拦截）' }), {
+            status: 502,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          });
+        }
+        return new Response(data, {
+          headers: {
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(file),
+            'Content-Length': String(data.byteLength),
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'public, max-age=60',
+          },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: 'Worker 拉取失败: ' + err.message }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+    }
+
     // ====== 代理 /proxy/hysafe/ 路径到 hysafe 后端 ======
     if (url.pathname.startsWith('/proxy/hysafe/')) {
       const targetPath = url.pathname.slice(15);
