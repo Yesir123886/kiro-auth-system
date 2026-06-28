@@ -1,3 +1,7 @@
 name = "angelapiproxy"
 main = "worker-proxy.js"
 compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "ANGEL_AUTH"
+id = "4a8fc1f37e6446f4bdae4f87e24c43c7"

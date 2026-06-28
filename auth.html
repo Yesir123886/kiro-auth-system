@@ -90,6 +90,7 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+var WORKER_URL="https://angelapiproxy.1354137307.workers.dev";
 // ====== ⚠️ 安全防护层 ======
 (function(){
   var _warn='%c⚠️ ANGEL 授权中心 %c\n© 2026 ANGEL Team. All Rights Reserved.';
@@ -248,100 +249,37 @@ try{
 }catch(e){}
 
 function doQuery(){
-var ck=document.getElementById('qCardKey').value.trim();
-var uid=document.getElementById('qAuthId').value.trim();
-var rc=document.getElementById('qResult');
-rc.style.display='';
+  var uid=document.getElementById('qUserId').value.trim();
+  var ck=document.getElementById('qCardKey').value.trim();
+  if(!uid){msg('请输入用户ID','error');return;}
+  var resDiv=document.getElementById('queryResult');
+  resDiv.style.display='';resDiv.className='';resDiv.innerHTML='<div style="padding:12px;color:var(--text-muted);">⏳ 查询中...</div>';
 
-if(!ck||!uid){rc.innerHTML='<div style="text-align:center;padding:30px;color:var(--warning);"><div style="font-size:36px;">⚠️</div><p style="margin-top:10px;">请同时输入<strong>卡密</strong>和<strong>授权ID</strong></p></div>';rc.style.display='';return;}
-
-// 模拟加载
-rc.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-secondary);"><div class="spinner" style="margin:0 auto 12px;width:24px;height:24px;border:3px solid var(--glass-border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;"></div>正在查询...</div>';
-rc.style.display='';
-
-setTimeout(function(){
-// 查找记录（匹配卡密+授权ID）
-var found=null;
-for(var i=0;i<dbData.length;i++){
-if(dbData[i].ck===ck&&dbData[i].uid===uid){found=dbData[i];break;}
+  fetch(WORKER_URL+'/proxy/api/check?user_id='+encodeURIComponent(uid))
+  .then(function(r){return r.json();})
+  .then(function(res){
+    if(!res.found){
+      resDiv.className='error';
+      resDiv.innerHTML='<p>未找到申请记录</p><p style="font-size:12px;margin-top:8px;">请确认用户ID是否正确，或先提交申请</p>';
+      return;
+    }
+    if(res.status==='pending'){
+      resDiv.className='pending';
+      resDiv.innerHTML='<p>⏳ 审核中</p><p style="font-size:12px;margin-top:8px;">申请已提交，请耐心等待管理员审核</p>';
+    } else if(res.status==='approved'){
+      resDiv.className='approved';
+      resDiv.innerHTML='<p>🎉 审核通过！</p><p style="font-size:18px;font-weight:700;margin:12px 0;letter-spacing:2px;">'+res.auth_code+'</p><p style="font-size:12px;color:var(--text-muted);">请在软件中输入此授权码激活</p>';
+    } else if(res.status==='rejected'){
+      resDiv.className='rejected';
+      resDiv.innerHTML='<p>❌ 申请被拒绝</p><p style="font-size:12px;margin-top:8px;">原因：'+(res.message||'未说明')+'</p>';
+    }
+  })
+  .catch(function(err){
+    resDiv.className='error';
+    resDiv.innerHTML='<p>查询失败</p><p style="font-size:12px;margin-top:8px;">'+err.message+'</p>';
+  });
 }
 
-if(!found){
-// 未找到 - 可能是待审核或不存在
-var byCk=dbData.filter(function(r){return r.ck===ck});
-if(byCk.length>0){
-// 卡密存在但授权ID不匹配
-rc.innerHTML='<div style="text-align:center;padding:30px;background:rgba(254,202,57,.06);border-radius:12px;border:1px solid rgba(254,202,57,.15);"><div style="font-size:40px;">🔑</div><p style="margin-top:12px;font-size:15px;color:var(--warning);">授权ID不匹配</p><p style="color:var(--text-muted);font-size:13px;margin-top:6px;">该卡密已有申请记录，但授权ID与提交时不一致<br>请检查是否使用了正确的授权ID</p></div>';
-}else{
-rc.innerHTML='<div style="text-align:center;padding:30px;background:rgba(108,92,231,.06);border-radius:12px;border:1px solid rgba(108,92,231,.15);"><div style="font-size:40px;">🔍</div><p style="margin-top:12px;font-size:15px;color:var(--accent-light);">未找到相关记录</p><p style="color:var(--text-muted);font-size:13px;margin-top:6px;">该卡密暂无任何申请记录<br>如已提交申请，请联系管理员确认</p></div>';
-}
-rc.style.display='';
-return;
-}
-
-// 找到了！根据状态渲染
-var html='';
-if(found.st==='pending'){
-html='<div style="background:rgba(254,202,57,.06);border-radius:12px;border:1px solid rgba(254,202,57,.15);padding:24px;text-align:center;">';
-html+='<div style="font-size:40px;">⏳</div>';
-html+='<p style="margin-top:12px;font-size:16px;color:var(--warning);font-weight:600;">正在审核中</p>';
-html+='<div style="margin-top:16px;padding:12px;background:rgba(0,0,0,.15);border-radius:8px;font-size:13px;color:var(--text-secondary);">';
-html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>卡密：</span><span style="word-break:break-all;color:var(--text-primary);">'+found.ck+'</span></div>';
-html+='<div style="display:flex;justify-content:space-between;"><span>授权ID：</span><span style="word-break:break-all;font-size:11px;color:var(--text-secondary);">'+found.uid+'</span></div>';
-html+='<div style="display:flex;justify-content:space-between;margin-top:6px;"><span>提交时间：</span><span>'+fmt(found.time)+'</span></div>';
-html+='</div>';
-html+='<p style="margin-top:14px;font-size:12px;color:var(--text-muted);">管理员审核通过后，再次查询即可获取授权令牌</p>';
-html+='</div>';
-
-}else if(found.st==='rejected'){
-html='<div style="background:rgba(255,107,107,.06);border-radius:12px;border:1px solid rgba(255,107,107,.15);padding:24px;text-align:center;">';
-html+='<div style="font-size:40px;">❌</div>';
-html+='<p style="margin-top:12px;font-size:16px;color:var(--danger);font-weight:600;">申请被拒绝</p>';
-html+='<div style="margin-top:14px;padding:12px;background:rgba(0,0,0,.15);border-radius:8px;">';
-html+='<p style="font-size:13px;color:var(--text-secondary);">拒绝原因：</p>';
-html+='<p style="margin-top:6px;font-size:14px;color:var(--danger);">'+(found.rej||'未提供原因')+'</p>';
-html+='</div>';
-html+='<p style="margin-top:14px;font-size:12px;color:var(--text-muted);">如需重新申请，请在「提交申请」Tab中重新提交</p>';
-html+='</div>';
-
-}else if(found.st==='approved'){
-// ✅ 已通过 - 显示令牌！
-html='<div style="background:linear-gradient(135deg,rgba(0,210,211,.08),rgba(108,92,231,.08));border-radius:12px;border:1px solid rgba(0,210,211,.2);padding:28px;">';
-html+='<div style="text-align:center;margin-bottom:20px;"><div style="font-size:48px;">🎉</div>';
-html+='<p style="font-size:18px;color:var(--success);font-weight:700;margin-top:8px;">授权已通过！</p>';
-html+='<p style="font-size:13px;color:var(--text-muted);margin-top:4px;">以下是您的授权令牌，请复制到程序中使用</p></div>';
-
-// 信息核对区
-html+='<div style="padding:14px;background:rgba(0,0,0,.15);border-radius:8px;margin-bottom:18px;font-size:13px;">';
-html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--text-muted);">卡密：</span><span style="word-break:break-all;color:var(--text-primary);">'+found.ck+'</span></div>';
-html+='<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--text-muted);">授权ID：</span><span style="word-break:break-all;font-size:11px;color:var(--text-secondary);">'+found.uid+'</span></div>';
-html+='<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">审批时间：</span><span>'+fmt(found.time)+'</span></div>';
-html+='</div>';
-
-// ★★★ 令牌区域 ★★★
-html+='<div style="position:relative;padding:16px;background:rgba(0,210,211,.1);border:2px solid rgba(0,210,211,.3);border-radius:10px;cursor:pointer;" onclick="copyTok(this,\''+found.tok+'\')">';
-html+='<div style="font-size:11px;color:var(--success);margin-bottom:6px;font-weight:600;">🎫 授权令牌（点击复制）</div>';
-html+='<code id="theTok" style="display:block;font-family:monospace;font-size:17px;letter-spacing:1px;color:#00d2d3;padding:8px;background:rgba(0,0,0,.25);border-radius:6px;word-break:break-all;user-select:all;">'+found.tok+'</code>';
-html+='<div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);"id="copyHint">👆 点击上方令牌即可复制到剪贴板</div>';
-html+='</div>';
-
-// 使用提示 - 按用户程序实际步骤
-html+='<div style="margin-top:16px;padding:14px;background:rgba(108,92,231,.06);border-radius:8px;font-size:12px;color:var(--text-secondary);line-height:2;">';
-html+='<strong style="color:var(--accent-light);font-size:13px;">📋 使用步骤：</strong><br>';
-html+='<span style="color:var(--accent-light);">1.</span> 复制上方授权令牌<br>';
-html+='<span style="color:var(--accent-light);">2.</span> 打开 <strong>辅助</strong> 进入游戏<br>';
-html+='<span style="color:var(--accent-light);">3.</span> 导入下载好的付费参数<br>';
-html+='<span style="color:var(--accent-light);">4.</span> 战斗页 → 自定义参数 → 输入复制的授权令牌';
-html+='</div>';
-html+='</div>';
-}
-
-rc.innerHTML=html;
-rc.style.display='';
-},800); // 模拟网络延迟
-}
-
-// 复制令牌
 function copyTok(el,tok){
 navigator.clipboard.writeText(tok).then(function(){
 el.style.background='rgba(0,210,211,.3)';
