@@ -24,8 +24,18 @@
 <meta name="twitter:description" content="软件授权管理与卡密验证系统">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body style="background:linear-gradient(135deg,#1a0a3e 0%,#2d1b69 40%,#4a2d8f 70%,#1a0a3e 100%);min-height:100vh;">
-<div id="bgOverlay" style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,240,255,.15) 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(130,100,220,.12) 0%,transparent 55%);z-index:-1;pointer-events:none;"></div>
+<body style="background:#0a0520;min-height:100vh;">
+
+<!-- 背景视频 -->
+<video id="bgVideo" autoplay muted loop playsinline style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0.5;pointer-events:none;">
+  <source src="assets/bg.mp4" type="video/mp4">
+</video>
+
+<!-- 流光高亮层 -->
+<div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(135deg,transparent 30%,rgba(180,140,255,0.12) 45%,rgba(200,160,255,0.18) 50%,rgba(180,140,255,0.12) 55%,transparent 70%);background-size:300% 300%;animation:shimmerSweep 4s ease-in-out infinite;"></div>
+
+<!-- 渐变叠加 -->
+<div id="bgOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(255,240,255,.15) 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(130,100,220,.12) 0%,transparent 55%);"></div>
 
 
 
@@ -109,6 +119,7 @@ document.getElementById('btnPaid').addEventListener('click',function(){
 .nav-big-btn{padding:16px 40px;font-size:16px;border-radius:10px;transition:all .25s;}
 .nav-big-btn:hover{transform:translateY(-3px);}
 *{-webkit-font-smoothing:antialiased;}
+@keyframes shimmerSweep{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 </style>
 </body>
 </html>

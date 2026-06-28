@@ -32,9 +32,21 @@ body::after {
 }
 .card { background: rgba(90,90,140,.78) !important; backdrop-filter: blur(16px) brightness(1.3) !important; border: 1px solid rgba(200,190,255,.18) !important; box-shadow: 0 0 20px rgba(130,110,220,.15), 0 8px 32px rgba(0,0,0,.3) !important; }
 .navbar { background: rgba(74,74,138,.78) !important; backdrop-filter: blur(16px) brightness(1.3) !important; }
+@keyframes shimmerSweep{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 </style>
 </head>
-<body>
+<body style="background:#0a0520;min-height:100vh;">
+
+<!-- 背景视频 -->
+<video autoplay muted loop playsinline style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0.5;pointer-events:none;">
+  <source src="assets/bg.mp4" type="video/mp4">
+</video>
+
+<!-- 流光高亮层 -->
+<div style="position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(135deg,transparent 30%,rgba(180,140,255,0.12) 45%,rgba(200,160,255,0.18) 50%,rgba(180,140,255,0.12) 55%,transparent 70%);background-size:300% 300%;animation:shimmerSweep 4s ease-in-out infinite;"></div>
+
+<!-- 渐变叠加 -->
+<div style="position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(255,240,255,.15) 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(130,100,220,.12) 0%,transparent 55%);"></div>
 
 <nav class="navbar"><a href="index.html" class="navbar-brand"><span class="angel-icon"></span> ANGEL<span class="admin-badge">ADMIN</span></a><div style="display:flex;gap:10px;align-items:center;"><a href="index.html" class="btn btn-outline btn-sm">🏠 首页</a><a href="auth.html" class="btn btn-primary btn-sm">🔐 授权</a><span id="adminInfo" style="color:var(--accent-light);font-size:12px;display:none;"></span><button id="logoutBtn" style="background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3);color:var(--danger);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;" onclick="sessionStorage.removeItem('angel_session');location.reload();">退出</button></div></nav>
 
