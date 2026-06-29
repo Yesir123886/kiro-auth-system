@@ -6,8 +6,9 @@
 <title>ANGEL 授权中心</title>
 <meta name="theme-color" content="#0a0e27">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/webp" href="assets/logo.webp">
 <link rel="icon" type="image/png" href="assets/logo.png">
-<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/logo.webp">
 <!-- 资源预连接（加速外部跳转） -->
 <link rel="preconnect" href="https://1842160496.share.123pan.cn">
 <link rel="preconnect" href="https://buy.jry0.com">
@@ -15,7 +16,16 @@
 <link rel="preconnect" href="https://t.me">
 <link rel="preconnect" href="https://qm.qq.com">
 <link rel="dns-prefetch" href="https://hp.hysafe.top">
-<link rel="stylesheet" href="css/style.css">
+<link rel="dns-prefetch" href="https://1842160496.share.123pan.cn">
+<link rel="dns-prefetch" href="https://buy.jry0.com">
+<link rel="dns-prefetch" href="https://www.chaoziran.com">
+<link rel="dns-prefetch" href="https://t.me">
+<link rel="dns-prefetch" href="https://qm.qq.com">
+<!-- CSP 安全策略 -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https: http:; media-src 'self' data: blob: https:; img-src 'self' data: blob: https:; font-src 'self' data: https:;">
+<!-- 外部CSS延迟加载 -->
+<link rel="preload" href="css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="css/style.css"></noscript>
 <style>
 /* ====== 炫彩流动文字（全局） ====== */
 /* 关键帧：5秒一圈 */
@@ -737,13 +747,175 @@ footer.footer { display: none !important; }
   .music-controller .mc-label { display: none; }
   .music-controller .mc-slider { width: 60px; }
 }
+
+/* ====== 自定义滚动条 ====== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: rgba(10,12,25,.6); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6c5ce7, #c44dff, #6cffce);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #a78bfa, #e0b0ff, #8effd0); }
+::-moz-scrollbar { width: 8px; }
+::-moz-scrollbar-track { background: rgba(10,12,25,.6); }
+::-moz-scrollbar-thumb { background: linear-gradient(180deg, #6c5ce7, #c44dff); border-radius: 4px; }
+
+/* ====== 平滑滚动 ====== */
+html { scroll-behavior: smooth; }
+
+/* ====== 按钮扫光效果 ====== */
+.nav-item { position: relative; overflow: hidden; }
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+  transition: left .6s ease;
+  z-index: 3;
+  pointer-events: none;
+}
+.nav-item:hover::before { left: 120%; }
+
+/* ====== 标题Glitch故障特效 ====== */
+.nav-title { position: relative; }
+.nav-title.glitch {
+  animation: glitchShake .3s steps(2) 2;
+}
+.nav-title.glitch::before,
+.nav-title.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+}
+.nav-title.glitch::before {
+  color: #ff00ff;
+  -webkit-text-fill-color: #ff00ff;
+  z-index: -1;
+  animation: glitchOffset1 .3s steps(2) 2;
+}
+.nav-title.glitch::after {
+  color: #00ffff;
+  -webkit-text-fill-color: #00ffff;
+  z-index: -2;
+  animation: glitchOffset2 .3s steps(2) 2;
+}
+@keyframes glitchShake {
+  0% { transform: translate(0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(0); }
+}
+@keyframes glitchOffset1 {
+  0%, 100% { transform: translate(0); }
+  50% { transform: translate(-3px, 0); }
+}
+@keyframes glitchOffset2 {
+  0%, 100% { transform: translate(0); }
+  50% { transform: translate(3px, 0); }
+}
+
+/* ====== 重要按钮（提卡）脉冲呼吸 ====== */
+.nav-item.kiro-btn.accent {
+  animation: borderPulseAccent 3s ease-in-out infinite, accentGlow 2s ease-in-out infinite !important;
+}
+@keyframes accentGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,210,211,.2); }
+  50% { box-shadow: 0 0 20px rgba(0,230,230,.5), 0 0 40px rgba(0,210,211,.2); }
+}
+
+/* ====== 背景飘浮粒子 ====== */
+#floatParticles {
+  position: fixed; inset: 0; z-index: -3; pointer-events: none;
+}
+
+/* ====== 页面过渡动画 ====== */
+.page-transition {
+  position: fixed; inset: 0; z-index: 99998;
+  background: #080a14;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+.page-transition.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ====== 骨架屏 ====== */
+.skeleton-overlay {
+  position: fixed; inset: 0; z-index: 99999;
+  background: #080a14;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px;
+  transition: opacity .4s ease;
+}
+.skeleton-overlay.hidden { opacity: 0; pointer-events: none; }
+.skeleton-avatar {
+  width: 100px; height: 100px;
+  border-radius: 24px;
+  background: linear-gradient(90deg, rgba(30,30,60,.6), rgba(50,40,90,.8), rgba(30,30,60,.6));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+.skeleton-title {
+  width: 160px; height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(30,30,60,.6), rgba(50,40,90,.8), rgba(30,30,60,.6));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+.skeleton-sub {
+  width: 100px; height: 16px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(30,30,60,.6), rgba(50,40,90,.8), rgba(30,30,60,.6));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite .1s;
+}
+.skeleton-btn {
+  width: 280px; height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(25,25,50,.5), rgba(45,35,80,.7), rgba(25,25,50,.5));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ====== prefers-reduced-motion ====== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
 </style>
 </head>
 <body style="background:#080a14;min-height:100vh;">
 <!-- 滚动进度条 -->
 <div class="scroll-progress" id="scrollProgress"></div>
+<!-- 页面过渡遮罩 -->
+<div class="page-transition" id="pageTransition"></div>
+<!-- 骨架屏 -->
+<div class="skeleton-overlay" id="skeletonOverlay">
+  <div class="skeleton-avatar"></div>
+  <div class="skeleton-title"></div>
+  <div class="skeleton-sub"></div>
+  <div class="skeleton-btn"></div>
+  <div class="skeleton-btn"></div>
+  <div class="skeleton-btn"></div>
+</div>
 <!-- Canvas 波浪背景 -->
 <canvas id="waveBg"></canvas>
+<!-- 背景飘浮粒子 -->
+<canvas id="floatParticles"></canvas>
 
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
@@ -794,9 +966,9 @@ footer.footer { display: none !important; }
 <!-- 左侧面板：头像 / 标题 / 介绍 / TG -->
 <div class="left-panel">
   <div class="avatar-wrap">
-    <img src="assets/logo.png" alt="ANGEL" class="nav-avatar" loading="lazy">
+    <img src="assets/logo.webp" alt="ANGEL" class="nav-avatar" loading="lazy" onerror="this.src='assets/logo.png'">
   </div>
-  <h1 class="nav-title">ANGEL</h1>
+  <h1 class="nav-title" data-text="ANGEL" id="navTitle">ANGEL</h1>
   <p class="nav-subtitle">P蛋爱露出</p>
   <div class="nav-quote">世界以痛吻我，我却报之以歌。</div>
   <a href="https://t.me/Czr114514nb" target="_blank" class="tg-link">📢 TG 频道 @Czr114514nb</a>
@@ -979,17 +1151,17 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
     (function(el){setTimeout(function(){el.remove();},550);})(ripple);
   });
 });
-// ====== 3D 按钮倾斜 + hover上浮 ======
+// ====== 3D 按钮倾斜 + hover上浮 + 翻转增强 ======
 document.querySelectorAll('.nav-item').forEach(function(btn){
   btn.addEventListener('mousemove',function(e){
     var r=btn.getBoundingClientRect();
     var x=(e.clientX-r.left)/r.width-.5;
     var y=(e.clientY-r.top)/r.height-.5;
-    btn.style.transform='perspective(600px) translateY(-3px) rotateY('+(x*6)+'deg) rotateX('+(-y*6)+'deg)';
-    btn.style.transition='transform .1s ease';
+    btn.style.transform='perspective(700px) translateY(-3px) rotateY('+(x*8)+'deg) rotateX('+(-y*8)+'deg) scale(1.02)';
+    btn.style.transition='transform .08s ease';
   });
   btn.addEventListener('mouseleave',function(){
-    btn.style.transform='perspective(600px) translateY(0) rotateY(0deg) rotateX(0deg)';
+    btn.style.transform='perspective(700px) translateY(0) rotateY(0deg) rotateX(0deg) scale(1)';
     btn.style.transition='transform .35s ease';
   });
 });
@@ -1005,7 +1177,7 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
       // 在3D倾斜+上浮基础上追加微移
       var mx=lastX+(x-lastX)*.3, my=lastY+(y-lastY)*.3;
       lastX=mx;lastY=my;
-      var base='perspective(600px) translateY(-3px) rotateY('+(x*6)+'deg) rotateX('+(-y*6)+'deg)';
+      var base='perspective(700px) translateY(-3px) rotateY('+(x*8)+'deg) rotateX('+(-y*8)+'deg) scale(1.02)';
       btn.style.transform=base+' translate('+(mx*3)+'px,'+(my*3)+'px)';
     });
     btn.addEventListener('mouseleave',function(){lastX=0;lastY=0;});
@@ -1023,20 +1195,154 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
   });
 });
 
-// ====== 标题打字机效果 ======
+// ====== 标题+副标题+诗句 打字机效果 ======
 (function(){
   var title=document.querySelector('.left-panel .nav-title');
-  if(!title) return;
-  var text='ANGEL';
-  title.textContent='';
+  var subtitle=document.querySelector('.left-panel .nav-subtitle');
+  var quote=document.querySelector('.left-panel .nav-quote');
+  var titleText='ANGEL';
+  var subText='P蛋爱露出';
+  var quoteText='世界以痛吻我，我却报之以歌。';
+  if(title){title.textContent='';}
+  if(subtitle){subtitle.textContent='';}
+  if(quote){quote.textContent='';}
   var i=0;
   setTimeout(function type(){
-    if(i<text.length){
-      title.textContent=text.slice(0,i+1);
+    if(title&&i<titleText.length){
+      title.textContent=titleText.slice(0,i+1);
       i++;
       setTimeout(type,260);
+    }else{
+      // 标题打完，开始副标题
+      var j=0;
+      setTimeout(function typeSub(){
+        if(subtitle&&j<subText.length){
+          subtitle.textContent=subText.slice(0,j+1);
+          j++;
+          setTimeout(typeSub,100);
+        }else{
+          // 副标题打完，开始诗句
+          var k=0;
+          setTimeout(function typeQuote(){
+            if(quote&&k<quoteText.length){
+              quote.textContent=quoteText.slice(0,k+1);
+              k++;
+              setTimeout(typeQuote,80);
+            }
+          },300);
+        }
+      },300);
     }
   },600);
+})();
+
+// ====== 标题Glitch故障特效（随机触发） ======
+(function(){
+  var title=document.getElementById('navTitle');
+  if(!title) return;
+  function triggerGlitch(){
+    title.classList.add('glitch');
+    setTimeout(function(){title.classList.remove('glitch');},600);
+  }
+  // 每8-15秒随机触发一次
+  function scheduleGlitch(){
+    var delay=8000+Math.random()*7000;
+    setTimeout(function(){triggerGlitch();scheduleGlitch();},delay);
+  }
+  setTimeout(scheduleGlitch,5000);
+})();
+
+// ====== 骨架屏移除 ======
+window.addEventListener('load',function(){
+  setTimeout(function(){
+    var sk=document.getElementById('skeletonOverlay');
+    if(sk){
+      sk.classList.add('hidden');
+      setTimeout(function(){sk.remove();},500);
+    }
+  },300);
+});
+
+// ====== 背景飘浮粒子 ======
+(function(){
+  var canvas=document.getElementById('floatParticles');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var w,h,dpr=window.devicePixelRatio||1;
+  var particles=[];
+  var colors=['rgba(196,77,255,','rgba(108,180,238,','rgba(108,255,206,','rgba(255,107,157,','rgba(255,217,61,'];
+  function resize(){
+    w=window.innerWidth;h=window.innerHeight;
+    canvas.width=w*dpr;canvas.height=h*dpr;
+    canvas.style.width=w+'px';canvas.style.height=h+'px';
+    ctx.scale(dpr,dpr);
+  }
+  resize();
+  window.addEventListener('resize',resize);
+  // 创建粒子
+  var count=Math.min(40,Math.floor(w* h/25000));
+  for(var i=0;i<count;i++){
+    particles.push({
+      x:Math.random()*w,
+      y:Math.random()*h,
+      r:1+Math.random()*2.5,
+      vx:(Math.random()-.5)*.3,
+      vy:-.2-Math.random()*.4,
+      a:.2+Math.random()*.4,
+      color:colors[Math.floor(Math.random()*colors.length)]
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];
+      p.x+=p.vx; p.y+=p.vy;
+      // 边界循环
+      if(p.y<-10){p.y=h+10;p.x=Math.random()*w;}
+      if(p.x<-10)p.x=w+10;
+      if(p.x>w+10)p.x=-10;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color+p.a+')';
+      ctx.fill();
+      // 光晕
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r*2,0,Math.PI*2);
+      ctx.fillStyle=p.color+(p.a*.3)+')';
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ====== 页面过渡动画（外链跳转淡出） ======
+(function(){
+  var overlay=document.getElementById('pageTransition');
+  if(!overlay) return;
+  document.querySelectorAll('a[target="_blank"]').forEach(function(a){
+    a.addEventListener('click',function(){
+      overlay.classList.add('active');
+      setTimeout(function(){overlay.classList.remove('active');},800);
+    });
+  });
+})();
+
+// ====== 音量记忆（localStorage） ======
+(function(){
+  var bgm=document.getElementById('bgMusic');
+  var slider=document.getElementById('volSlider');
+  var KEY='angel_music_volume';
+  if(!bgm||!slider) return;
+  var saved=localStorage.getItem(KEY);
+  if(saved){
+    var v=parseFloat(saved);
+    bgm.volume=v;
+    slider.value=Math.round(v*100);
+  }
+  slider.addEventListener('change',function(){
+    localStorage.setItem(KEY,(slider.value/100).toString());
+  });
 })();
 
 // ====== 页面入场动画触发 ======
