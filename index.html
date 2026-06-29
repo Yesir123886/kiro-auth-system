@@ -161,6 +161,26 @@
   display: none;
 }
 
+/* 炫彩大字 */
+.nav-quote {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  margin: 8px 0 24px;
+  padding: 14px 0;
+  background: linear-gradient(90deg, #ff6b9d, #c44dff, #6cb4ee, #6cffce, #ffd93d, #ff6b9d);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: colorFlow 8s linear infinite;
+}
+@keyframes colorFlow {
+  0% { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}
+
 /* 隐藏原有元素 */
 .tg-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
 .navbar { display: none !important; }
@@ -233,6 +253,9 @@ footer.footer { display: none !important; }
 
 <!-- ========== KIRO 风格按钮导航区 ========== -->
 <div class="nav-btn-list">
+
+<!-- 炫彩大字 -->
+<div class="nav-quote">世界以痛吻我，我却报之以歌。</div>
 
 <!-- 头像 -->
 <img src="assets/logo.png" alt="ANGEL" class="nav-avatar">
