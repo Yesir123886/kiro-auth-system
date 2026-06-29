@@ -1,4 +1,4 @@
-const CACHE_NAME = 'angel-v1';
+const CACHE_NAME = 'angel-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', function(e) {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
       return cache.addAll(urlsToCache);
@@ -30,6 +31,8 @@ self.addEventListener('activate', function(e) {
       return Promise.all(keyList.map(function(key) {
         if (key !== CACHE_NAME) return caches.delete(key);
       }));
+    }).then(function() {
+      return self.clients.claim();
     })
   );
 });
