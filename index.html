@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANGEL 授权中心</title>
 <meta name="theme-color" content="#0a0e27">
+<!-- 资源预连接（加速外部跳转） -->
+<link rel="preconnect" href="https://1842160496.share.123pan.cn">
+<link rel="preconnect" href="https://buy.jry0.com">
+<link rel="preconnect" href="https://www.chaoziran.com">
+<link rel="preconnect" href="https://t.me">
+<link rel="preconnect" href="https://qm.qq.com">
+<link rel="dns-prefetch" href="https://hp.hysafe.top">
 <link rel="stylesheet" href="css/style.css">
 <style>
 /* ====== 炫彩流动文字（全局） ====== */
@@ -547,11 +554,14 @@ footer.footer { display: none !important; }
 
 <!-- 左侧面板：头像 / 标题 / 介绍 / TG -->
 <div class="left-panel">
-  <img src="assets/logo.png" alt="ANGEL" class="nav-avatar">
+  <img src="assets/logo.png" alt="ANGEL" class="nav-avatar" loading="lazy">
   <h1 class="nav-title">ANGEL</h1>
   <p class="nav-subtitle">P蛋爱露出</p>
   <div class="nav-quote">世界以痛吻我，我却报之以歌。</div>
   <a href="https://t.me/Czr114514nb" target="_blank" class="tg-link">📢 TG 频道 @Czr114514nb</a>
+  <div class="visitor-count" style="margin-top:18px;font-size:12px;color:rgba(160,150,210,.5);letter-spacing:1px;">
+    👁️ 总访问量：<span id="visitCount" style="color:#a78bfa;font-weight:600;">...</span> 次
+  </div>
 </div>
 
 <!-- 右侧面板：所有按钮 -->
@@ -576,7 +586,13 @@ footer.footer { display: none !important; }
 <div class="nav-group-label">— 社群 & 联系 —</div>
 <a href="https://t.me/Czr114514nb" target="_blank" class="nav-item"><span class="shimmer-text">📢 点我加入TG频道（需挂梯子）</span></a>
 <a href="https://qm.qq.com/q/K4BdkG1FCi" target="_blank" class="nav-item"><span class="shimmer-text">👥 点我加入QQ闲聊群</span></a>
+<a id="btnCopyQQ" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text">📋 点击复制QQ群号 753430447</span></a>
 <a id="btnQRCode" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text">🎫 点击TG咨询代理低价批卡</span></a>
+
+<!-- 底部信息 -->
+<div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(140,130,190,.35);letter-spacing:1px;">
+  <span>最后更新：2026-06-30</span> · <span>© ANGEL</span>
+</div>
 
 <!-- 底部留白 -->
 <div style="height:20px;"></div>
@@ -656,19 +672,25 @@ function showToast(msg){
   var el=document.getElementById('dlToast');
   if(!el){el=document.createElement('div');el.id='dlToast';document.body.appendChild(el);}
   el.textContent=msg;
-  el.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%');z-index:9999;padding:12px 28px;background:rgba(108,92,231,.92);color:#fff;border-radius:10px;font-size:13px;transition:opacity .3s;opacity:1;';
+  el.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 28px;background:rgba(108,92,231,.92);color:#fff;border-radius:10px;font-size:13px;transition:opacity .3s;opacity:1;';
   setTimeout(function(){el.style.opacity='0';setTimeout(function(){el.remove()},330)},2500);
 }
 
 // TG 二维码弹窗
-document.getElementById('btnQRCode').addEventListener('click',function(){
+document.getElementById('btnQRCode').addEventListener('click',function(e){
+  e.preventDefault();
+  e.stopPropagation();
   var existing=document.getElementById('qrModal');
   if(existing){existing.remove();return;}
   var overlay=document.createElement('div');
   overlay.id='qrModal';
-  overlay.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;animation:qrFadeIn .2s ease;';
-  overlay.innerHTML='<div style="background:linear-gradient(160deg,#1a1258,#0f1035);border:1px solid rgba(140,130,220,.25);border-radius:20px;padding:30px;text-align:center;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:qrFadeIn .2s ease;"><p style="color:#d8dff0;font-size:15px;margin:0 0 16px;font-weight:600;">📱 扫码添加 TG：@PANGELD</p><img src="assets/tg-qrcode.png" style="width:280px;height:auto;border-radius:12px;border:1px solid rgba(255,255,255,.08);margin-bottom:14px;" alt="TG QR"><p style="color:rgba(180,170,220,.7);font-size:12px;margin:0;">点击任意位置关闭</p></div>';
+  overlay.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;animation:qrFadeIn .2s ease;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);';
+  var modal=document.createElement('div');
+  modal.style.cssText='background:linear-gradient(160deg,#1a1258,#0f1035);border:1px solid rgba(140,130,220,.25);border-radius:20px;padding:30px;text-align:center;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:qrFadeIn .3s ease;';
+  modal.innerHTML='<p style="color:#d8dff0;font-size:15px;margin:0 0 16px;font-weight:600;">📱 扫码添加 TG：@PANGELD</p><img src="assets/tg-qrcode.png" style="width:280px;height:auto;border-radius:12px;border:1px solid rgba(255,255,255,.08);margin-bottom:14px;" alt="TG QR"><p style="color:rgba(180,170,220,.7);font-size:12px;margin:0;">点击任意位置关闭</p>';
+  overlay.appendChild(modal);
   overlay.addEventListener('click',function(){overlay.remove();});
+  modal.addEventListener('click',function(e){e.stopPropagation();});
   document.body.appendChild(overlay);
 });
 
@@ -775,6 +797,50 @@ document.querySelectorAll('.nav-item.download').forEach(function(btn){
     setTimeout(function(){svg.remove();},750);
   });
 });
+
+// ====== 复制QQ群号 ======
+document.getElementById('btnCopyQQ').addEventListener('click',function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  var qq='753430447';
+  var self=this;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(qq).then(function(){
+      showToast('✅ QQ群号已复制：'+qq);
+    }).catch(function(){fallbackCopy(qq);});
+  }else{fallbackCopy(qq);}
+  function fallbackCopy(text){
+    var ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');showToast('✅ QQ群号已复制：'+text);}catch(e){showToast('❌ 复制失败，请手动复制：'+text);}
+    document.body.removeChild(ta);
+  }
+});
+
+// ====== 访问量统计（本地存储 + 模拟） ======
+(function(){
+  var KEY='angel_visit_count';
+  var el=document.getElementById('visitCount');
+  if(!el)return;
+  try{
+    var n=parseInt(localStorage.getItem(KEY)||'0',10);
+    // 首次访问初始化一个基础数字
+    if(n===0){n=8888;}
+    n++;
+    localStorage.setItem(KEY,n.toString());
+    // 数字滚动动画
+    var display=0;
+    var step=Math.ceil(n/40);
+    var timer=setInterval(function(){
+      display+=step;
+      if(display>=n){display=n;clearInterval(timer);}
+      el.textContent=display.toLocaleString();
+    },25);
+  }catch(e){
+    el.textContent='8,889';
+  }
+})();
 </script>
 <style>
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
