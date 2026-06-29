@@ -504,6 +504,56 @@
   .nav-item { font-size: 12px; padding: 11px 10px; }
 }
 footer.footer { display: none !important; }
+
+/* ====== 自定义光标（仅桌面端） ====== */
+@media (pointer: fine) {
+  * { cursor: none !important; }
+
+  .cursor-dot {
+    position: fixed; top: 0; left: 0;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #c44dff;
+    box-shadow: 0 0 10px rgba(196,77,255,.8), 0 0 20px rgba(196,77,255,.4);
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%,-50%);
+    transition: width .2s ease, height .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+
+  .cursor-ring {
+    position: fixed; top: 0; left: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(196,77,255,.45);
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%,-50%);
+    transition: width .25s ease, height .25s ease, border-color .25s ease;
+  }
+
+  /* 悬停可交互元素 */
+  .cursor-dot.hover {
+    width: 6px; height: 6px;
+    background: #6cffce;
+    box-shadow: 0 0 12px rgba(108,255,206,.9), 0 0 24px rgba(108,255,206,.5);
+  }
+  .cursor-ring.hover {
+    width: 52px; height: 52px;
+    border-color: rgba(108,255,206,.55);
+  }
+
+  /* 点击瞬间 */
+  .cursor-dot.click {
+    width: 18px; height: 18px;
+    background: #ffd93d;
+    box-shadow: 0 0 16px rgba(255,217,61,.9), 0 0 32px rgba(255,217,61,.5);
+  }
+  .cursor-ring.click {
+    width: 28px; height: 28px;
+    border-color: rgba(255,217,61,.6);
+  }
+}
 </style>
 </head>
 <body style="background:#080a14;min-height:100vh;">
@@ -840,6 +890,64 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
   }catch(e){
     el.textContent='8,889';
   }
+})();
+
+// ====== 自定义光标（仅桌面端） ======
+(function(){
+  if(!window.matchMedia('(pointer:fine)').matches) return;
+
+  var dot=document.createElement('div');
+  dot.className='cursor-dot';
+  var ring=document.createElement('div');
+  ring.className='cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+
+  var mx=window.innerWidth/2, my=window.innerHeight/2;
+  var rx=mx, ry=my;
+
+  document.addEventListener('mousemove',function(e){
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px';
+    dot.style.top=my+'px';
+  });
+
+  // 外环平滑跟随（滞后效果）
+  function animateRing(){
+    rx+=(mx-rx)*.18;
+    ry+=(my-ry)*.18;
+    ring.style.left=rx+'px';
+    ring.style.top=ry+'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // 悬停可交互元素 → 放大+变色
+  function addHover(el){
+    el.addEventListener('mouseenter',function(){dot.classList.add('hover');ring.classList.add('hover');});
+    el.addEventListener('mouseleave',function(){dot.classList.remove('hover');ring.classList.remove('hover');});
+  }
+  document.querySelectorAll('a,button,.nav-item,.tg-link,.nav-avatar').forEach(addHover);
+  // 延迟绑定动态生成的元素
+  var observer=new MutationObserver(function(muts){
+    muts.forEach(function(m){
+      m.addedNodes.forEach(function(node){
+        if(node.nodeType===1){
+          if(node.matches&&node.matches('a,button,.nav-item,.tg-link')) addHover(node);
+          if(node.querySelectorAll){node.querySelectorAll('a,button,.nav-item,.tg-link').forEach(addHover);}
+        }
+      });
+    });
+  });
+  observer.observe(document.body,{childList:true,subtree:true});
+
+  // 点击瞬间脉冲
+  document.addEventListener('mousedown',function(){dot.classList.add('click');ring.classList.add('click');});
+  document.addEventListener('mouseup',function(){dot.classList.remove('click');ring.classList.remove('click');});
+
+  // 鼠标离开窗口时隐藏
+  document.addEventListener('mouseleave',function(){dot.style.opacity='0';ring.style.opacity='0';});
+  document.addEventListener('mouseenter',function(){dot.style.opacity='1';ring.style.opacity='1';});
 })();
 </script>
 <style>
