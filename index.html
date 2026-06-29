@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANGEL 授权中心</title>
 <meta name="theme-color" content="#0a0e27">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
 <!-- 资源预连接（加速外部跳转） -->
 <link rel="preconnect" href="https://1842160496.share.123pan.cn">
 <link rel="preconnect" href="https://buy.jry0.com">
@@ -505,6 +508,22 @@
 }
 footer.footer { display: none !important; }
 
+/* ====== 按钮图标hover动画 ====== */
+.nav-item .shimmer-text {
+  display: inline-flex;
+  align-items: center;
+}
+/* hover时整体微弹 */
+.nav-item:hover .shimmer-text {
+  animation: textBounce .45s ease;
+}
+@keyframes textBounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.06); }
+  60%  { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+
 /* ====== 自定义光标（仅桌面端） ====== */
 @media (pointer: fine) {
   * { cursor: none !important; }
@@ -943,6 +962,17 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
   });
 })();
 
+// ====== 按钮图标hover弹跳 ======
+document.querySelectorAll('.nav-item').forEach(function(btn){
+  var shimmer=btn.querySelector('.shimmer-text');
+  if(!shimmer) return;
+  btn.addEventListener('mouseenter',function(){
+    shimmer.style.animation='none';
+    void shimmer.offsetWidth; // trigger reflow
+    shimmer.style.animation='textBounce .45s ease';
+  });
+});
+
 // ====== 页面入场动画触发 ======
 requestAnimationFrame(function(){
   requestAnimationFrame(function(){
@@ -1071,6 +1101,48 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
   // 鼠标离开窗口时隐藏
   document.addEventListener('mouseleave',function(){dot.style.opacity='0';ring.style.opacity='0';});
   document.addEventListener('mouseenter',function(){dot.style.opacity='1';ring.style.opacity='1';});
+})();
+
+// ====== 鼠标拖尾粒子 ======
+(function(){
+  if(!window.matchMedia('(pointer:fine)').matches) return;
+
+  var trail=[];
+  var maxTrail=18;
+  var colors=['#ff6b9d','#c44dff','#6cb4ee','#6cffce','#ffd93d','#a78bfa'];
+  var lastSpawn=0;
+
+  document.addEventListener('mousemove',function(e){
+    var now=Date.now();
+    if(now-lastSpawn<30) return; // 节流30ms
+    lastSpawn=now;
+
+    var p=document.createElement('div');
+    var size=4+Math.random()*6;
+    var color=colors[Math.floor(Math.random()*colors.length)];
+    p.style.cssText='position:fixed;left:'+(e.clientX-size/2)+'px;top:'+(e.clientY-size/2)+'px;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+color+';pointer-events:none;z-index:99997;opacity:.8;box-shadow:0 0 8px '+color+',0 0 16px '+color+'44;transition:opacity .6s ease,transform .6s ease;';
+    document.body.appendChild(p);
+    trail.push(p);
+
+    // 向上漂浮消散
+    requestAnimationFrame(function(){
+      p.style.opacity='0';
+      p.style.transform='translateY(-25px) scale(.3)';
+    });
+
+    // 清理
+    setTimeout(function(){
+      p.remove();
+      var idx=trail.indexOf(p);
+      if(idx>-1) trail.splice(idx,1);
+    },650);
+
+    // 限制数量
+    while(trail.length>maxTrail){
+      var old=trail.shift();
+      if(old.parentNode) old.remove();
+    }
+  });
 })();
 </script>
 <style>
