@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANGEL 授权中心</title>
 <meta name="theme-color" content="#0a0e27">
-<link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="css/style.css">
 <style>
 /* ====== 炫彩流动文字（全局） ====== */
@@ -361,31 +360,7 @@
   color: #fff;
 }
 
-/* 加载屏 */
-#loadingScreen {
-  position: fixed; inset: 0; z-index: 99999;
-  background: #0a0e27;
-  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
-  transition: opacity .45s ease, visibility .45s;
-}
-#loadingScreen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
-#loadingScreen .ring {
-  width: 44px; height: 44px;
-  border: 3px solid rgba(108,92,231,.18);
-  border-top-color: #6c5ce7;
-  border-radius: 50%;
-  animation: loaderSpin .75s linear infinite;
-}
-#loadingScreen .lt {
-  font-size: 13px; letter-spacing: 4px;
-  background: linear-gradient(90deg, #ff6b9d, #c44dff, #6cb4ee, #6cffce, #ffd93d, #ff6b9d);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: colorFlow 5s linear infinite;
-}
-@keyframes loaderSpin { to { transform: rotate(360deg); } }
+/* 加载屏已移除（避免SW缓存导致卡死） */
 
 /* 移动端响应式 */
 @media (max-width: 600px) {
@@ -405,11 +380,6 @@ footer.footer { display: none !important; }
 </style>
 </head>
 <body style="background:#080a14;min-height:100vh;">
-<!-- 加载屏 -->
-<div id="loadingScreen">
-  <div class="ring"></div>
-  <div class="lt">✦ ANGEL 加载中</div>
-</div>
 <!-- Canvas 波浪背景 -->
 <canvas id="waveBg"></canvas>
 
@@ -653,17 +623,6 @@ requestAnimationFrame(function(){
   });
 });
 
-// ====== 加载屏隐藏（不依赖load事件，立即执行） ======
-function hideLoader(){
-  var s=document.getElementById('loadingScreen');
-  if(s) s.classList.add('hide');
-}
-// DOM就绪就隐藏（不用等load）
-if(document.readyState!=='loading'){setTimeout(hideLoader,500);}
-else{document.addEventListener('DOMContentLoaded',function(){setTimeout(hideLoader,500);});}
-// 兜底：最多2秒后强制隐藏
-setTimeout(hideLoader,2000);
-
 // ====== 下载进度环 ======
 document.querySelectorAll('.nav-item.download').forEach(function(btn){
   btn.addEventListener('click',function(){
@@ -687,6 +646,6 @@ document.querySelectorAll('.nav-item.download').forEach(function(btn){
 <style>
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
 </style>
-<script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+
 </body>
 </html>
