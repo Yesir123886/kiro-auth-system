@@ -177,7 +177,7 @@
   padding: 0 !important;
 }
 #dlSec .card-title,
-#dlSec p[style*="color:var(--text-secondary)"],
+#dlSec p,
 #dlSec > div[style*="grid"] {
   display: none !important;
 }
@@ -189,16 +189,13 @@ footer.footer { display: none !important; }
 </head>
 <body style="background:#0a0e27;min-height:100vh;">
 
-<!-- 背景视频 -->
-<video id="bgVideo" autoplay muted loop playsinline preload="metadata" style="position:fixed;inset:-10%;width:120%;height:120%;object-fit:cover;z-index:-3;opacity:0.40;pointer-events:none;filter:blur(3px);transform:translateZ(0);">
-  <source src="assets/bg.mp4" type="video/mp4">
-</video>
+<!-- 渐变背景（纯CSS，零性能开销） -->
+<div id="bgFixed" style="position:fixed;inset:0;z-index:-3;background:linear-gradient(135deg,#0a0e27 0%,#141842 30%,#1a1258 60%,#0a0e27 100%);"></div>
 
-<!-- 流光高亮 -->
-<div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(135deg,transparent 35%,rgba(180,140,255,0.07) 47%,rgba(200,160,255,0.10) 50%,rgba(180,140,255,0.07) 53%,transparent 65%);background-size:200% 200%;animation:shimmerSweep 8s ease-in-out infinite;transform:translateZ(0);"></div>
-
-<!-- 渐变叠加 -->
-<div id="bgOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(255,240,255,.10) 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(130,100,220,.08) 0%,transparent 55%);"></div>
+<!-- 流光高亮：GPU加速 transform 动画 -->
+<div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;">
+  <div style="position:absolute;top:0;left:0;width:200%;height:100%;will-change:transform;animation:shimmerMove 8s ease-in-out infinite;background:linear-gradient(90deg,transparent 0%,transparent 35%,rgba(180,140,255,0.13) 47%,rgba(200,160,255,0.18) 50%,rgba(180,140,255,0.13) 53%,transparent 65%,transparent 100%);"></div>
+</div>
 
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
@@ -288,6 +285,6 @@ function showToast(msg){
   setTimeout(function(){el.style.opacity='0';setTimeout(function(){el.remove()},330)},2500);
 }
 </script>
-<style>@keyframes shimmerSweep{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}</style>
+<style>@keyframes shimmerMove{0%,100%{transform:translateX(-50%)}50%{transform:translateX(0)}}</style>
 </body>
 </html>
