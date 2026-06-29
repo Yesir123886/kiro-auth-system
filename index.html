@@ -49,37 +49,38 @@
   pointer-events: none;
   z-index: -2;
   will-change: opacity;
+  filter: blur(40px);
 }
 .gs1 {
-  width: 750px; height: 750px;
-  background: radial-gradient(circle, rgba(160,120,240,.16) 0%, rgba(120,80,200,.06) 35%, transparent 68%);
-  top: -220px; left: -180px;
-  animation: spotBreathe1 11s ease-in-out infinite alternate;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(140,100,240,.45) 0%, rgba(100,60,200,.18) 40%, transparent 72%);
+  top: -250px; left: -200px;
+  animation: spotBreathe1 10s ease-in-out infinite alternate;
 }
 .gs2 {
-  width: 650px; height: 650px;
-  background: radial-gradient(circle, rgba(30,180,220,.14) 0%, rgba(20,130,170,.05) 35%, transparent 68%);
-  bottom: -200px; right: -140px;
-  animation: spotBreathe2 13s ease-in-out infinite alternate;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(20,170,220,.4) 0%, rgba(15,120,170,.15) 40%, transparent 72%);
+  bottom: -220px; right: -160px;
+  animation: spotBreathe2 12s ease-in-out infinite alternate;
 }
 .gs3 {
-  width: 550px; height: 550px;
-  background: radial-gradient(circle, rgba(255,130,180,.11) 0%, rgba(190,90,140,.04) 35%, transparent 68%);
-  top: 45%; left: 55%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,120,180,.35) 0%, rgba(180,80,130,.12) 40%, transparent 72%);
+  top: 55%; left: 45%;
   transform: translate(-50%, -50%);
-  animation: spotBreathe3 15s ease-in-out infinite alternate;
+  animation: spotBreathe3 14s ease-in-out infinite alternate;
 }
 @keyframes spotBreathe1 {
-  0%   { opacity: .5; transform: scale(.95); }
-  100% { opacity: 1;   transform: scale(1.06); }
+  0%   { opacity: .55; transform: scale(.92); }
+  100% { opacity: 1;    transform: scale(1.08); }
 }
 @keyframes spotBreathe2 {
-  0%   { opacity: .45; transform: scale(.93); }
-  100% { opacity: .95;  transform: scale(1.05); }
+  0%   { opacity: .5;  transform: scale(.9); }
+  100% { opacity: .95; transform: scale(1.06); }
 }
 @keyframes spotBreathe3 {
-  0%   { opacity: .4;  transform: translate(-50%,-50%) scale(.9); }
-  100% { opacity: .85; transform: translate(-50%,-50%) scale(1.08); }
+  0%   { opacity: .45; transform: translate(-50%,-50%) scale(.88); }
+  100% { opacity: .9;  transform: translate(-50%,-50%) scale(1.1); }
 }
 
 /* 按钮边框呼吸灯（纯CSS） */
@@ -447,8 +448,8 @@ footer.footer { display: none !important; }
 </div>
 <!-- 渐变底色 -->
 <div id="bgFixed" style="position:fixed;inset:0;z-index:-5;background:
-  radial-gradient(ellipse 80% 60% at 15% 0%, rgba(140,100,220,.22) 0%, transparent 55%),
-  radial-gradient(ellipse 70% 50% at 85% 100%, rgba(20,160,200,.16) 0%, transparent 50%),
+  radial-gradient(ellipse 80% 60% at 10% 0%, rgba(150,110,240,.35) 0%, transparent 55%),
+  radial-gradient(ellipse 70% 50% at 90% 100%, rgba(20,170,220,.28) 0%, transparent 50%),
   linear-gradient(170deg, #090b1a 0%, #0d1028 25%, #111435 50%, #0c0f2b 75%, #080a1e 100%);
 "></div>
 
