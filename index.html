@@ -41,6 +41,160 @@
   -webkit-text-fill-color: transparent;
 }
 
+/* 浮动光球背景（纯CSS，零JS） */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  filter: blur(60px);
+  opacity: 0.12;
+  will-change: transform;
+  animation: orbFloat 18s ease-in-out infinite alternate;
+}
+.orb1 {
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(108,92,231,.6), transparent 70%);
+  top: 10%; left: 10%;
+  animation-duration: 20s;
+}
+.orb2 {
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(0,210,211,.5), transparent 70%);
+  top: 60%; left: 75%;
+  animation-duration: 24s;
+  animation-delay: -4s;
+}
+.orb3 {
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(255,107,157,.45), transparent 70%);
+  top: 35%; left: 55%;
+  animation-duration: 22s;
+  animation-delay: -8s;
+}
+.orb4 {
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(108,92,231,.35), transparent 70%);
+  top: 75%; left: 20%;
+  animation-duration: 26s;
+  animation-delay: -12s;
+}
+
+@keyframes orbFloat {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(30px, -20px) scale(1.05); }
+  50%  { transform: translate(-20px, 30px) scale(0.97); }
+  75%  { transform: translate(25px, 15px) scale(1.03); }
+  100% { transform: translate(-10px, -25px) scale(1); }
+}
+
+/* 按钮边框呼吸灯（纯CSS） */
+.nav-item {
+  animation: borderPulse 3s ease-in-out infinite;
+}
+@keyframes borderPulse {
+  0%, 100% { border-color: rgba(100,120,200,.22); box-shadow: none; }
+  50%        { border-color: rgba(140,120,255,.38); box-shadow: 0 0 12px rgba(108,92,231,.12); }
+}
+.nav-item.primary {
+  animation: borderPulsePrimary 3s ease-in-out infinite;
+}
+@keyframes borderPulsePrimary {
+  0%, 100% { border-color: rgba(140,120,255,.35); box-shadow: none; }
+  50%        { border-color: rgba(175,150,255,.55); box-shadow: 0 0 14px rgba(108,92,231,.18); }
+}
+.nav-item.kiro-btn.accent {
+  animation: borderPulseAccent 3s ease-in-out infinite;
+}
+@keyframes borderPulseAccent {
+  0%, 100% { border-color: rgba(0,210,211,.25); box-shadow: none; }
+  50%        { border-color: rgba(0,230,230,.45); box-shadow: 0 0 12px rgba(0,210,211,.15); }
+}
+
+/* 鼠标跟随柔光 */
+#cursorGlow {
+  position: fixed;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, rgba(140,110,255,.12) 0%, rgba(108,92,231,.06) 35%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: left .15s ease-out, top .15s ease-out, opacity .3s;
+  opacity: 0;
+  will-change: left, top;
+}
+body:hover #cursorGlow { opacity: 1; }
+
+/* 背景星空粒子 */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  animation: starTwinkle var(--dur) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50%      { opacity: var(--max-op); transform: scale(1); }
+}
+
+/* 背景极光幕 */
+#aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  overflow: hidden;
+}
+.aurora-layer {
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  top: 0;
+  left: -50%;
+  background: linear-gradient(180deg,
+    transparent 30%,
+    rgba(108,92,231,.06) 45%,
+    rgba(0,210,211,.05) 55%,
+    rgba(255,107,157,.04) 65%,
+    transparent 80%
+  );
+  animation: auroraDrift var(--adur) ease-in-out infinite alternate;
+  filter: blur(40px);
+}
+@keyframes auroraDrift {
+  0%   { transform: translateX(-10%) skewX(-3deg); }
+  100% { transform: translateX(10%) skewX(3deg); }
+}
+
+/* 文字闪烁光标（标题后） */
+.nav-title::after {
+  content: '|';
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: #c44dff;
+  background-clip: unset;
+  color: #c44dff;
+  animation: cursorBlink .9s step-end infinite;
+  margin-left: 4px;
+  font-weight: 300;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
 /* ========== KIRO 风格按钮导航页 ========== */
 .nav-btn-list {
   max-width: 480px;
@@ -78,6 +232,12 @@
 @keyframes rippleExpand {
   0%   { opacity: .6; transform: scale(0); }
   100% { opacity: 0;  transform: scale(4); }
+}
+
+/* 点击粒子爆炸 */
+@keyframes explodeParticle {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(0); }
 }
 
 .nav-avatar {
@@ -264,12 +424,31 @@ footer.footer { display: none !important; }
 </head>
 <body style="background:#0a0e27;min-height:100vh;">
 
+<!-- 鼠标跟随柔光 -->
+<div id="cursorGlow"></div>
+
+<!-- 背景星空粒子 -->
+<div id="starfield"></div>
+
+<!-- 背景极光幕 -->
+<div id="aurora">
+  <div class="aurora-layer" style="--adur: 14s;"></div>
+  <div class="aurora-layer" style="--adur: 19s; animation-delay: -5s; opacity: .6; filter: blur(60px);"></div>
+  <div class="aurora-layer" style="--adur: 23s; animation-delay: -11s; opacity: .4; filter: blur(80px); background: linear-gradient(180deg, transparent 40%, rgba(255,107,157,.05) 55%, rgba(255,217,61,.03) 68%, transparent 82%);"></div>
+</div>
+
 <!-- 渐变背景（纯色，零开销） -->
-<div id="bgFixed" style="position:fixed;inset:0;z-index:-3;background:
+<div id="bgFixed" style="position:fixed;inset:0;z-index:-4;background:
   radial-gradient(ellipse at 20% 0%, rgba(88,60,180,.3) 0%, transparent 55%),
   radial-gradient(ellipse at 80% 100%, rgba(0,180,200,.18) 0%, transparent 50%),
   linear-gradient(165deg,#0c102b 0%,#141840 30%,#1a1255 55%,#0e1038 80%,#0a0e27 100%);
 "></div>
+
+<!-- 浮动光球背景（纯CSS，零JS） -->
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="orb orb4"></div>
 
 <!-- 流光（极简，只1层） -->
 <div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;">
@@ -396,16 +575,58 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
   });
 });
 
-// ====== 按钮点击涟漪特效 ======
+// ====== 鼠标跟随柔光 ======
+(function(){
+  var glow = document.getElementById('cursorGlow');
+  var lastTime = 0;
+  document.addEventListener('mousemove', function(e){
+    var now = Date.now();
+    if (now - lastTime > 16) {
+      lastTime = now;
+      glow.style.left = e.clientX + 'px';
+      glow.style.top = e.clientY + 'px';
+    }
+  });
+})();
+
+// ====== 星空粒子（JS创建，CSS动画） ======
+(function(){
+  var container = document.getElementById('starfield');
+  var count = window.innerWidth < 768 ? 40 : 80;
+  for (var i = 0; i < count; i++) {
+    var s = document.createElement('div');
+    s.className = 'star';
+    var size = Math.random() < .8 ? 1.5 : (Math.random() * 2.5);
+    s.style.cssText = 'left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+size+'px;height:'+size+'px;--dur:'+(3+Math.random()*5)+'s;--delay:'+(-Math.random()*8)+'s;--max-op:'+(.2+Math.random()*.5)+';';
+    if (Math.random() > .7) {
+      var colors = ['rgba(108,92,231,.9)','rgba(255,107,157,.85)','rgba(108,207,238,.85)','rgba(255,217,61,.9)'];
+      s.style.background = colors[Math.floor(Math.random() * colors.length)];
+    }
+    container.appendChild(s);
+  }
+})();
+
+// ====== 按钮点击粒子爆炸（增强版） ======
 document.querySelectorAll('.nav-item').forEach(function(btn){
   btn.addEventListener('click',function(e){
     var rect=btn.getBoundingClientRect();
-    var size=Math.max(rect.width,rect.height)*1.5;
+    var cx=e.clientX-rect.left, cy=e.clientY-rect.top;
+    // 爆炸粒子
+    for(var i=0;i<14;i++){
+      var p=document.createElement('span');
+      var angle=(i/14)*Math.PI*2+Math.random()*.6;
+      var dist=50+Math.random()*90;
+      var ec=['#ff6b9d','#c44dff','#6cb4ee','#6cffce','#ffd93d','#fff','rgba(200,170,255,.9)'];
+      p.style.cssText='position:absolute;left:'+cx+'px;top:'+cy+'px;width:'+(3+Math.random()*4)+'px;height:'+(3+Math.random()*4)+'px;border-radius:50%;pointer-events:none;z-index:15;background:'+ec[i%ec.length]+';--ex:'+(Math.cos(angle)*dist)+'px;--ey:'+(Math.sin(angle)*dist)+'px;animation:explodeParticle .65s ease-out forwards;';
+      btn.style.overflow='hidden';
+      btn.appendChild(p);
+      (function(el){setTimeout(function(){el.remove();},700);})(p);
+    }
+    // 涟漪
     var ripple=document.createElement('span');
     ripple.className='ripple';
-    ripple.style.cssText='position:absolute;left:'+(e.clientX-rect.left-size/2)+'px;top:'+(e.clientY-rect.top-size/2)+'px;width:'+size+'px;height:'+size+'px;pointer-events:none;z-index:5;';
-    btn.style.overflow='hidden';
-    btn.style.position='relative';
+    var size=Math.max(rect.width,rect.height)*1.5;
+    ripple.style.cssText='position:absolute;left:'+(cx-size/2)+'px;top:'+(cy-size/2)+'px;width:'+size+'px;height:'+size+'px;pointer-events:none;z-index:5;';
     btn.appendChild(ripple);
     (function(el){setTimeout(function(){el.remove();},550);})(ripple);
   });
