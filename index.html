@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANGEL 授权中心</title>
 <meta name="theme-color" content="#0a0e27">
+<link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="css/style.css">
 <style>
 /* ====== 炫彩流动文字（全局） ====== */
@@ -419,10 +420,129 @@ body:hover #cursorGlow { opacity: 1; }
 #dlStatus {
   display: none !important;
 }
+/* 按钮悬停扫光 */
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.13), transparent);
+  transition: left .48s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+.nav-item:hover::before { left: 125%; }
+
+/* 页面入场动画 */
+.nav-btn-list > * {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.nav-btn-list.ready > * {
+  animation: fadeSlideUp .5s ease forwards;
+  animation-fill-mode: backwards;
+}
+.nav-btn-list.ready > *:nth-child(1)  { animation-delay: .04s; }
+.nav-btn-list.ready > *:nth-child(2)  { animation-delay: .08s; }
+.nav-btn-list.ready > *:nth-child(3)  { animation-delay: .12s; }
+.nav-btn-list.ready > *:nth-child(4)  { animation-delay: .16s; }
+.nav-btn-list.ready > *:nth-child(5)  { animation-delay: .20s; }
+.nav-btn-list.ready > *:nth-child(6)  { animation-delay: .24s; }
+.nav-btn-list.ready > *:nth-child(7)  { animation-delay: .28s; }
+.nav-btn-list.ready > *:nth-child(8)  { animation-delay: .32s; }
+.nav-btn-list.ready > *:nth-child(9)  { animation-delay: .36s; }
+.nav-btn-list.ready > *:nth-child(10) { animation-delay: .40s; }
+.nav-btn-list.ready > *:nth-child(11) { animation-delay: .44s; }
+.nav-btn-list.ready > *:nth-child(12) { animation-delay: .48s; }
+.nav-btn-list.ready > *:nth-child(13) { animation-delay: .52s; }
+.nav-btn-list.ready > *:nth-child(14) { animation-delay: .56s; }
+.nav-btn-list.ready > *:nth-child(15) { animation-delay: .60s; }
+.nav-btn-list.ready > *:nth-child(16) { animation-delay: .64s; }
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 文字选中 */
+::selection {
+  background: rgba(108,92,231,.55);
+  color: #fff;
+}
+
+/* 加载屏 */
+#loadingScreen {
+  position: fixed; inset: 0; z-index: 99999;
+  background: #0a0e27;
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+  transition: opacity .45s ease, visibility .45s;
+}
+#loadingScreen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+#loadingScreen .ring {
+  width: 44px; height: 44px;
+  border: 3px solid rgba(108,92,231,.18);
+  border-top-color: #6c5ce7;
+  border-radius: 50%;
+  animation: loaderSpin .75s linear infinite;
+}
+#loadingScreen .lt {
+  font-size: 13px; letter-spacing: 4px;
+  background: linear-gradient(90deg, #ff6b9d, #c44dff, #6cb4ee, #6cffce, #ffd93d, #ff6b9d);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: colorFlow 5s linear infinite;
+}
+@keyframes loaderSpin { to { transform: rotate(360deg); } }
+
+/* 科技网格背景 */
+#techGrid {
+  position: fixed; inset: 0; z-index: -3; pointer-events: none;
+  opacity: .045;
+}
+#techGrid::before {
+  content: '';
+  position: absolute; inset: -50%;
+  background:
+    linear-gradient(rgba(108,92,231,.7) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108,92,231,.7) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridDrift 25s linear infinite;
+  transform: perspective(400px) rotateX(55deg);
+  transform-origin: center bottom;
+}
+@keyframes gridDrift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 60px; }
+}
+
+/* 移动端响应式 */
+@media (max-width: 600px) {
+  .nav-title { font-size: 26px; letter-spacing: 6px; }
+  .nav-subtitle { font-size: 12px; margin-bottom: 24px; }
+  .nav-quote { font-size: 14px; letter-spacing: 2px; margin: 4px 0 18px; }
+  .nav-btn-list { padding: 14px 10px 40px; }
+  .nav-item { padding: 12px 14px; font-size: 13px; margin-bottom: 10px; }
+  .nav-avatar { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 14px; }
+  .nav-group-label { font-size: 10px; margin: 16px 0 8px; }
+  #cursorGlow { display: none; }
+  .orb2, .orb4 { display: none; }
+}
+@media (max-width: 380px) {
+  .nav-title { font-size: 22px; letter-spacing: 4px; }
+  .nav-item { font-size: 12px; padding: 11px 10px; }
+}
 footer.footer { display: none !important; }
 </style>
 </head>
 <body style="background:#0a0e27;min-height:100vh;">
+<!-- 加载屏 -->
+<div id="loadingScreen">
+  <div class="ring"></div>
+  <div class="lt">✦ ANGEL 加载中</div>
+</div>
+<!-- 科技网格背景 -->
+<div id="techGrid"></div>
 
 <!-- 鼠标跟随柔光 -->
 <div id="cursorGlow"></div>
@@ -434,7 +554,6 @@ footer.footer { display: none !important; }
 <div id="aurora">
   <div class="aurora-layer" style="--adur: 14s;"></div>
   <div class="aurora-layer" style="--adur: 19s; animation-delay: -5s; opacity: .6; filter: blur(60px);"></div>
-  <div class="aurora-layer" style="--adur: 23s; animation-delay: -11s; opacity: .4; filter: blur(80px); background: linear-gradient(180deg, transparent 40%, rgba(255,107,157,.05) 55%, rgba(255,217,61,.03) 68%, transparent 82%);"></div>
 </div>
 
 <!-- 渐变背景（纯色，零开销） -->
@@ -592,7 +711,7 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
 // ====== 星空粒子（JS创建，CSS动画） ======
 (function(){
   var container = document.getElementById('starfield');
-  var count = window.innerWidth < 768 ? 40 : 80;
+  var count = window.innerWidth < 768 ? 30 : 50;
   for (var i = 0; i < count; i++) {
     var s = document.createElement('div');
     s.className = 'star';
@@ -631,10 +750,79 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
     (function(el){setTimeout(function(){el.remove();},550);})(ripple);
   });
 });
+// ====== 3D 按钮倾斜 ======
+document.querySelectorAll('.nav-item').forEach(function(btn){
+  btn.addEventListener('mousemove',function(e){
+    var r=btn.getBoundingClientRect();
+    var x=(e.clientX-r.left)/r.width-.5;
+    var y=(e.clientY-r.top)/r.height-.5;
+    btn.style.transform='perspective(600px) rotateY('+(x*6)+'deg) rotateX('+(-y*6)+'deg)';
+    btn.style.transition='transform .1s ease';
+  });
+  btn.addEventListener('mouseleave',function(){
+    btn.style.transform='perspective(600px) rotateY(0deg) rotateX(0deg)';
+    btn.style.transition='transform .35s ease';
+  });
+});
+
+// ====== 按钮磁吸（微移） ======
+(function(){
+  var lastX=0,lastY=0;
+  document.querySelectorAll('.nav-item').forEach(function(btn){
+    btn.addEventListener('mousemove',function(e){
+      var r=btn.getBoundingClientRect();
+      var x=(e.clientX-r.left)/r.width-.5;
+      var y=(e.clientY-r.top)/r.height-.5;
+      // 在3D倾斜基础上追加微移
+      var mx=lastX+(x-lastX)*.3, my=lastY+(y-lastY)*.3;
+      lastX=mx;lastY=my;
+      var base='perspective(600px) rotateY('+(x*6)+'deg) rotateX('+(-y*6)+'deg)';
+      btn.style.transform=base+' translate('+(mx*3)+'px,'+(my*3)+'px)';
+    });
+    btn.addEventListener('mouseleave',function(){lastX=0;lastY=0;});
+  });
+})();
+
+// ====== 页面入场动画触发 ======
+requestAnimationFrame(function(){
+  requestAnimationFrame(function(){
+    var l=document.querySelector('.nav-btn-list');
+    if(l) l.classList.add('ready');
+  });
+});
+
+// ====== 加载屏隐藏 ======
+window.addEventListener('load',function(){
+  setTimeout(function(){
+    var s=document.getElementById('loadingScreen');
+    if(s) s.classList.add('hide');
+  },550);
+});
+
+// ====== 下载进度环 ======
+document.querySelectorAll('.nav-item.download').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    if(btn.querySelector('.progress-ring')) return;
+    var ns='http://www.w3.org/2000/svg';
+    var svg=document.createElementNS(ns,'svg');
+    svg.setAttribute('class','progress-ring');
+    svg.setAttribute('viewBox','0 0 36 36');
+    var c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx','18'); c.setAttribute('cy','18'); c.setAttribute('r','12');
+    c.setAttribute('stroke-dasharray','75.4'); c.setAttribute('stroke-dashoffset','75.4');
+    svg.appendChild(c); btn.appendChild(svg);
+    requestAnimationFrame(function(){
+      c.style.transition='stroke-dashoffset .6s ease';
+      c.setAttribute('stroke-dashoffset','0');
+    });
+    setTimeout(function(){svg.remove();},750);
+  });
+});
 </script>
 <style>
 @keyframes shimmerMove{0%,100%{transform:translateX(-50%)}50%{transform:translateX(0)}}
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
 </style>
+<script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js');}</script>
 </body>
 </html>
