@@ -324,14 +324,13 @@
 }
 .nav-item:hover::before { left: 125%; }
 
-/* 页面入场动画 */
+/* 页面入场动画（默认可见，JS增强） */
 .nav-btn-list > * {
-  opacity: 0;
-  transform: translateY(18px);
+  opacity: 1;
+  transform: translateY(0);
 }
 .nav-btn-list.ready > * {
   animation: fadeSlideUp .5s ease forwards;
-  animation-fill-mode: backwards;
 }
 .nav-btn-list.ready > *:nth-child(1)  { animation-delay: .04s; }
 .nav-btn-list.ready > *:nth-child(2)  { animation-delay: .08s; }
@@ -415,6 +414,12 @@ footer.footer { display: none !important; }
 <footer class="footer"><p>&copy; 2026 ANGEL.</p></footer>
 </div>
 
+<!-- 背景音乐：夏天的风 - 温岚 -->
+<audio id="bgMusic" loop preload="auto" autoplay>
+  <source src="https://music.163.com/song/media/outer/url?id=186062&mp3type=1" type="audio/mpeg">
+</audio>
+<!-- 音乐控制按钮 -->
+<button id="musicBtn" title="开关音乐" style="position:fixed;bottom:20px;right:20px;z-index:9999;width:44px;height:44px;border-radius:50%;border:none;background:rgba(108,92,231,.25);color:#a78bfa;font-size:18px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;transition:.3s;" onclick="toggleMusic()">🎵</button>
 
 <!-- ========== KIRO 风格按钮导航区 ========== -->
 <div class="nav-btn-list">
@@ -648,6 +653,24 @@ document.querySelectorAll('.nav-item.download').forEach(function(btn){
 </style>
 
 <!-- 注：SW已注销，不再注册。旧用户浏览器会自动检测sw.js变化并执行自杀清理 -->
+
+<!-- 背景音乐控制 -->
+<script>
+var bgm=document.getElementById('bgMusic');
+var musicBtn=document.getElementById('musicBtn');
+// 尝试自动播放（浏览器可能拦截，需用户交互）
+document.addEventListener('click',function(){
+  if(bgm&&bgm.paused){bgm.play().catch(function(){});}
+},{once:true});
+document.addEventListener('touchstart',function(){
+  if(bgm&&bgm.paused){bgm.play().catch(function(){});}
+},{once:true});
+function toggleMusic(){
+  if(!bgm)return;
+  if(bgm.paused){bgm.play();musicBtn.textContent='🎵';musicBtn.style.background='rgba(108,92,231,.25)';}
+  else{bgm.pause();musicBtn.textContent='🔇';musicBtn.style.background='rgba(0,0,0,.25)';}
+}
+</script>
 
 </body>
 </html>
