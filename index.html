@@ -647,12 +647,7 @@ document.querySelectorAll('.nav-item.download').forEach(function(btn){
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
 </style>
 
-<!-- 注册自杀型SW：旧用户访问后自动清缓存+注销SW+刷新页面 -->
-<script>
-if('serviceWorker'in navigator){
-  navigator.serviceWorker.register('/sw.js').catch(function(){});
-}
-</script>
+<!-- 注：SW已注销，不再注册。旧用户浏览器会自动检测sw.js变化并执行自杀清理 -->
 
 </body>
 </html>

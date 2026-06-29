@@ -1,5 +1,5 @@
-/* 自杀型 Service Worker - 唯一任务：清缓存 + 注销自己 + 刷新页面 */
-/* 旧用户访问后会自动清除所有旧缓存并注销SW，之后页面不再受SW干扰 */
+/* 自杀型 Service Worker v2 - 清缓存 + 注销自己，不刷新页面（防循环） */
+/* 旧用户访问后浏览器自动更新此SW → 激活后清缓存+注销 → 用户下次刷新走网络 */
 
 self.addEventListener('install', function(event) {
   self.skipWaiting();
@@ -7,28 +7,21 @@ self.addEventListener('install', function(event) {
 
 self.addEventListener('activate', function(event) {
   event.waitUntil(
-    // 1. 清除所有缓存
     caches.keys().then(function(names) {
       return Promise.all(names.map(function(name) {
         return caches.delete(name);
       }));
     })
-    // 2. 接管所有客户端
     .then(function() {
       return self.clients.claim();
     })
-    // 3. 注销自己
     .then(function() {
       return self.registration.unregister();
     })
-    // 4. 通知所有客户端刷新页面
-    .then(function() {
-      return self.clients.matchAll({ type: 'window' });
-    })
-    .then(function(clients) {
-      clients.forEach(function(client) {
-        client.navigate(client.url);
-      });
-    })
   );
+});
+
+/* 拦截所有请求 → 永远走网络，不读缓存 */
+self.addEventListener('fetch', function(event) {
+  event.respondWith(fetch(event.request));
 });
