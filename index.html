@@ -190,7 +190,15 @@ footer.footer { display: none !important; }
 <body style="background:#0a0e27;min-height:100vh;">
 
 <!-- 渐变背景（纯CSS，零性能开销） -->
-<div id="bgFixed" style="position:fixed;inset:0;z-index:-3;background:linear-gradient(135deg,#0a0e27 0%,#141842 30%,#1a1258 60%,#0a0e27 100%);"></div>
+<div id="bgFixed" style="position:fixed;inset:0;z-index:-3;background:
+  radial-gradient(ellipse at 20% 0%, rgba(88,60,180,.35) 0%, transparent 50%),
+  radial-gradient(ellipse at 80% 100%, rgba(0,180,200,.2) 0%, transparent 50%),
+  radial-gradient(ellipse at 50% 50%, rgba(108,92,231,.15) 0%, transparent 70%),
+  linear-gradient(160deg,#0a0e27 0%,#11163a 25%,#1a1258 50%,#0f1035 75%,#0a0e27 100%);
+"></div>
+
+<!-- 细微噪点纹理（增加质感，零开销） -->
+<div style="position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.03;background-image:url('data:image/svg+xml;utf8,<svg viewBox=\"0 0 256 256\" xmlns=\"http://www.w3.org/2000/svg\"><filter id=\"n\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"1\" stitchTiles=\"stitch\"/></filter><rect width=\"256\" height=\"256\" filter=\"url(%23n)\" opacity=\"1\"/></svg>');background-size:200px 200px;"></div>
 
 <!-- 流光高亮：GPU加速 transform 动画 -->
 <div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;">
@@ -254,10 +262,9 @@ footer.footer { display: none !important; }
 
 <!-- === 社群 & 联系 === -->
 <div class="nav-group-label">— 社群 & 联系 —</div>
-<a href="https://t.me/Czr114514nb" target="_blank" class="nav-item">📢 点我加入 TG 更新通知频道</a>
-<a href="https://t.me/Czr114514nb" target="_blank" class="nav-item">💬 点我进入 TG 玩家交流群</a>
-<a href="https://qm.qq.com/q/753430447" target="_blank" class="nav-item">👥 点我加入 最新玩家 QQ 闲聊群</a>
-<a href="https://qm.qq.com/q/753430447" target="_blank" class="nav-item">🎫 点我 TG 咨询代理低价批卡</a>
+<a href="https://t.me/Czr114514nb" target="_blank" class="nav-item">📢 点我加入TG频道（需挂梯子）</a>
+<a href="https://qm.qq.com/q/K4BdkG1FCi" target="_blank" class="nav-item">👥 点我加入QQ闲聊群</a>
+<a id="btnQRCode" href="javascript:void(0)" class="nav-item" style="cursor:pointer;">🎫 点击TG咨询代理低价批卡</a>
 
 <!-- 底部留白 -->
 <div style="height:30px;"></div>
@@ -284,7 +291,23 @@ function showToast(msg){
   el.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%');z-index:9999;padding:12px 28px;background:rgba(108,92,231,.88);color:#fff;border-radius:10px;font-size:13px;backdrop-filter:blur(8px);transition:opacity .3s;opacity:1;';
   setTimeout(function(){el.style.opacity='0';setTimeout(function(){el.remove()},330)},2500);
 }
+
+// TG 二维码弹窗
+document.getElementById('btnQRCode').addEventListener('click',function(){
+  var existing=document.getElementById('qrModal');
+  if(existing){existing.remove();return;}
+  var overlay=document.createElement('div');
+  overlay.id='qrModal';
+  overlay.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;animation:qrFadeIn .2s ease;';
+  overlay.innerHTML='<div style="background:linear-gradient(160deg,#1a1258,#0f1035);border:1px solid rgba(140,130,220,.25);border-radius:20px;padding:30px;text-align:center;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:qrPopIn .25s ease;"><p style="color:#d8dff0;font-size:15px;margin:0 0 16px;font-weight:600;">📱 扫码添加 TG：@PANGELD</p><img src="assets/tg-qrcode.png" style="width:280px;height:auto;border-radius:12px;border:1px solid rgba(255,255,255,.08);margin-bottom:14px;" alt="TG QR"><p style="color:rgba(180,170,220,.7);font-size:12px;margin:0;">点击任意位置关闭</p></div>';
+  overlay.addEventListener('click',function(){overlay.remove();});
+  document.body.appendChild(overlay);
+});
 </script>
-<style>@keyframes shimmerMove{0%,100%{transform:translateX(-50%)}50%{transform:translateX(0)}}</style>
+<style>
+@keyframes shimmerMove{0%,100%{transform:translateX(-50%)}50%{transform:translateX(0)}}
+@keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes qrPopIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+</style>
 </body>
 </html>
