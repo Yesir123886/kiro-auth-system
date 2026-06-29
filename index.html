@@ -1023,6 +1023,22 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
   });
 });
 
+// ====== 标题打字机效果 ======
+(function(){
+  var title=document.querySelector('.left-panel .nav-title');
+  if(!title) return;
+  var text='ANGEL';
+  title.textContent='';
+  var i=0;
+  setTimeout(function type(){
+    if(i<text.length){
+      title.textContent=text.slice(0,i+1);
+      i++;
+      setTimeout(type,260);
+    }
+  },600);
+})();
+
 // ====== 页面入场动画触发 ======
 requestAnimationFrame(function(){
   requestAnimationFrame(function(){
