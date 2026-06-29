@@ -664,13 +664,15 @@ requestAnimationFrame(function(){
   });
 });
 
-// ====== 加载屏隐藏 ======
-window.addEventListener('load',function(){
-  setTimeout(function(){
-    var s=document.getElementById('loadingScreen');
-    if(s) s.classList.add('hide');
-  },550);
-});
+// ====== 加载屏隐藏（双重保障） ======
+function hideLoader(){
+  var s=document.getElementById('loadingScreen');
+  if(s) s.classList.add('hide');
+}
+// 正常：页面完全加载后隐藏
+window.addEventListener('load',function(){ setTimeout(hideLoader,550); });
+// 兜底：最多3秒后强制隐藏（防止JS报错或debugger卡住）
+setTimeout(hideLoader,3000);
 
 // ====== 下载进度环 ======
 document.querySelectorAll('.nav-item.download').forEach(function(btn){
