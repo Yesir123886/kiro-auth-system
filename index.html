@@ -42,51 +42,44 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* 浮动光球背景（纯CSS，零JS） */
-.orb {
+/* ====== 超大柔和光斑（极简高级） ====== */
+.giant-spot {
   position: fixed;
   border-radius: 50%;
   pointer-events: none;
   z-index: -2;
-  filter: blur(60px);
-  opacity: 0.12;
-  will-change: transform;
-  animation: orbFloat 18s ease-in-out infinite alternate;
+  will-change: opacity;
 }
-.orb1 {
-  width: 220px; height: 220px;
-  background: radial-gradient(circle, rgba(108,92,231,.6), transparent 70%);
-  top: 10%; left: 10%;
-  animation-duration: 20s;
+.gs1 {
+  width: 750px; height: 750px;
+  background: radial-gradient(circle, rgba(160,120,240,.16) 0%, rgba(120,80,200,.06) 35%, transparent 68%);
+  top: -220px; left: -180px;
+  animation: spotBreathe1 11s ease-in-out infinite alternate;
 }
-.orb2 {
-  width: 180px; height: 180px;
-  background: radial-gradient(circle, rgba(0,210,211,.5), transparent 70%);
-  top: 60%; left: 75%;
-  animation-duration: 24s;
-  animation-delay: -4s;
+.gs2 {
+  width: 650px; height: 650px;
+  background: radial-gradient(circle, rgba(30,180,220,.14) 0%, rgba(20,130,170,.05) 35%, transparent 68%);
+  bottom: -200px; right: -140px;
+  animation: spotBreathe2 13s ease-in-out infinite alternate;
 }
-.orb3 {
-  width: 160px; height: 160px;
-  background: radial-gradient(circle, rgba(255,107,157,.45), transparent 70%);
-  top: 35%; left: 55%;
-  animation-duration: 22s;
-  animation-delay: -8s;
+.gs3 {
+  width: 550px; height: 550px;
+  background: radial-gradient(circle, rgba(255,130,180,.11) 0%, rgba(190,90,140,.04) 35%, transparent 68%);
+  top: 45%; left: 55%;
+  transform: translate(-50%, -50%);
+  animation: spotBreathe3 15s ease-in-out infinite alternate;
 }
-.orb4 {
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(108,92,231,.35), transparent 70%);
-  top: 75%; left: 20%;
-  animation-duration: 26s;
-  animation-delay: -12s;
+@keyframes spotBreathe1 {
+  0%   { opacity: .5; transform: scale(.95); }
+  100% { opacity: 1;   transform: scale(1.06); }
 }
-
-@keyframes orbFloat {
-  0%   { transform: translate(0, 0) scale(1); }
-  25%  { transform: translate(30px, -20px) scale(1.05); }
-  50%  { transform: translate(-20px, 30px) scale(0.97); }
-  75%  { transform: translate(25px, 15px) scale(1.03); }
-  100% { transform: translate(-10px, -25px) scale(1); }
+@keyframes spotBreathe2 {
+  0%   { opacity: .45; transform: scale(.93); }
+  100% { opacity: .95;  transform: scale(1.05); }
+}
+@keyframes spotBreathe3 {
+  0%   { opacity: .4;  transform: translate(-50%,-50%) scale(.9); }
+  100% { opacity: .85; transform: translate(-50%,-50%) scale(1.08); }
 }
 
 /* 按钮边框呼吸灯（纯CSS） */
@@ -112,73 +105,7 @@
   50%        { border-color: rgba(0,230,230,.45); box-shadow: 0 0 12px rgba(0,210,211,.15); }
 }
 
-/* 鼠标跟随柔光 */
-#cursorGlow {
-  position: fixed;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(circle, rgba(140,110,255,.12) 0%, rgba(108,92,231,.06) 35%, transparent 70%);
-  transform: translate(-50%, -50%);
-  transition: left .15s ease-out, top .15s ease-out, opacity .3s;
-  opacity: 0;
-  will-change: left, top;
-}
-body:hover #cursorGlow { opacity: 1; }
-
-/* 背景星空粒子 */
-#starfield {
-  position: fixed;
-  inset: 0;
-  z-index: -3;
-  pointer-events: none;
-  overflow: hidden;
-}
-.star {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  border-radius: 50%;
-  background: #fff;
-  opacity: 0;
-  animation: starTwinkle var(--dur) ease-in-out infinite;
-  animation-delay: var(--delay);
-}
-@keyframes starTwinkle {
-  0%, 100% { opacity: 0; transform: scale(0.5); }
-  50%      { opacity: var(--max-op); transform: scale(1); }
-}
-
-/* 背景极光幕 */
-#aurora {
-  position: fixed;
-  inset: 0;
-  z-index: -3;
-  pointer-events: none;
-  overflow: hidden;
-}
-.aurora-layer {
-  position: absolute;
-  width: 200%;
-  height: 100%;
-  top: 0;
-  left: -50%;
-  background: linear-gradient(180deg,
-    transparent 30%,
-    rgba(108,92,231,.06) 45%,
-    rgba(0,210,211,.05) 55%,
-    rgba(255,107,157,.04) 65%,
-    transparent 80%
-  );
-  animation: auroraDrift var(--adur) ease-in-out infinite alternate;
-  filter: blur(40px);
-}
-@keyframes auroraDrift {
-  0%   { transform: translateX(-10%) skewX(-3deg); }
-  100% { transform: translateX(10%) skewX(3deg); }
-}
+/* ====== 超大柔和光斑（极简高级） ====== */
 
 /* 文字闪烁光标（标题后） */
 .nav-title::after {
@@ -495,27 +422,6 @@ body:hover #cursorGlow { opacity: 1; }
 }
 @keyframes loaderSpin { to { transform: rotate(360deg); } }
 
-/* 科技网格背景 */
-#techGrid {
-  position: fixed; inset: 0; z-index: -3; pointer-events: none;
-  opacity: .045;
-}
-#techGrid::before {
-  content: '';
-  position: absolute; inset: -50%;
-  background:
-    linear-gradient(rgba(108,92,231,.7) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(108,92,231,.7) 1px, transparent 1px);
-  background-size: 60px 60px;
-  animation: gridDrift 25s linear infinite;
-  transform: perspective(400px) rotateX(55deg);
-  transform-origin: center bottom;
-}
-@keyframes gridDrift {
-  0%   { background-position: 0 0; }
-  100% { background-position: 0 60px; }
-}
-
 /* 移动端响应式 */
 @media (max-width: 600px) {
   .nav-title { font-size: 26px; letter-spacing: 6px; }
@@ -525,8 +431,6 @@ body:hover #cursorGlow { opacity: 1; }
   .nav-item { padding: 12px 14px; font-size: 13px; margin-bottom: 10px; }
   .nav-avatar { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 14px; }
   .nav-group-label { font-size: 10px; margin: 16px 0 8px; }
-  #cursorGlow { display: none; }
-  .orb2, .orb4 { display: none; }
 }
 @media (max-width: 380px) {
   .nav-title { font-size: 22px; letter-spacing: 4px; }
@@ -535,44 +439,23 @@ body:hover #cursorGlow { opacity: 1; }
 footer.footer { display: none !important; }
 </style>
 </head>
-<body style="background:#0a0e27;min-height:100vh;">
+<body style="background:#090b1a;min-height:100vh;">
 <!-- 加载屏 -->
 <div id="loadingScreen">
   <div class="ring"></div>
   <div class="lt">✦ ANGEL 加载中</div>
 </div>
-<!-- 科技网格背景 -->
-<div id="techGrid"></div>
-
-<!-- 鼠标跟随柔光 -->
-<div id="cursorGlow"></div>
-
-<!-- 背景星空粒子 -->
-<div id="starfield"></div>
-
-<!-- 背景极光幕 -->
-<div id="aurora">
-  <div class="aurora-layer" style="--adur: 14s;"></div>
-  <div class="aurora-layer" style="--adur: 19s; animation-delay: -5s; opacity: .6; filter: blur(60px);"></div>
-</div>
-
-<!-- 渐变背景（纯色，零开销） -->
-<div id="bgFixed" style="position:fixed;inset:0;z-index:-4;background:
-  radial-gradient(ellipse at 20% 0%, rgba(88,60,180,.3) 0%, transparent 55%),
-  radial-gradient(ellipse at 80% 100%, rgba(0,180,200,.18) 0%, transparent 50%),
-  linear-gradient(165deg,#0c102b 0%,#141840 30%,#1a1255 55%,#0e1038 80%,#0a0e27 100%);
+<!-- 渐变底色 -->
+<div id="bgFixed" style="position:fixed;inset:0;z-index:-5;background:
+  radial-gradient(ellipse 80% 60% at 15% 0%, rgba(140,100,220,.22) 0%, transparent 55%),
+  radial-gradient(ellipse 70% 50% at 85% 100%, rgba(20,160,200,.16) 0%, transparent 50%),
+  linear-gradient(170deg, #090b1a 0%, #0d1028 25%, #111435 50%, #0c0f2b 75%, #080a1e 100%);
 "></div>
 
-<!-- 浮动光球背景（纯CSS，零JS） -->
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-<div class="orb orb3"></div>
-<div class="orb orb4"></div>
-
-<!-- 流光（极简，只1层） -->
-<div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;">
-  <div style="position:absolute;top:0;left:0;width:200%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(160,130,255,.07) 45%,rgba(180,150,255,.10) 50%,rgba(160,130,255,.07) 55%,transparent 100%);animation:shimmerMove 10s ease-in-out infinite;"></div>
-</div>
+<!-- 超大柔和光斑 -->
+<div class="giant-spot gs1"></div>
+<div class="giant-spot gs2"></div>
+<div class="giant-spot gs3"></div>
 
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
@@ -694,37 +577,6 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
   });
 });
 
-// ====== 鼠标跟随柔光 ======
-(function(){
-  var glow = document.getElementById('cursorGlow');
-  var lastTime = 0;
-  document.addEventListener('mousemove', function(e){
-    var now = Date.now();
-    if (now - lastTime > 16) {
-      lastTime = now;
-      glow.style.left = e.clientX + 'px';
-      glow.style.top = e.clientY + 'px';
-    }
-  });
-})();
-
-// ====== 星空粒子（JS创建，CSS动画） ======
-(function(){
-  var container = document.getElementById('starfield');
-  var count = window.innerWidth < 768 ? 30 : 50;
-  for (var i = 0; i < count; i++) {
-    var s = document.createElement('div');
-    s.className = 'star';
-    var size = Math.random() < .8 ? 1.5 : (Math.random() * 2.5);
-    s.style.cssText = 'left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+size+'px;height:'+size+'px;--dur:'+(3+Math.random()*5)+'s;--delay:'+(-Math.random()*8)+'s;--max-op:'+(.2+Math.random()*.5)+';';
-    if (Math.random() > .7) {
-      var colors = ['rgba(108,92,231,.9)','rgba(255,107,157,.85)','rgba(108,207,238,.85)','rgba(255,217,61,.9)'];
-      s.style.background = colors[Math.floor(Math.random() * colors.length)];
-    }
-    container.appendChild(s);
-  }
-})();
-
 // ====== 按钮点击粒子爆炸（增强版） ======
 document.querySelectorAll('.nav-item').forEach(function(btn){
   btn.addEventListener('click',function(e){
@@ -820,7 +672,6 @@ document.querySelectorAll('.nav-item.download').forEach(function(btn){
 });
 </script>
 <style>
-@keyframes shimmerMove{0%,100%{transform:translateX(-50%)}50%{transform:translateX(0)}}
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
 </style>
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js');}</script>
