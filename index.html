@@ -658,6 +658,7 @@ document.querySelectorAll('.nav-item.download').forEach(function(btn){
 <script>
 var bgm=document.getElementById('bgMusic');
 var musicBtn=document.getElementById('musicBtn');
+if(bgm){bgm.volume=0.55;} // 音量调低
 // 尝试自动播放（浏览器可能拦截，需用户交互）
 document.addEventListener('click',function(){
   if(bgm&&bgm.paused){bgm.play().catch(function(){});}
