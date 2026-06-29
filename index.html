@@ -485,7 +485,7 @@ footer.footer { display: none !important; }
 
 
 <script>
-// ====== 安全防护（防源码查看+防调试） ======
+// ====== 安全防护（防源码查看） ======
 (function(){
   var b=document.body;
   // 1. 禁用右键
@@ -495,22 +495,11 @@ footer.footer { display: none !important; }
   b.setAttribute('ondragstart','return false');
   // 3. 键盘拦截
   document.addEventListener('keydown',function(e){
-    // F12
     if(e.keyCode===123){e.preventDefault();return false;}
-    // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C / Ctrl+U
     if(e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74||e.keyCode===67)){e.preventDefault();return false;}
     if(e.ctrlKey&&e.keyCode===85){e.preventDefault();return false;}
   });
-  // 4. 防调试器（定时debugger干扰）
-  setInterval(function(){
-    var t=new Date();
-    debugger;
-    // 如果debugger被跳过的时间>100ms说明开发者工具开着
-    if(new Date()-t>100){document.body.innerHTML='';console.clear();}
-  },2000);
-  // 5. 定期清控制台
-  setInterval(function(){console.clear();},3000);
-  console.clear();
+  // 4. 控制台警告
   console.log('%c⚠ 安全警告：请勿在此页面执行任何代码','color:red;font-size:20px;');
 })();
 
@@ -664,15 +653,16 @@ requestAnimationFrame(function(){
   });
 });
 
-// ====== 加载屏隐藏（双重保障） ======
+// ====== 加载屏隐藏（不依赖load事件，立即执行） ======
 function hideLoader(){
   var s=document.getElementById('loadingScreen');
   if(s) s.classList.add('hide');
 }
-// 正常：页面完全加载后隐藏
-window.addEventListener('load',function(){ setTimeout(hideLoader,550); });
-// 兜底：最多3秒后强制隐藏（防止JS报错或debugger卡住）
-setTimeout(hideLoader,3000);
+// DOM就绪就隐藏（不用等load）
+if(document.readyState!=='loading'){setTimeout(hideLoader,500);}
+else{document.addEventListener('DOMContentLoaded',function(){setTimeout(hideLoader,500);});}
+// 兜底：最多2秒后强制隐藏
+setTimeout(hideLoader,2000);
 
 // ====== 下载进度环 ======
 document.querySelectorAll('.nav-item.download').forEach(function(btn){
