@@ -42,45 +42,9 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* ====== 超大柔和光斑（极简高级） ====== */
-.giant-spot {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: -2;
-  will-change: opacity;
-  filter: blur(40px);
-}
-.gs1 {
-  width: 800px; height: 800px;
-  background: radial-gradient(circle, rgba(140,100,240,.45) 0%, rgba(100,60,200,.18) 40%, transparent 72%);
-  top: -250px; left: -200px;
-  animation: spotBreathe1 10s ease-in-out infinite alternate;
-}
-.gs2 {
-  width: 700px; height: 700px;
-  background: radial-gradient(circle, rgba(20,170,220,.4) 0%, rgba(15,120,170,.15) 40%, transparent 72%);
-  bottom: -220px; right: -160px;
-  animation: spotBreathe2 12s ease-in-out infinite alternate;
-}
-.gs3 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(255,120,180,.35) 0%, rgba(180,80,130,.12) 40%, transparent 72%);
-  top: 55%; left: 45%;
-  transform: translate(-50%, -50%);
-  animation: spotBreathe3 14s ease-in-out infinite alternate;
-}
-@keyframes spotBreathe1 {
-  0%   { opacity: .55; transform: scale(.92); }
-  100% { opacity: 1;    transform: scale(1.08); }
-}
-@keyframes spotBreathe2 {
-  0%   { opacity: .5;  transform: scale(.9); }
-  100% { opacity: .95; transform: scale(1.06); }
-}
-@keyframes spotBreathe3 {
-  0%   { opacity: .45; transform: translate(-50%,-50%) scale(.88); }
-  100% { opacity: .9;  transform: translate(-50%,-50%) scale(1.1); }
+/* ====== Canvas 波浪背景 ====== */
+#waveBg {
+  position: fixed; inset: 0; z-index: -5; pointer-events: none;
 }
 
 /* 按钮边框呼吸灯（纯CSS） */
@@ -440,23 +404,14 @@
 footer.footer { display: none !important; }
 </style>
 </head>
-<body style="background:#090b1a;min-height:100vh;">
+<body style="background:#080a14;min-height:100vh;">
 <!-- 加载屏 -->
 <div id="loadingScreen">
   <div class="ring"></div>
   <div class="lt">✦ ANGEL 加载中</div>
 </div>
-<!-- 渐变底色 -->
-<div id="bgFixed" style="position:fixed;inset:0;z-index:-5;background:
-  radial-gradient(ellipse 80% 60% at 10% 0%, rgba(150,110,240,.35) 0%, transparent 55%),
-  radial-gradient(ellipse 70% 50% at 90% 100%, rgba(20,170,220,.28) 0%, transparent 50%),
-  linear-gradient(170deg, #090b1a 0%, #0d1028 25%, #111435 50%, #0c0f2b 75%, #080a1e 100%);
-"></div>
-
-<!-- 超大柔和光斑 -->
-<div class="giant-spot gs1"></div>
-<div class="giant-spot gs2"></div>
-<div class="giant-spot gs3"></div>
+<!-- Canvas 波浪背景 -->
+<canvas id="waveBg"></canvas>
 
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
@@ -529,8 +484,72 @@ footer.footer { display: none !important; }
 
 
 <script>
-// ====== 安全防护 ======
-(function(){console.log('%c✦ ANGEL %c','color:#fff;background:#6c5ce7;padding:6px 12px;border-radius:4px;font-weight:bold;','color:#6c5ce7;');document.addEventListener('contextmenu',function(e){e.preventDefault()});})();
+// ====== 安全防护（防源码查看+防调试） ======
+(function(){
+  var b=document.body;
+  // 1. 禁用右键
+  b.setAttribute('oncontextmenu','return false');
+  // 2. 禁用选中/拖拽
+  b.setAttribute('onselectstart','return false');
+  b.setAttribute('ondragstart','return false');
+  // 3. 键盘拦截
+  document.addEventListener('keydown',function(e){
+    // F12
+    if(e.keyCode===123){e.preventDefault();return false;}
+    // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C / Ctrl+U
+    if(e.ctrlKey&&e.shiftKey&&(e.keyCode===73||e.keyCode===74||e.keyCode===67)){e.preventDefault();return false;}
+    if(e.ctrlKey&&e.keyCode===85){e.preventDefault();return false;}
+  });
+  // 4. 防调试器（定时debugger干扰）
+  setInterval(function(){
+    var t=new Date();
+    debugger;
+    // 如果debugger被跳过的时间>100ms说明开发者工具开着
+    if(new Date()-t>100){document.body.innerHTML='';console.clear();}
+  },2000);
+  // 5. 定期清控制台
+  setInterval(function(){console.clear();},3000);
+  console.clear();
+  console.log('%c⚠ 安全警告：请勿在此页面执行任何代码','color:red;font-size:20px;');
+})();
+
+// ====== Canvas 动画波浪背景 ======
+(function(){
+  var c=document.getElementById('waveBg');
+  var ctx=c.getContext('2d');
+  var w,h,t=0,r=window.devicePixelRatio||1;
+  function resize(){
+    w=window.innerWidth;h=window.innerHeight;
+    c.width=w*r;c.height=h*r;
+    c.style.width=w+'px';c.style.height=h+'px';
+    ctx.scale(r,r);
+  }
+  resize();window.addEventListener('resize',resize);
+  // 4层波浪：紫色→蓝色→青色→粉色
+  var waves=[
+    {amp:.04,freq:.025,phase:0,speed:.0008,color:'rgba(130,100,240,.18)',h:.38},
+    {amp:.05,freq:.02,phase:1.2,speed:.001,color:'rgba(60,140,230,.15)',h:.42},
+    {amp:.04,freq:.03,phase:2.5,speed:.0007,color:'rgba(30,200,190,.12)',h:.46},
+    {amp:.06,freq:.018,phase:4,speed:.0009,color:'rgba(200,100,200,.14)',h:.36}
+  ];
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<waves.length;i++){
+      var wv=waves[i];
+      ctx.beginPath();
+      ctx.moveTo(0,h*wv.h);
+      for(var x=0;x<=w;x+=3){
+        var y=Math.sin(x*wv.freq+t*wv.speed+wv.phase)*h*wv.amp+h*wv.h;
+        ctx.lineTo(x,y);
+      }
+      ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();
+      ctx.fillStyle=wv.color;ctx.fill();
+    }
+    t+=16;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 
 // 下载状态提示
 document.getElementById('btnDownloadPub').addEventListener('click',function(){
