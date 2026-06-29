@@ -50,7 +50,7 @@
   width: 100%;
   padding: 16px 24px;
   margin-bottom: 12px;
-  background: linear-gradient(135deg,rgba(30,45,90,.75) 0%,rgba(25,38,75,.7) 100%);
+  background: rgba(25,35,70,.7);
   border: 1px solid rgba(100,120,200,.22);
   border-radius: 14px;
   color: #d8dff0;
@@ -59,85 +59,82 @@
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition: all .25s ease;
+  transition: background .2s, border-color .2s, box-shadow .2s;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 
 .nav-item:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg,rgba(40,60,115,.85) 0%,rgba(35,50,95,.82) 100%);
+  background: rgba(35,50,95,.82);
   border-color: rgba(108,92,231,.5);
-  box-shadow: 0 6px 24px rgba(108,92,231,.18), 0 0 0 1px rgba(140,130,220,.12);
+  box-shadow: 0 4px 16px rgba(108,92,231,.15);
   color: #fff;
 }
 
 .nav-item:active {
-  transform: translateY(0);
+  background: rgba(40,55,100,.9);
 }
 
 /* 高亮按钮（主要操作） */
 .nav-item.primary {
-  background: linear-gradient(135deg,rgba(108,92,231,.55) 0%,rgba(80,60,190,.5) 100%);
+  background: rgba(90,70,170,.6);
   border-color: rgba(140,120,255,.35);
   color: #ede8ff;
   font-weight: 600;
 }
 
 .nav-item.primary:hover {
-  background: linear-gradient(135deg,rgba(120,105,240,.72) 0%,rgba(95,75,210,.68) 100%);
+  background: rgba(108,92,231,.72);
   border-color: rgba(160,145,255,.5);
-  box-shadow: 0 6px 28px rgba(108,92,231,.3);
+  box-shadow: 0 4px 20px rgba(108,92,231,.25);
 }
 
 /* Kiro 板块按钮 */
 .nav-item.kiro-btn {
-  background: linear-gradient(135deg,rgba(90,60,180,.5) 0%,rgba(60,40,130,.45) 100%);
+  background: rgba(70,50,150,.5);
   border-color: rgba(160,130,255,.28);
   color: #d8cfff;
 }
 .nav-item.kiro-btn:hover {
-  background: linear-gradient(135deg,rgba(110,80,210,.65) 0%,rgba(80,55,165,.6) 100%);
+  background: rgba(90,65,170,.65);
   border-color: rgba(175,150,255,.42);
-  box-shadow: 0 6px 24px rgba(108,92,231,.22);
+  box-shadow: 0 4px 18px rgba(108,92,231,.2);
   color: #fff;
 }
 .nav-item.kiro-btn.accent {
-  background: linear-gradient(135deg,rgba(0,180,148,.38) 0%,rgba(0,150,125,.32) 100%);
+  background: rgba(0,160,140,.35);
   border-color: rgba(0,210,211,.25);
   color: #a8f0e8;
 }
 .nav-item.kiro-btn.accent:hover {
-  background: linear-gradient(135deg,rgba(0,200,165,.52) 0%,rgba(0,170,140,.46) 100%);
+  background: rgba(0,190,165,.5);
   border-color: rgba(0,230,230,.4);
-  box-shadow: 0 6px 24px rgba(0,210,211,.18);
+  box-shadow: 0 4px 18px rgba(0,210,211,.15);
   color: #fff;
 }
 
 /* 下载按钮 */
 .nav-item.download {
-  background: linear-gradient(135deg,rgba(0,180,148,.4) 0%,rgba(0,150,125,.35) 100%);
+  background: rgba(0,160,140,.38);
   border-color: rgba(0,210,211,.28);
   color: #a8f0e8;
 }
 .nav-item.download:hover {
-  background: linear-gradient(135deg,rgba(0,200,165,.55) 0%,rgba(0,170,140,.48) 100%);
+  background: rgba(0,190,165,.52);
   border-color: rgba(0,230,230,.42);
-  box-shadow: 0 6px 24px rgba(0,210,211,.2);
+  box-shadow: 0 4px 18px rgba(0,210,211,.18);
   color: #fff;
 }
 
 .nav-item.download.paid {
-  background: linear-gradient(135deg,rgba(108,92,231,.45) 0%,rgba(80,60,190,.4) 100%);
+  background: rgba(90,70,150,.45);
   border-color: rgba(160,140,255,.3);
   color: #e0d8ff;
 }
 .nav-item.download.paid:hover {
-  background: linear-gradient(135deg,rgba(128,110,245,.62) 0%,rgba(100,78,215,.56) 100%);
+  background: rgba(108,92,231,.58);
   border-color: rgba(175,160,255,.45);
-  box-shadow: 0 6px 24px rgba(108,92,231,.26);
+  box-shadow: 0 4px 20px rgba(108,92,231,.22);
   color: #fff;
 }
 
@@ -189,20 +186,16 @@ footer.footer { display: none !important; }
 </head>
 <body style="background:#0a0e27;min-height:100vh;">
 
-<!-- 渐变背景（纯CSS，零性能开销） -->
+<!-- 渐变背景（纯色，零开销） -->
 <div id="bgFixed" style="position:fixed;inset:0;z-index:-3;background:
-  radial-gradient(ellipse at 20% 0%, rgba(88,60,180,.35) 0%, transparent 50%),
-  radial-gradient(ellipse at 80% 100%, rgba(0,180,200,.2) 0%, transparent 50%),
-  radial-gradient(ellipse at 50% 50%, rgba(108,92,231,.15) 0%, transparent 70%),
-  linear-gradient(160deg,#0a0e27 0%,#11163a 25%,#1a1258 50%,#0f1035 75%,#0a0e27 100%);
+  radial-gradient(ellipse at 20% 0%, rgba(88,60,180,.3) 0%, transparent 55%),
+  radial-gradient(ellipse at 80% 100%, rgba(0,180,200,.18) 0%, transparent 50%),
+  linear-gradient(165deg,#0c102b 0%,#141840 30%,#1a1255 55%,#0e1038 80%,#0a0e27 100%);
 "></div>
 
-<!-- 细微噪点纹理（增加质感，零开销） -->
-<div style="position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.03;background-image:url('data:image/svg+xml;utf8,<svg viewBox=\"0 0 256 256\" xmlns=\"http://www.w3.org/2000/svg\"><filter id=\"n\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"1\" stitchTiles=\"stitch\"/></filter><rect width=\"256\" height=\"256\" filter=\"url(%23n)\" opacity=\"1\"/></svg>');background-size:200px 200px;"></div>
-
-<!-- 流光高亮：GPU加速 transform 动画 -->
+<!-- 流光（极简，只1层） -->
 <div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;">
-  <div style="position:absolute;top:0;left:0;width:200%;height:100%;will-change:transform;animation:shimmerMove 8s ease-in-out infinite;background:linear-gradient(90deg,transparent 0%,transparent 35%,rgba(180,140,255,0.13) 47%,rgba(200,160,255,0.18) 50%,rgba(180,140,255,0.13) 53%,transparent 65%,transparent 100%);"></div>
+  <div style="position:absolute;top:0;left:0;width:200%;height:100%;background:linear-gradient(90deg,transparent 0%,rgba(160,130,255,.07) 45%,rgba(180,150,255,.10) 50%,rgba(160,130,255,.07) 55%,transparent 100%);animation:shimmerMove 10s ease-in-out infinite;"></div>
 </div>
 
 
@@ -288,7 +281,7 @@ function showToast(msg){
   var el=document.getElementById('dlToast');
   if(!el){el=document.createElement('div');el.id='dlToast';document.body.appendChild(el);}
   el.textContent=msg;
-  el.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%');z-index:9999;padding:12px 28px;background:rgba(108,92,231,.88);color:#fff;border-radius:10px;font-size:13px;backdrop-filter:blur(8px);transition:opacity .3s;opacity:1;';
+  el.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%');z-index:9999;padding:12px 28px;background:rgba(108,92,231,.92);color:#fff;border-radius:10px;font-size:13px;transition:opacity .3s;opacity:1;';
   setTimeout(function(){el.style.opacity='0';setTimeout(function(){el.remove()},330)},2500);
 }
 
@@ -298,8 +291,8 @@ document.getElementById('btnQRCode').addEventListener('click',function(){
   if(existing){existing.remove();return;}
   var overlay=document.createElement('div');
   overlay.id='qrModal';
-  overlay.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;animation:qrFadeIn .2s ease;';
-  overlay.innerHTML='<div style="background:linear-gradient(160deg,#1a1258,#0f1035);border:1px solid rgba(140,130,220,.25);border-radius:20px;padding:30px;text-align:center;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:qrPopIn .25s ease;"><p style="color:#d8dff0;font-size:15px;margin:0 0 16px;font-weight:600;">📱 扫码添加 TG：@PANGELD</p><img src="assets/tg-qrcode.png" style="width:280px;height:auto;border-radius:12px;border:1px solid rgba(255,255,255,.08);margin-bottom:14px;" alt="TG QR"><p style="color:rgba(180,170,220,.7);font-size:12px;margin:0;">点击任意位置关闭</p></div>';
+  overlay.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;animation:qrFadeIn .2s ease;';
+  overlay.innerHTML='<div style="background:linear-gradient(160deg,#1a1258,#0f1035);border:1px solid rgba(140,130,220,.25);border-radius:20px;padding:30px;text-align:center;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:qrFadeIn .2s ease;"><p style="color:#d8dff0;font-size:15px;margin:0 0 16px;font-weight:600;">📱 扫码添加 TG：@PANGELD</p><img src="assets/tg-qrcode.png" style="width:280px;height:auto;border-radius:12px;border:1px solid rgba(255,255,255,.08);margin-bottom:14px;" alt="TG QR"><p style="color:rgba(180,170,220,.7);font-size:12px;margin:0;">点击任意位置关闭</p></div>';
   overlay.addEventListener('click',function(){overlay.remove();});
   document.body.appendChild(overlay);
 });
@@ -307,7 +300,6 @@ document.getElementById('btnQRCode').addEventListener('click',function(){
 <style>
 @keyframes shimmerMove{0%,100%{transform:translateX(-50%)}50%{transform:translateX(0)}}
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
-@keyframes qrPopIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 </style>
 </body>
 </html>
