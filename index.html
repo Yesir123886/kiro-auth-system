@@ -3,123 +3,264 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ANGEL 授权中心 - 软件授权管理与卡密验证系统</title>
-<meta name="description" content="ANGEL 授权中心 - 提供软件授权申请、卡密验证、云参数更新等服务。支持公益版与皇参版下载，安全可靠的授权管理系统。">
-<meta name="keywords" content="ANGEL,授权中心,卡密验证,软件授权,云参数,公益版,皇参版,授权申请">
-<meta name="author" content="ANGEL Team">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#4a4a8a">
-<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="canonical" href="https://kiroauth-system.vercel.app/index.html">
-<!-- Open Graph / Facebook -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="ANGEL 授权中心 - 软件授权管理与卡密验证系统">
-<meta property="og:description" content="ANGEL 授权中心 - 提供软件授权申请、卡密验证、云参数更新等服务。支持公益版与皇参版下载。">
-<meta property="og:url" content="https://kiroauth-system.vercel.app/index.html">
-<meta property="og:image" content="https://kiroauth-system.vercel.app/assets/logo.png">
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ANGEL 授权中心">
-<meta name="twitter:description" content="软件授权管理与卡密验证系统">
+<title>ANGEL 授权中心</title>
+<meta name="theme-color" content="#0a0e27">
 <link rel="stylesheet" href="css/style.css">
-</head>
-<body style="background:#0a0520;min-height:100vh;">
+<style>
+/* ====== KIRO 风格按钮导航页 ====== */
+.nav-btn-list {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
 
-<!-- 背景视频 - 优化：低码率小体积 + GPU 加速 -->
-<video id="bgVideo" autoplay muted loop playsinline preload="metadata" style="position:fixed;inset:-10%;width:120%;height:120%;object-fit:cover;z-index:-3;opacity:0.45;pointer-events:none;filter:blur(3px);transform:translateZ(0);will-change:transform;">
+.nav-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 20px;
+  object-fit: cover;
+  margin: 0 auto 20px;
+  display: block;
+  box-shadow: 0 4px 24px rgba(108,92,231,.35);
+}
+
+.nav-title {
+  text-align: center;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 12px;
+  margin: 0 0 10px;
+  background: linear-gradient(180deg,#fff 0%,#c0b8e8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: rgba(180,170,220,.85);
+  margin-bottom: 36px;
+  letter-spacing: 2px;
+}
+
+/* 按钮列表 */
+.nav-item {
+  display: block;
+  width: 100%;
+  padding: 16px 24px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg,rgba(30,45,90,.75) 0%,rgba(25,38,75,.7) 100%);
+  border: 1px solid rgba(100,120,200,.22);
+  border-radius: 14px;
+  color: #d8dff0;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .25s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.nav-item:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg,rgba(40,60,115,.85) 0%,rgba(35,50,95,.82) 100%);
+  border-color: rgba(108,92,231,.5);
+  box-shadow: 0 6px 24px rgba(108,92,231,.18), 0 0 0 1px rgba(140,130,220,.12);
+  color: #fff;
+}
+
+.nav-item:active {
+  transform: translateY(0);
+}
+
+/* 高亮按钮（主要操作） */
+.nav-item.primary {
+  background: linear-gradient(135deg,rgba(108,92,231,.55) 0%,rgba(80,60,190,.5) 100%);
+  border-color: rgba(140,120,255,.35);
+  color: #ede8ff;
+  font-weight: 600;
+}
+
+.nav-item.primary:hover {
+  background: linear-gradient(135deg,rgba(120,105,240,.72) 0%,rgba(95,75,210,.68) 100%);
+  border-color: rgba(160,145,255,.5);
+  box-shadow: 0 6px 28px rgba(108,92,231,.3);
+}
+
+/* 下载按钮 */
+.nav-item.download {
+  background: linear-gradient(135deg,rgba(0,180,148,.4) 0%,rgba(0,150,125,.35) 100%);
+  border-color: rgba(0,210,211,.28);
+  color: #a8f0e8;
+}
+.nav-item.download:hover {
+  background: linear-gradient(135deg,rgba(0,200,165,.55) 0%,rgba(0,170,140,.48) 100%);
+  border-color: rgba(0,230,230,.42);
+  box-shadow: 0 6px 24px rgba(0,210,211,.2);
+  color: #fff;
+}
+
+.nav-item.download.paid {
+  background: linear-gradient(135deg,rgba(108,92,231,.45) 0%,rgba(80,60,190,.4) 100%);
+  border-color: rgba(160,140,255,.3);
+  color: #e0d8ff;
+}
+.nav-item.download.paid:hover {
+  background: linear-gradient(135deg,rgba(128,110,245,.62) 0%,rgba(100,78,215,.56) 100%);
+  border-color: rgba(175,160,255,.45);
+  box-shadow: 0 6px 24px rgba(108,92,231,.26);
+  color: #fff;
+}
+
+/* 分组标签 */
+.nav-group-label {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(150,140,200,.5);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 22px 0 10px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(100,110,180,.1);
+}
+
+/* 下载状态提示 */
+#dlStatus {
+  max-width: 480px;
+  margin: 14px auto 0;
+  text-align: center;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  display: none;
+}
+
+/* 隐藏原有元素 */
+.tg-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+.navbar { display: none !important; }
+.page-header { display: none !important; }
+.container > .card:not(#dlSec) { display: none !important; }
+
+#dlSec {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+#dlSec .card-title,
+#dlSec p[style*="color:var(--text-secondary)"],
+#dlSec > div[style*="grid"] {
+  display: none !important;
+}
+#dlStatus {
+  display: none !important;
+}
+footer.footer { display: none !important; }
+</style>
+</head>
+<body style="background:#0a0e27;min-height:100vh;">
+
+<!-- 背景视频 -->
+<video id="bgVideo" autoplay muted loop playsinline preload="metadata" style="position:fixed;inset:-10%;width:120%;height:120%;object-fit:cover;z-index:-3;opacity:0.40;pointer-events:none;filter:blur(3px);transform:translateZ(0);">
   <source src="assets/bg.mp4" type="video/mp4">
 </video>
 
-<!-- 流光高亮层 - 慢速柔和 -->
-<div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(135deg,transparent 35%,rgba(180,140,255,0.08) 47%,rgba(200,160,255,0.12) 50%,rgba(180,140,255,0.08) 53%,transparent 65%);background-size:200% 200%;animation:shimmerSweep 8s ease-in-out infinite;transform:translateZ(0);"></div>
+<!-- 流光高亮 -->
+<div id="shimmerOverlay" style="position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(135deg,transparent 35%,rgba(180,140,255,0.07) 47%,rgba(200,160,255,0.10) 50%,rgba(180,140,255,0.07) 53%,transparent 65%);background-size:200% 200%;animation:shimmerSweep 8s ease-in-out infinite;transform:translateZ(0);"></div>
 
 <!-- 渐变叠加 -->
-<div id="bgOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(255,240,255,.15) 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(130,100,220,.12) 0%,transparent 55%);"></div>
-
+<div id="bgOverlay" style="position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(255,240,255,.10) 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(130,100,220,.08) 0%,transparent 55%);"></div>
 
 
 <div class="tg-banner">📢 TG 频道：<a href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
-
 <nav class="navbar"><a href="index.html" class="navbar-brand"><span class="angel-icon"></span> ANGEL</a></nav>
 
+<!-- 原有结构（隐藏） -->
 <div class="page-header">
 <h1>✦ ANGEL</h1>
-<p style="margin-bottom:36px;">授权管理中心 · 云参数更新</p>
-<div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
-<a href="auth.html" class="btn btn-primary nav-big-btn">🔐 授权申请</a>
-<a href="admin.html" class="btn btn-outline nav-big-btn" style="border-color:rgba(255,255,255,0.25);color:#fff;">⚙️ 管理后台</a>
-<button id="btnScrollDl" class="btn nav-big-btn" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;">☁️ 公益/皇参</button>
-</div>
+<p>授权管理中心 · 云参数更新</p>
 </div>
 
 <div class="container">
-
-<!-- 使用流程 -->
+<!-- 使用流程卡片（隐藏） -->
 <div class="card">
 <div class="card-title">📋 使用流程</div>
-<div class="step-item"><span class="step-num">1</span><div><strong>获取卡密</strong> — QQ群 <code style="background:rgba(108,92,231,.15);color:var(--accent-light);padding:2px 8px;border-radius:4px;font-size:13px;">753430447</code> 提卡</div></div>
+<div class="step-item"><span class="step-num">1</span><div><strong>获取卡密</strong> — QQ群 <code>753430447</code> 提卡</div></div>
 <div class="step-item"><span class="step-num">2</span><div><strong>提交申请</strong> — 填写卡密+授权ID+订单截图</div></div>
 <div class="step-item"><span class="step-num">3</span><div><strong>等待审批</strong> — 管理员审核通过后生成令牌</div></div>
-<div class="step-item"><span class="step-num" style="background:linear-gradient(135deg,#00b894,#00cec9);">4</span><div><strong>激活使用</strong> — 复制令牌 → 辅助 → 战斗页 → 自定义参数 → 粘贴 ✅</div></div>
+<div class="step-item"><span class="step-num" style="background:linear-gradient(135deg,#00b894,#00cec9);">4</span><div><strong>激活使用</strong> — 复制令牌 → 粘贴 ✅</div></div>
 </div>
 
-<!-- 云参数更新 -->
+<!-- 云参数下载区域（隐藏，下载功能由下方按钮替代） -->
 <div class="card" id="dlSec">
 <div class="card-title">☁️ 云参数更新</div>
-<p style="color:var(--text-secondary);font-size:13.5px;margin-bottom:18px;">实时从 Gitee 云端获取最新参数（上传即生效，无需部署）</p>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-<div style="padding:20px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:10px;text-align:center;">
-<div style="font-size:28px;margin-bottom:8px;">🆓</div>
-<div style="font-weight:600;font-size:14px;margin-bottom:4px;">公益参数</div>
-<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">免费用户可用 · 基础功能</div>
-<a id="btnPub" href="/api/params/公益.json" download="公益.json" style="display:inline-block;padding:10px 24px;background:transparent;border:1px solid var(--accent-light);color:var(--accent-light);border-radius:6px;cursor:pointer;font-size:13px;text-decoration:none;">📥 下载 公益.json</a>
-</div>
-<div style="padding:20px;background:rgba(108,92,231,0.06);border:1px solid rgba(108,92,231,0.2);border-radius:10px;text-align:center;">
-<div style="font-size:28px;margin-bottom:8px;">💎</div>
-<div style="font-weight:600;font-size:14px;margin-bottom:4px;">付费参数</div>
-<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">需授权后使用 · 全部功能</div>
-<a id="btnPaid" href="/api/params/皇参.json" download="皇参.json" style="display:inline-block;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;text-decoration:none;">📥 下载 皇参.json</a>
-</div>
-</div>
-<p id="dlStatus" style="margin-top:14px;text-align:center;display:none;padding:12px;border-radius:8px;font-size:13px;"></p>
+<p>实时从 Gitee 云端获取最新参数</p>
+<a id="btnPub" href="/api/params/公益.json" download="公益.json" style="display:none;"></a>
+<a id="btnPaid" href="/api/params/皇参.json" download="皇参.json" style="display:none;"></a>
+<p id="dlStatus"></p>
 </div>
 
-<footer class="footer"><p>&copy; 2026 ANGEL. All rights reserved.</p><p style="margin-top:6px;"><a href="https://t.me/Czr114514nb" target="_blank">TG频道 @Czr114514nb</a></p></footer>
+<footer class="footer"><p>&copy; 2026 ANGEL.</p></footer>
 </div>
+
+
+<!-- ========== KIRO 风格按钮导航区 ========== -->
+<div class="nav-btn-list">
+
+<!-- 头像 -->
+<img src="assets/logo.png" alt="ANGEL" class="nav-avatar">
+
+<!-- 标题 -->
+<h1 class="nav-title">ANGEL</h1>
+<p class="nav-subtitle">超自然ANGEL · 释放你的枪灵</p>
+
+<!-- === 功能入口 === -->
+<a href="auth.html" class="nav-item primary">🔐 点我直达授权申请系统</a>
+<a href="admin.html" class="nav-item primary">⚙️ 点我直达管理后台</a>
+
+<!-- === 参数下载 === -->
+<div class="nav-group-label">— 云参数下载 —</div>
+<a id="btnDownloadPub" href="/api/params/公益.json" download="公益.json" class="nav-item download">📥 点我下载 公益版参数（免费）</a>
+<a id="btnDownloadPaid" href="/api/params/皇参.json" download="皇参.json" class="nav-item download paid">📥 点我下载 皇参版参数（需授权）</a>
+
+<!-- === 社群 & 联系 === -->
+<div class="nav-group-label">— 社群 & 联系 —</div>
+<a href="https://t.me/Czr114514nb" target="_blank" class="nav-item">📢 点我加入 TG 更新通知频道</a>
+<a href="https://t.me/Czr114514nb" target="_blank" class="nav-item">💬 点我进入 TG 玩家交流群</a>
+<a href="https://qm.qq.com/q/753430447" target="_blank" class="nav-item">👥 点我加入 最新玩家 QQ 闲聊群</a>
+<a href="https://qm.qq.com/q/753430447" target="_blank" class="nav-item">🎫 点我 TG 咨询代理低价批卡</a>
+
+<!-- 底部留白 -->
+<div style="height:30px;"></div>
+
+</div>
+
 
 <script>
 // ====== 安全防护 ======
-(function(){var w='%c✦ ANGEL 授权中心 %c\n© 2026 ANGEL Team';console.log(w,'color:#fff;background:#6c5ce7;padding:8px 12px;font-size:14px;font-weight:bold;','color:#6c5ce7;font-size:12px;');document.addEventListener('contextmenu',function(e){e.preventDefault();});})();
+(function(){console.log('%c✦ ANGEL %c','color:#fff;background:#6c5ce7;padding:6px 12px;border-radius:4px;font-weight:bold;','color:#6c5ce7;');document.addEventListener('contextmenu',function(e){e.preventDefault()});})();
 
-// 滚动到下载区域
-document.getElementById('btnScrollDl').addEventListener('click',function(){
-  document.getElementById('dlSec').scrollIntoView({behavior:'smooth'});
+// 下载状态提示
+document.getElementById('btnDownloadPub').addEventListener('click',function(){
+  showToast('🔄 正在从云端获取最新公益参数...');
+});
+document.getElementById('btnDownloadPaid').addEventListener('click',function(){
+  showToast('🔄 正在从云端获取最新皇参参数...');
 });
 
-// ====== 云参数下载（实时从 Gitee 拉取，同域 Pages Function 代理） ======
-document.getElementById('btnPub').addEventListener('click',function(){
-  var el=document.getElementById('dlStatus');
-  el.style.display='block';
-  el.style.background='rgba(108,92,231,.08)';
-  el.style.color='var(--accent-light)';
-  el.innerHTML='🔄 正在从 Gitee 获取最新公益参数...';
-  setTimeout(function(){el.style.display='none';},3000);
-});
-document.getElementById('btnPaid').addEventListener('click',function(){
-  var el=document.getElementById('dlStatus');
-  el.style.display='block';
-  el.style.background='rgba(108,92,231,.08)';
-  el.style.color='var(--accent-light)';
-  el.innerHTML='🔄 正在从 Gitee 获取最新皇参参数...';
-  setTimeout(function(){el.style.display='none';},3000);
-});
+function showToast(msg){
+  var el=document.getElementById('dlToast');
+  if(!el){el=document.createElement('div');el.id='dlToast';document.body.appendChild(el);}
+  el.textContent=msg;
+  el.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%');z-index:9999;padding:12px 28px;background:rgba(108,92,231,.88);color:#fff;border-radius:10px;font-size:13px;backdrop-filter:blur(8px);transition:opacity .3s;opacity:1;';
+  setTimeout(function(){el.style.opacity='0';setTimeout(function(){el.remove()},330)},2500);
+}
 </script>
-<style>
-.nav-big-btn{padding:16px 40px;font-size:16px;border-radius:10px;transition:all .25s;}
-.nav-big-btn:hover{transform:translateY(-3px);}
-*{-webkit-font-smoothing:antialiased;}
-@keyframes shimmerSweep{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-</style>
+<style>@keyframes shimmerSweep{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}</style>
 </body>
 </html>
