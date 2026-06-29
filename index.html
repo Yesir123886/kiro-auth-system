@@ -87,13 +87,121 @@
   50%      { opacity: 0; }
 }
 
-/* ========== KIRO 风格按钮导航页 ========== */
-.nav-btn-list {
-  max-width: 480px;
+/* ========== 左右分栏布局 ========== */
+.main-wrapper {
+  max-width: 920px;
   margin: 0 auto;
-  padding: 20px 16px 60px;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 50px 24px 60px;
   position: relative;
+  z-index: 1;
 }
+
+/* 左侧面板 */
+.left-panel {
+  flex: 0 0 300px;
+  position: sticky;
+  top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 36px 28px;
+  border-radius: 24px;
+  background: rgba(20,25,55,.45);
+  border: 1px solid rgba(120,110,200,.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 40px rgba(0,0,0,.25);
+}
+
+.left-panel .nav-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 24px;
+  margin-bottom: 18px;
+}
+
+.left-panel .nav-title {
+  font-size: 36px;
+  letter-spacing: 10px;
+  margin: 0 0 6px;
+}
+
+.left-panel .nav-subtitle {
+  font-size: 13px;
+  margin-bottom: 22px;
+}
+
+.left-panel .nav-quote {
+  font-size: 15px;
+  letter-spacing: 2px;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  border-top: 1px solid rgba(120,110,200,.1);
+  border-bottom: 1px solid rgba(120,110,200,.1);
+  width: 100%;
+}
+
+.left-panel .tg-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  background: rgba(108,92,231,.15);
+  border: 1px solid rgba(108,92,231,.2);
+  color: #a78bfa;
+  font-size: 13px;
+  text-decoration: none;
+  transition: .25s;
+}
+.left-panel .tg-link:hover {
+  background: rgba(108,92,231,.3);
+  border-color: rgba(108,92,231,.4);
+  color: #fff;
+}
+
+/* 右侧面板 */
+.right-panel {
+  flex: 1;
+  min-width: 0;
+}
+.right-panel .nav-btn-list {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* 响应式：移动端堆叠 */
+@media (max-width: 768px) {
+  .main-wrapper {
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 16px 50px;
+    gap: 24px;
+  }
+  .left-panel {
+    flex: none;
+    width: 100%;
+    max-width: 440px;
+    position: static;
+    padding: 28px 20px;
+  }
+  .left-panel .nav-avatar { width: 80px; height: 80px; }
+  .left-panel .nav-title { font-size: 28px; letter-spacing: 6px; }
+  .right-panel { width: 100%; max-width: 440px; }
+}
+@media (max-width: 380px) {
+  .left-panel .nav-title { font-size: 24px; letter-spacing: 4px; }
+  .left-panel .nav-quote { font-size: 13px; }
+}
+
+/* 隐藏旧 TG 横幅（已整合到左面板） */
+.tg-banner { display: none !important; }
 
 /* 按钮悬停粒子 */
 .nav-item .particle {
@@ -434,20 +542,23 @@ footer.footer { display: none !important; }
 <!-- 音乐控制按钮 -->
 <button id="musicBtn" title="开关音乐" style="position:fixed;bottom:20px;right:20px;z-index:9999;width:44px;height:44px;border-radius:50%;border:none;background:rgba(108,92,231,.25);color:#a78bfa;font-size:18px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;transition:.3s;" onclick="toggleMusic()">🎵</button>
 
-<!-- ========== KIRO 风格按钮导航区 ========== -->
+<!-- ========== 左右分栏布局 ========== -->
+<div class="main-wrapper">
+
+<!-- 左侧面板：头像 / 标题 / 介绍 / TG -->
+<div class="left-panel">
+  <img src="assets/logo.png" alt="ANGEL" class="nav-avatar">
+  <h1 class="nav-title">ANGEL</h1>
+  <p class="nav-subtitle">P蛋爱露出</p>
+  <div class="nav-quote">世界以痛吻我，我却报之以歌。</div>
+  <a href="https://t.me/Czr114514nb" target="_blank" class="tg-link">📢 TG 频道 @Czr114514nb</a>
+</div>
+
+<!-- 右侧面板：所有按钮 -->
+<div class="right-panel">
 <div class="nav-btn-list">
 
-<!-- 炫彩大字 -->
-<div class="nav-quote">世界以痛吻我，我却报之以歌。</div>
-
-<!-- 头像 -->
-<img src="assets/logo.png" alt="ANGEL" class="nav-avatar">
-
-<!-- 标题 -->
-<h1 class="nav-title">ANGEL</h1>
-<p class="nav-subtitle">P蛋爱露出</p>
-
-<!-- === Kiro 板块（第一位） === -->
+<!-- === Kiro 板块 === -->
 <div class="nav-group-label">— Kiro —</div>
 <a href="https://1842160496.share.123pan.cn/123pan/hAs0Td-pDg7v" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text">🎮 点我下载最新辅助</span></a>
 <a href="https://1842160496.share.123pan.cn/123pan/hAs0Td-YGEbv" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text">📥 点我下载左右飞/替换卡密（参数）</span></a>
@@ -468,7 +579,10 @@ footer.footer { display: none !important; }
 <a id="btnQRCode" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text">🎫 点击TG咨询代理低价批卡</span></a>
 
 <!-- 底部留白 -->
-<div style="height:30px;"></div>
+<div style="height:20px;"></div>
+
+</div>
+</div>
 
 </div>
 
