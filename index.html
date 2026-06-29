@@ -110,6 +110,54 @@
   z-index: 1;
 }
 
+/* 头像呼吸光环 */
+.avatar-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar-wrap .nav-avatar {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+}
+.avatar-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 28px;
+  background: conic-gradient(from 0deg, #6c5ce7, #a29bfe, #00d2d3, #6c5ce7);
+  animation: avatarSpin 4s linear infinite;
+  z-index: 1;
+  filter: blur(2px);
+}
+.avatar-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 34px;
+  background: radial-gradient(circle, rgba(108,92,231,.35) 0%, transparent 70%);
+  animation: avatarBreathe 3s ease-in-out infinite;
+  z-index: 0;
+}
+@keyframes avatarSpin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes avatarBreathe {
+  0%, 100% { opacity: .4; transform: scale(.9); }
+  50%      { opacity: .9; transform: scale(1.15); }
+}
+@media (max-width: 768px) {
+  .avatar-wrap { width: 80px; height: 80px; }
+  .avatar-wrap::before { inset: -5px; border-radius: 22px; }
+  .avatar-wrap::after { inset: -10px; border-radius: 26px; }
+}
+
 /* 左侧面板 */
 .left-panel {
   flex: 0 0 300px;
@@ -745,7 +793,9 @@ footer.footer { display: none !important; }
 
 <!-- 左侧面板：头像 / 标题 / 介绍 / TG -->
 <div class="left-panel">
-  <img src="assets/logo.png" alt="ANGEL" class="nav-avatar" loading="lazy">
+  <div class="avatar-wrap">
+    <img src="assets/logo.png" alt="ANGEL" class="nav-avatar" loading="lazy">
+  </div>
   <h1 class="nav-title">ANGEL</h1>
   <p class="nav-subtitle">P蛋爱露出</p>
   <div class="nav-quote">世界以痛吻我，我却报之以歌。</div>
