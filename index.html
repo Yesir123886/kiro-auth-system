@@ -802,6 +802,25 @@ footer.footer { display: none !important; }
   box-shadow: 0 0 6px rgba(196,77,255,.6);
   cursor: pointer;
 }
+.music-controller .mc-stereo-btn {
+  width: 36px; height: 36px;
+  border: none; border-radius: 50%;
+  background: rgba(0,0,0,.2);
+  color: rgba(200,190,240,.7);
+  font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, box-shadow .2s, color .2s;
+  flex-shrink: 0;
+}
+.music-controller .mc-stereo-btn:hover {
+  background: rgba(108,92,231,.4);
+  box-shadow: 0 0 8px rgba(108,92,231,.3);
+}
+.music-controller .mc-stereo-btn.stereo-active {
+  background: rgba(108,92,231,.35);
+  color: #b8a0ff;
+  box-shadow: 0 0 10px rgba(108,92,231,.4);
+}
 .music-controller .mc-label {
   font-size: 10px; color: rgba(160,150,210,.6);
   white-space: nowrap; max-width: 80px;
@@ -1099,6 +1118,7 @@ html { scroll-behavior: smooth; }
 <!-- 音乐控制器 -->
 <div class="music-controller" id="musicController">
   <button class="mc-btn" id="musicBtn" title="播放/暂停" onclick="toggleMusic()">🎵</button>
+  <button class="mc-stereo-btn" id="stereoBtn" title="立体声交替" onclick="toggleStereo()">🔊</button>
   <input type="range" class="mc-slider" id="volSlider" min="0" max="100" value="55" title="音量">
   <span class="mc-label">夏天的风</span>
 </div>
@@ -1509,21 +1529,64 @@ window.addEventListener('load',function(){
   });
 })();
 
-// ====== 音量记忆（localStorage） ======
+// ====== 音量记忆（localStorage） + Web Audio API 立体声交替 ======
+var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
 (function(){
   var bgm=document.getElementById('bgMusic');
   var slider=document.getElementById('volSlider');
   var KEY='angel_music_volume';
   if(!bgm||!slider) return;
+
+  // 初始化 Web Audio API
+  try{
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    var source=audioCtx.createMediaElementSource(bgm);
+    stereoPanner=audioCtx.createStereoPanner();
+    gainNode=audioCtx.createGain();
+    // 链路: Source → Gain(音量) → Panner(声道) → 输出
+    source.connect(gainNode);
+    gainNode.connect(stereoPanner);
+    stereoPanner.connect(audioCtx.destination);
+    stereoPanner.pan.value=0;
+  }catch(e){console.warn('Web Audio API 不可用:',e);}
+
+  // 恢复音量
   var saved=localStorage.getItem(KEY);
-  if(saved){
-    var v=parseFloat(saved);
-    bgm.volume=v;
-    slider.value=Math.round(v*100);
-  }
+  var v=saved?parseFloat(saved):0.55;
+  if(gainNode) gainNode.gain.value=v;
+  slider.value=Math.round(v*100);
   slider.addEventListener('change',function(){
-    localStorage.setItem(KEY,(slider.value/100).toString());
+    var gv=slider.value/100;
+    if(gainNode) gainNode.gain.value=gv;
+    localStorage.setItem(KEY,gv.toString());
   });
+
+  // 立体声交替：约3秒切换左右声道，0.8秒平滑过渡
+  var side=1; // 1=向右, -1=向左
+  function panStep(){
+    if(!stereoActive||!stereoPanner||!audioCtx) return;
+    if(bgm.paused){requestAnimationFrame(panStep);return;}
+    var target=side;
+    try{stereoPanner.pan.linearRampToValueAtTime(target,audioCtx.currentTime+0.8);}catch(e){}
+    side*=-1;
+    setTimeout(panStep,2800);
+  }
+  function toggleStereo(){
+    if(!audioCtx||!stereoPanner){showToast('⚠️ 当前浏览器不支持立体声交替');return;}
+    stereoActive=!stereoActive;
+    var btn=document.getElementById('stereoBtn');
+    if(stereoActive){
+      if(audioCtx.state==='suspended') audioCtx.resume();
+      btn.classList.add('stereo-active'); btn.textContent='🔊';
+      showToast('🎧 立体声交替 已开启');
+      panStep();
+    }else{
+      btn.classList.remove('stereo-active'); btn.textContent='🔇';
+      try{stereoPanner.pan.cancelScheduledValues(audioCtx.currentTime);}catch(e){}
+      stereoPanner.pan.value=0;
+    }
+  }
+  window.toggleStereo=toggleStereo;
 })();
 
 // ====== 页面入场动画触发 ======
@@ -1708,14 +1771,8 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
 <script>
 var bgm=document.getElementById('bgMusic');
 var musicBtn=document.getElementById('musicBtn');
-var volSlider=document.getElementById('volSlider');
-if(bgm){bgm.volume=0.55;}
-// 音量滑块
-if(volSlider){
-  volSlider.addEventListener('input',function(){
-    if(bgm) bgm.volume=volSlider.value/100;
-  });
-}
+// 音量由 gainNode 控制（见上方 Web Audio API 初始化），不再直接设置 bgm.volume
+
 // 尝试自动播放
 document.addEventListener('click',function(){
   if(bgm&&bgm.paused){bgm.play().catch(function(){});}
@@ -1727,6 +1784,7 @@ function toggleMusic(){
   if(!bgm)return;
   if(bgm.paused){
     bgm.play();
+    if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
     musicBtn.textContent='🎵';
     musicBtn.style.background='rgba(108,92,231,.3)';
   }else{
