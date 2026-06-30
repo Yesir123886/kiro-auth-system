@@ -1574,15 +1574,24 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
     localStorage.setItem(KEY,gv.toString());
   });
 
-  // 立体声交替：约2秒切换左右声道，0.6秒平滑过渡
-  var side=1; // 1=向右, -1=向左
-  function panStep(){
-    if(!stereoActive||!stereoPanner||!audioCtx) return;
-    if(bgm.paused){requestAnimationFrame(panStep);return;}
-    var target=side;
-    try{stereoPanner.pan.linearRampToValueAtTime(target,audioCtx.currentTime+0.6);}catch(e){}
-    side*=-1;
-    setTimeout(panStep,2000);
+  // 立体声交替：正弦波丝滑左右流动，约4秒一个完整周期
+  var panRafId=null;
+  var panStartTime=0;
+  var panPeriod=4; // 4秒完成左→右→左
+  function panLoop(ts){
+    if(!stereoActive||!stereoPanner||!audioCtx){
+      panRafId=null; return;
+    }
+    if(bgm.paused){panRafId=requestAnimationFrame(panLoop);return;}
+    if(!panStartTime) panStartTime=ts;
+    var elapsed=(ts-panStartTime)/1000;
+    var pan=Math.sin(elapsed*Math.PI*2/panPeriod);
+    try{stereoPanner.pan.setValueAtTime(pan,audioCtx.currentTime);}catch(e){}
+    panRafId=requestAnimationFrame(panLoop);
+  }
+  function stopPan(){
+    if(panRafId){cancelAnimationFrame(panRafId);panRafId=null;}
+    panStartTime=0;
   }
   function toggleStereo(){
     if(!audioCtx||!stereoPanner){showToast('⚠️ 当前浏览器不支持立体声交替');return;}
@@ -1591,9 +1600,10 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
     if(stereoActive){
       if(audioCtx.state==='suspended') audioCtx.resume();
       btn.classList.add('stereo-active'); btn.textContent='🔊';
-      panStep();
+      panLoop(performance.now());
     }else{
       btn.classList.remove('stereo-active'); btn.textContent='🔇';
+      stopPan();
       try{stereoPanner.pan.cancelScheduledValues(audioCtx.currentTime);}catch(e){}
       stereoPanner.pan.value=0;
     }
@@ -1605,7 +1615,7 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
     stereoActive=true;
     var stereoBtn=document.getElementById('stereoBtn');
     if(stereoBtn){stereoBtn.classList.add('stereo-active'); stereoBtn.textContent='🔊';}
-    panStep();
+    panLoop(performance.now());
   }
 })();
 
