@@ -1543,7 +1543,7 @@ window.addEventListener('load',function(){
 })();
 
 // ====== 音量记忆（localStorage） + Web Audio API 立体声交替 ======
-var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
+var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode=null;
 (function(){
   var bgm=document.getElementById('bgMusic');
   var slider=document.getElementById('volSlider');
@@ -1574,24 +1574,32 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
     localStorage.setItem(KEY,gv.toString());
   });
 
-  // 立体声交替：正弦波丝滑左右流动，约4秒一个完整周期
-  var panRafId=null;
-  var panStartTime=0;
-  var panPeriod=4; // 4秒完成左→右→左
-  function panLoop(ts){
-    if(!stereoActive||!stereoPanner||!audioCtx){
-      panRafId=null; return;
-    }
-    if(bgm.paused){panRafId=requestAnimationFrame(panLoop);return;}
-    if(!panStartTime) panStartTime=ts;
-    var elapsed=(ts-panStartTime)/1000;
-    var pan=Math.sin(elapsed*Math.PI*2/panPeriod);
-    try{stereoPanner.pan.setValueAtTime(pan,audioCtx.currentTime);}catch(e){}
-    panRafId=requestAnimationFrame(panLoop);
+  // 立体声交替：LFO 低频振荡器驱动 pan，音频采样级精度，零断层
+  function startPan(){
+    if(!audioCtx||!stereoPanner||!stereoActive||bgm.paused) return;
+    try{
+      // 先取消之前的调度
+      stereoPanner.pan.cancelScheduledValues(audioCtx.currentTime);
+      stereoPanner.pan.value=0;
+      // 创建 LFO：正弦波，约4秒一个完整周期(0.25Hz)
+      lfoNode=audioCtx.createOscillator();
+      lfoNode.type='sine';
+      lfoNode.frequency.value=0.25;
+      // LFO 输出直接控制 pan（范围 ±1，天然正弦）
+      lfoNode.connect(stereoPanner.pan);
+      lfoNode.start();
+    }catch(e){console.warn('LFO 启动失败:',e);}
   }
   function stopPan(){
-    if(panRafId){cancelAnimationFrame(panRafId);panRafId=null;}
-    panStartTime=0;
+    if(lfoNode){
+      try{lfoNode.stop();}catch(e){}
+      lfoNode.disconnect();
+      lfoNode=null;
+    }
+    if(stereoPanner){
+      try{stereoPanner.pan.cancelScheduledValues(audioCtx.currentTime);}catch(e){}
+      stereoPanner.pan.value=0;
+    }
   }
   function toggleStereo(){
     if(!audioCtx||!stereoPanner){showToast('⚠️ 当前浏览器不支持立体声交替');return;}
@@ -1600,22 +1608,21 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
     if(stereoActive){
       if(audioCtx.state==='suspended') audioCtx.resume();
       btn.classList.add('stereo-active'); btn.textContent='🔊';
-      panLoop(performance.now());
+      startPan();
     }else{
       btn.classList.remove('stereo-active'); btn.textContent='🔇';
       stopPan();
-      try{stereoPanner.pan.cancelScheduledValues(audioCtx.currentTime);}catch(e){}
-      stereoPanner.pan.value=0;
     }
   }
   window.toggleStereo=toggleStereo;
+  window._startStereoPan=startPan;
 
   // 默认开启立体声交替
   if(audioCtx && stereoPanner){
     stereoActive=true;
     var stereoBtn=document.getElementById('stereoBtn');
     if(stereoBtn){stereoBtn.classList.add('stereo-active'); stereoBtn.textContent='🔊';}
-    panLoop(performance.now());
+    startPan();
   }
 })();
 
@@ -1811,6 +1818,8 @@ function tryPlayBgm(){
     p.then(function(){
       if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
       if(musicBtn){musicBtn.textContent='🎵';musicBtn.style.background='rgba(108,92,231,.3)';}
+      // 音乐开始播放后，启动 LFO 立体声
+      if(window._startStereoPan) window._startStereoPan();
     }).catch(function(){});
   }
 }
