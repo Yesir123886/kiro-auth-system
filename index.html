@@ -21,12 +21,26 @@
 <link rel="dns-prefetch" href="https://www.chaoziran.com">
 <link rel="dns-prefetch" href="https://t.me">
 <link rel="dns-prefetch" href="https://qm.qq.com">
+<!-- 字体预连接 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- 中文 Web 字体：思源黑体 + 英文展示字体：Orbitron -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 <!-- CSP 安全策略 -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https: http:; media-src 'self' data: blob: https:; img-src 'self' data: blob: https:; font-src 'self' data: https:;">
 <!-- 外部CSS延迟加载 -->
 <link rel="preload" href="css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="css/style.css"></noscript>
 <style>
+/* ====== 全局字体 ====== */
+body, .nav-item, .nav-subtitle, .nav-quote, .nav-group-label, .tg-link, .music-controller, .dl-feedback {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+/* ANGEL 标题用 Orbitron 科技感字体 */
+.nav-title {
+  font-family: 'Orbitron', 'Noto Sans SC', sans-serif !important;
+}
+
 /* ====== 炫彩流动文字（全局） ====== */
 /* 关键帧：5秒一圈 */
 @keyframes colorFlow {
@@ -180,10 +194,31 @@
   padding: 36px 28px;
   border-radius: 24px;
   background: rgba(20,25,55,.45);
-  border: 1px solid rgba(120,110,200,.12);
+  border: 1px solid transparent;
+  background-clip: padding-box;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 8px 40px rgba(0,0,0,.25);
+}
+/* 渐变流动描边 */
+.left-panel::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 24px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(108,92,231,.4), rgba(0,210,211,.25), rgba(196,77,255,.3), rgba(108,92,231,.4));
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderFlow 6s ease infinite;
+  pointer-events: none;
+}
+@keyframes borderFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .left-panel .nav-avatar {
@@ -337,7 +372,8 @@
 
 /* 按钮列表 */
 .nav-item {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
   padding: 16px 24px;
   margin-bottom: 12px;
@@ -346,8 +382,9 @@
   border-radius: 14px;
   color: #d8dff0;
   font-size: 15px;
-  font-weight: 500;
-  text-align: center;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-align: left;
   text-decoration: none;
   cursor: pointer;
   transition: background .2s, border-color .2s, box-shadow .2s;
@@ -444,14 +481,25 @@
 
 /* 分组标签 */
 .nav-group-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   text-align: center;
   font-size: 11px;
-  color: rgba(150,140,200,.5);
+  color: rgba(150,140,200,.55);
   letter-spacing: 3px;
   text-transform: uppercase;
   margin: 22px 0 10px;
   padding-top: 18px;
   border-top: 1px solid rgba(100,110,180,.1);
+}
+.nav-group-label::before,
+.nav-group-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(108,92,231,.35), transparent);
+  border-radius: 1px;
 }
 
 /* 下载状态提示 */
@@ -556,9 +604,10 @@
   .nav-subtitle { font-size: 12px; margin-bottom: 24px; }
   .nav-quote { font-size: 14px; letter-spacing: 2px; margin: 4px 0 18px; }
   .nav-btn-list { padding: 14px 10px 40px; }
-  .nav-item { padding: 12px 14px; font-size: 13px; margin-bottom: 10px; }
+  .nav-item { padding: 12px 18px; font-size: 13px; margin-bottom: 10px; }
+  .nav-item .btn-icon { font-size: 16px; width: 20px; }
   .nav-avatar { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 14px; }
-  .nav-group-label { font-size: 10px; margin: 16px 0 8px; }
+  .nav-group-label { font-size: 10px; margin: 16px 0 8px; gap: 8px; }
 }
 @media (max-width: 380px) {
   .nav-title { font-size: 22px; letter-spacing: 4px; }
@@ -570,6 +619,21 @@ footer.footer { display: none !important; }
 .nav-item .shimmer-text {
   display: inline-flex;
   align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+/* 图标固定宽度，左对齐 */
+.nav-item .btn-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  line-height: 1;
+}
+/* 文字标签 */
+.nav-item .btn-label {
+  flex: 1;
+  text-align: left;
 }
 /* hover时整体微弹 */
 .nav-item:hover .shimmer-text {
@@ -1063,24 +1127,24 @@ html { scroll-behavior: smooth; }
 
 <!-- === Kiro 板块 === -->
 <div class="nav-group-label">— Kiro —</div>
-<a href="https://1842160496.share.123pan.cn/123pan/hAs0Td-pDg7v" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text">🎮 点我下载最新辅助</span></a>
-<a href="https://1842160496.share.123pan.cn/123pan/hAs0Td-YGEbv" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text">📥 点我下载左右飞/替换卡密（参数）</span></a>
-<a href="https://1842160496.share.123pan.cn/123pan/hAs0Td-fDg7v" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text">🌤️ 点我下载天空盒</span></a>
-<a href="https://buy.jry0.com/shop/E0ZBFJ5E" target="_blank" class="nav-item kiro-btn accent"><span class="shimmer-text">🛒 点我--提卡/参数/币号</span></a>
-<a href="https://www.chaoziran.com/?aid=3861915" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text">🌐 点我下载适配的超自然版本（下网页版）</span></a>
-<a href="http://hp.hysafe.top:9191/" target="_blank" class="nav-item kiro-btn lottery"><span class="shimmer-text">🎁 点我跳转kiro抽奖地址</span></a>
+<a href="https://1842160496.share.123pan.cn/123pan/hAs0Td-pDg7v" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text"><span class="btn-icon">🎮</span><span class="btn-label">点我下载最新辅助</span></span></a>
+<a href="https://1842160496.share.123pan.cn/123pan/hAs0Td-YGEbv" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载左右飞/替换卡密（参数）</span></span></a>
+<a href="https://1842160496.share.123pan.cn/123pan/hAs0Td-fDg7v" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text"><span class="btn-icon">🌤️</span><span class="btn-label">点我下载天空盒</span></span></a>
+<a href="https://buy.jry0.com/shop/E0ZBFJ5E" target="_blank" class="nav-item kiro-btn accent"><span class="shimmer-text"><span class="btn-icon">🛒</span><span class="btn-label">点我--提卡/参数/币号</span></span></a>
+<a href="https://www.chaoziran.com/?aid=3861915" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text"><span class="btn-icon">🌐</span><span class="btn-label">点我下载适配的超自然版本（下网页版）</span></span></a>
+<a href="http://hp.hysafe.top:9191/" target="_blank" class="nav-item kiro-btn lottery"><span class="shimmer-text"><span class="btn-icon">🎁</span><span class="btn-label">点我跳转kiro抽奖地址</span></span></a>
 
 <!-- === 参数下载 === -->
 <div class="nav-group-label">— 云参数下载 —</div>
-<a id="btnDownloadPub" href="/api/params/公益.json" download="公益.json" class="nav-item download"><span class="shimmer-text">📥 点我下载 公益版参数（免费）</span></a>
-<a id="btnDownloadPaid" href="/api/params/皇参.json" download="皇参.json" class="nav-item download paid"><span class="shimmer-text">📥 点我下载 皇参版参数（需授权）</span></a>
+<a id="btnDownloadPub" href="/api/params/公益.json" download="公益.json" class="nav-item download"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 公益版参数（免费）</span></span></a>
+<a id="btnDownloadPaid" href="/api/params/皇参.json" download="皇参.json" class="nav-item download paid"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 皇参版参数（需授权）</span></span></a>
 
 <!-- === 社群 & 联系 === -->
 <div class="nav-group-label">— 社群 & 联系 —</div>
-<a href="https://t.me/Czr114514nb" target="_blank" class="nav-item"><span class="shimmer-text">📢 点我加入TG频道（需挂梯子）</span></a>
-<a href="https://qm.qq.com/q/K4BdkG1FCi" target="_blank" class="nav-item"><span class="shimmer-text">👥 点我加入QQ闲聊群</span></a>
-<a id="btnCopyQQ" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text">📋 点击复制QQ群号 753430447</span></a>
-<a id="btnQRCode" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text">🎫 点击TG咨询代理低价批卡</span></a>
+<a href="https://t.me/Czr114514nb" target="_blank" class="nav-item"><span class="shimmer-text"><span class="btn-icon">📢</span><span class="btn-label">点我加入TG频道（需挂梯子）</span></span></a>
+<a href="https://qm.qq.com/q/K4BdkG1FCi" target="_blank" class="nav-item"><span class="shimmer-text"><span class="btn-icon">👥</span><span class="btn-label">点我加入QQ闲聊群</span></span></a>
+<a id="btnCopyQQ" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text"><span class="btn-icon">📋</span><span class="btn-label">点击复制QQ群号 753430447</span></span></a>
+<a id="btnQRCode" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text"><span class="btn-icon">🎫</span><span class="btn-label">点击TG咨询代理低价批卡</span></span></a>
 
 <!-- 底部信息 -->
 <div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(140,130,190,.35);letter-spacing:1px;">
