@@ -603,15 +603,22 @@ body, .nav-item, .nav-subtitle, .nav-quote, .nav-group-label, .tg-link, .music-c
   .nav-title { font-size: 26px; letter-spacing: 6px; }
   .nav-subtitle { font-size: 12px; margin-bottom: 24px; }
   .nav-quote { font-size: 14px; letter-spacing: 2px; margin: 4px 0 18px; }
-  .nav-btn-list { padding: 14px 10px 40px; }
+  .nav-btn-list { padding: 0 6px 40px; }
+  .nav-group-card { padding: 16px 14px 10px; margin-bottom: 18px; border-radius: 14px; }
   .nav-item { padding: 12px 18px; font-size: 13px; margin-bottom: 10px; }
   .nav-item .btn-icon { font-size: 16px; width: 20px; }
+  .nav-item.btn-lg { font-size: 14px; padding: 15px 20px; }
+  .nav-item.btn-lg .btn-icon { font-size: 18px; width: 24px; }
+  .nav-item.btn-sm { font-size: 12px; padding: 11px 14px; }
+  .nav-item.btn-sm .btn-icon { font-size: 14px; width: 18px; }
   .nav-avatar { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 14px; }
-  .nav-group-label { font-size: 10px; margin: 16px 0 8px; gap: 8px; }
+  .nav-group-label { font-size: 10px; margin: 0 0 8px; gap: 8px; }
 }
 @media (max-width: 380px) {
   .nav-title { font-size: 22px; letter-spacing: 4px; }
   .nav-item { font-size: 12px; padding: 11px 10px; }
+  .nav-group-card { padding: 12px 10px 8px; }
+  .nav-item.btn-lg { font-size: 13px; padding: 13px 16px; }
 }
 footer.footer { display: none !important; }
 
@@ -1051,6 +1058,182 @@ html { scroll-behavior: smooth; }
   .dl-feedback .dl-text { font-size: 12px; white-space: normal; }
 }
 
+/* ====== 噪点纹理叠加 ====== */
+.noise-overlay {
+  position: fixed; inset: 0; z-index: 9996; pointer-events: none; opacity: .04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* ====== CSS 星光背景 ====== */
+.stars-bg {
+  position: fixed; inset: 0; z-index: -4; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 5% 12%, rgba(255,255,255,.35), transparent),
+    radial-gradient(1px 1px at 15% 8%, rgba(255,255,255,.18), transparent),
+    radial-gradient(1.5px 1.5px at 22% 25%, rgba(200,180,255,.3), transparent),
+    radial-gradient(1px 1px at 30% 5%, rgba(255,255,255,.25), transparent),
+    radial-gradient(1px 1px at 38% 18%, rgba(200,200,255,.2), transparent),
+    radial-gradient(1.5px 1.5px at 45% 30%, rgba(255,255,255,.3), transparent),
+    radial-gradient(1px 1px at 52% 10%, rgba(255,255,255,.15), transparent),
+    radial-gradient(1px 1px at 60% 22%, rgba(200,220,255,.25), transparent),
+    radial-gradient(1.5px 1.5px at 68% 7%, rgba(255,255,255,.28), transparent),
+    radial-gradient(1px 1px at 75% 28%, rgba(220,200,255,.22), transparent),
+    radial-gradient(1px 1px at 82% 14%, rgba(255,255,255,.18), transparent),
+    radial-gradient(1.5px 1.5px at 90% 20%, rgba(200,240,255,.3), transparent),
+    radial-gradient(1px 1px at 8% 45%, rgba(255,255,255,.2), transparent),
+    radial-gradient(1px 1px at 18% 55%, rgba(220,200,255,.25), transparent),
+    radial-gradient(1.5px 1.5px at 28% 42%, rgba(255,255,255,.3), transparent),
+    radial-gradient(1px 1px at 35% 58%, rgba(200,220,255,.18), transparent),
+    radial-gradient(1px 1px at 42% 48%, rgba(255,255,255,.22), transparent),
+    radial-gradient(1.5px 1.5px at 55% 52%, rgba(220,200,255,.28), transparent),
+    radial-gradient(1px 1px at 62% 44%, rgba(255,255,255,.15), transparent),
+    radial-gradient(1px 1px at 70% 56%, rgba(200,240,255,.2), transparent),
+    radial-gradient(1.5px 1.5px at 78% 40%, rgba(255,255,255,.25), transparent),
+    radial-gradient(1px 1px at 85% 54%, rgba(220,200,255,.18), transparent),
+    radial-gradient(1px 1px at 93% 46%, rgba(255,255,255,.3), transparent),
+    radial-gradient(1px 1px at 12% 72%, rgba(255,255,255,.2), transparent),
+    radial-gradient(1.5px 1.5px at 20% 78%, rgba(200,220,255,.25), transparent),
+    radial-gradient(1px 1px at 33% 68%, rgba(220,200,255,.18), transparent),
+    radial-gradient(1px 1px at 48% 74%, rgba(255,255,255,.22), transparent),
+    radial-gradient(1.5px 1.5px at 58% 66%, rgba(200,240,255,.28), transparent),
+    radial-gradient(1px 1px at 65% 76%, rgba(220,200,255,.15), transparent),
+    radial-gradient(1px 1px at 80% 70%, rgba(255,255,255,.2), transparent),
+    radial-gradient(1.5px 1.5px at 88% 78%, rgba(200,220,255,.25), transparent),
+    radial-gradient(1px 1px at 95% 65%, rgba(255,255,255,.18), transparent),
+    radial-gradient(1px 1px at 10% 90%, rgba(220,200,255,.22), transparent),
+    radial-gradient(1.5px 1.5px at 25% 88%, rgba(255,255,255,.3), transparent),
+    radial-gradient(1px 1px at 40% 92%, rgba(200,240,255,.15), transparent),
+    radial-gradient(1px 1px at 55% 86%, rgba(220,200,255,.25), transparent),
+    radial-gradient(1.5px 1.5px at 72% 90%, rgba(255,255,255,.2), transparent),
+    radial-gradient(1px 1px at 85% 95%, rgba(200,220,255,.18), transparent);
+}
+
+/* ====== 按钮分组卡片 ====== */
+.nav-group-card {
+  position: relative;
+  background: rgba(16,20,42,.35);
+  border: 1px solid rgba(100,110,180,.08);
+  border-radius: 18px;
+  padding: 22px 20px 16px;
+  margin-bottom: 22px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  transition: border-color .35s ease, box-shadow .35s ease;
+}
+.nav-group-card:hover {
+  border-color: rgba(120,110,200,.15);
+  box-shadow: 0 6px 28px rgba(0,0,0,.22);
+}
+.nav-group-card .nav-group-label {
+  margin-top: 0; padding-top: 0;
+  border-top: none;
+  margin-bottom: 14px;
+}
+.nav-group-card .nav-item:last-child {
+  margin-bottom: 0;
+}
+.nav-group-card .nav-item {
+  margin-bottom: 10px;
+}
+
+/* 板块色彩区分 */
+.nav-group-kiro {
+  border-left: 3px solid rgba(255,200,60,.3);
+}
+.nav-group-kiro:hover {
+  border-left-color: rgba(255,215,80,.5);
+}
+.nav-group-download {
+  border-left: 3px solid rgba(0,210,211,.3);
+}
+.nav-group-download:hover {
+  border-left-color: rgba(0,230,230,.5);
+}
+.nav-group-community {
+  border-left: 3px solid rgba(108,255,206,.25);
+}
+.nav-group-community:hover {
+  border-left-color: rgba(108,255,206,.45);
+}
+
+/* ====== 按钮字号层级 ====== */
+.nav-item.btn-lg {
+  font-size: 16px; padding: 19px 24px;
+}
+.nav-item.btn-lg .btn-icon { font-size: 21px; width: 28px; }
+.nav-item.btn-md {
+  font-size: 15px; padding: 16px 24px;
+}
+.nav-item.btn-sm {
+  font-size: 14px; padding: 13px 20px;
+}
+.nav-item.btn-sm .btn-icon { font-size: 15px; width: 20px; }
+
+/* ====== 按钮图标 hover 弹跳 ====== */
+.nav-item .btn-icon {
+  transition: transform .35s cubic-bezier(.68,-.55,.27,1.55);
+}
+.nav-item:hover .btn-icon {
+  animation: iconBounce .55s cubic-bezier(.68,-.55,.27,1.55);
+}
+@keyframes iconBounce {
+  0%   { transform: scale(1) translateY(0); }
+  25%  { transform: scale(1.3) translateY(-4px); }
+  50%  { transform: scale(.9) translateY(0); }
+  75%  { transform: scale(1.1) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+/* ====== 手机底部固定导航栏 ====== */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 9999;
+  background: rgba(12,15,35,.92);
+  border-top: 1px solid rgba(120,110,200,.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 8px 12px max(8px, env(safe-area-inset-bottom));
+  display: none;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+}
+.mobile-bottom-nav button {
+  flex: 1;
+  padding: 10px 8px;
+  border: none; border-radius: 12px;
+  background: rgba(25,35,70,.5);
+  color: rgba(200,190,240,.7);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: background .2s, color .2s;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+.mobile-bottom-nav button .mnav-icon {
+  font-size: 18px;
+}
+.mobile-bottom-nav button:hover, .mobile-bottom-nav button:active {
+  background: rgba(108,92,231,.3);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: flex; }
+  .main-wrapper { padding-bottom: 90px; }
+  .music-controller { bottom: 80px; }
+  .dl-feedback { bottom: 110px; }
+}
+
 /* ====== prefers-reduced-motion ====== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -1061,6 +1244,10 @@ html { scroll-behavior: smooth; }
 </style>
 </head>
 <body style="background:#080a14;min-height:100vh;">
+<!-- 噪点纹理叠加 -->
+<div class="noise-overlay"></div>
+<!-- CSS 星光背景 -->
+<div class="stars-bg"></div>
 <!-- 滚动进度条 -->
 <div class="scroll-progress" id="scrollProgress"></div>
 <!-- 页面过渡遮罩 -->
@@ -1123,6 +1310,13 @@ html { scroll-behavior: smooth; }
   <span class="mc-label">夏天的风</span>
 </div>
 
+<!-- 手机底部固定导航栏 -->
+<nav class="mobile-bottom-nav" id="mobileNav">
+  <button onclick="document.querySelector('.nav-group-kiro').scrollIntoView({behavior:'smooth',block:'center'})"><span class="mnav-icon">🎮</span>Kiro</button>
+  <button onclick="document.querySelector('.nav-group-download').scrollIntoView({behavior:'smooth',block:'center'})"><span class="mnav-icon">📥</span>下载</button>
+  <button onclick="document.querySelector('.nav-group-community').scrollIntoView({behavior:'smooth',block:'center'})"><span class="mnav-icon">👥</span>社群</button>
+</nav>
+
 <!-- ========== 左右分栏布局 ========== -->
 <div class="main-wrapper">
 
@@ -1146,25 +1340,31 @@ html { scroll-behavior: smooth; }
 <div class="nav-btn-list">
 
 <!-- === Kiro 板块 === -->
+<div class="nav-group-card nav-group-kiro">
 <div class="nav-group-label">— Kiro —</div>
-<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-pDg7v" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text"><span class="btn-icon">🎮</span><span class="btn-label">点我下载最新辅助</span></span></a>
-<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-YGEbv" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载左右飞/替换卡密（参数）</span></span></a>
-<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-fDg7v" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text"><span class="btn-icon">🌤️</span><span class="btn-label">点我下载天空盒</span></span></a>
-<a href="javascript:void(0)" data-href="https://buy.jry0.com/shop/E0ZBFJ5E" target="_blank" class="nav-item kiro-btn accent"><span class="shimmer-text"><span class="btn-icon">🛒</span><span class="btn-label">点我--提卡/参数/币号</span></span></a>
-<a href="javascript:void(0)" data-href="https://www.chaoziran.com/?aid=3861915" target="_blank" class="nav-item kiro-btn"><span class="shimmer-text"><span class="btn-icon">🌐</span><span class="btn-label">点我下载适配的超自然版本（下网页版）</span></span></a>
-<a href="javascript:void(0)" data-href="http://hp.hysafe.top:9191/" target="_blank" class="nav-item kiro-btn lottery"><span class="shimmer-text"><span class="btn-icon">🎁</span><span class="btn-label">点我跳转kiro抽奖地址</span></span></a>
+<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-pDg7v" target="_blank" class="nav-item kiro-btn btn-md"><span class="shimmer-text"><span class="btn-icon">🎮</span><span class="btn-label">点我下载最新辅助</span></span></a>
+<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-YGEbv" target="_blank" class="nav-item kiro-btn btn-md"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载左右飞/替换卡密（参数）</span></span></a>
+<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-fDg7v" target="_blank" class="nav-item kiro-btn btn-md"><span class="shimmer-text"><span class="btn-icon">🌤️</span><span class="btn-label">点我下载天空盒</span></span></a>
+<a href="javascript:void(0)" data-href="https://buy.jry0.com/shop/E0ZBFJ5E" target="_blank" class="nav-item kiro-btn accent btn-lg"><span class="shimmer-text"><span class="btn-icon">🛒</span><span class="btn-label">点我--提卡/参数/币号</span></span></a>
+<a href="javascript:void(0)" data-href="https://www.chaoziran.com/?aid=3861915" target="_blank" class="nav-item kiro-btn btn-md"><span class="shimmer-text"><span class="btn-icon">🌐</span><span class="btn-label">点我下载适配的超自然版本（下网页版）</span></span></a>
+<a href="javascript:void(0)" data-href="http://hp.hysafe.top:9191/" target="_blank" class="nav-item kiro-btn lottery btn-lg"><span class="shimmer-text"><span class="btn-icon">🎁</span><span class="btn-label">点我跳转kiro抽奖地址</span></span></a>
+</div>
 
 <!-- === 参数下载 === -->
+<div class="nav-group-card nav-group-download">
 <div class="nav-group-label">— 云参数下载 —</div>
-<a id="btnDownloadPub" href="javascript:void(0)" data-href="/api/params/公益.json" class="nav-item download"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 公益版参数（免费）</span></span></a>
-<a id="btnDownloadPaid" href="javascript:void(0)" data-href="/api/params/皇参.json" class="nav-item download paid"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 皇参版参数（需授权）</span></span></a>
+<a id="btnDownloadPub" href="javascript:void(0)" data-href="/api/params/公益.json" class="nav-item download btn-md"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 公益版参数（免费）</span></span></a>
+<a id="btnDownloadPaid" href="javascript:void(0)" data-href="/api/params/皇参.json" class="nav-item download paid btn-md"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 皇参版参数（需授权）</span></span></a>
+</div>
 
 <!-- === 社群 & 联系 === -->
+<div class="nav-group-card nav-group-community">
 <div class="nav-group-label">— 社群 & 联系 —</div>
-<a href="javascript:void(0)" data-href="https://t.me/Czr114514nb" target="_blank" class="nav-item"><span class="shimmer-text"><span class="btn-icon">📢</span><span class="btn-label">点我加入TG频道（需挂梯子）</span></span></a>
-<a href="javascript:void(0)" data-href="https://qm.qq.com/q/K4BdkG1FCi" target="_blank" class="nav-item"><span class="shimmer-text"><span class="btn-icon">👥</span><span class="btn-label">点我加入QQ闲聊群</span></span></a>
-<a id="btnCopyQQ" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text"><span class="btn-icon">📋</span><span class="btn-label">点击复制QQ群号 753430447</span></span></a>
-<a id="btnQRCode" href="javascript:void(0)" class="nav-item" style="cursor:pointer;"><span class="shimmer-text"><span class="btn-icon">🎫</span><span class="btn-label">点击TG咨询代理低价批卡</span></span></a>
+<a href="javascript:void(0)" data-href="https://t.me/Czr114514nb" target="_blank" class="nav-item btn-sm"><span class="shimmer-text"><span class="btn-icon">📢</span><span class="btn-label">点我加入TG频道（需挂梯子）</span></span></a>
+<a href="javascript:void(0)" data-href="https://qm.qq.com/q/K4BdkG1FCi" target="_blank" class="nav-item btn-sm"><span class="shimmer-text"><span class="btn-icon">👥</span><span class="btn-label">点我加入QQ闲聊群</span></span></a>
+<a id="btnCopyQQ" href="javascript:void(0)" class="nav-item btn-sm" style="cursor:pointer;"><span class="shimmer-text"><span class="btn-icon">📋</span><span class="btn-label">点击复制QQ群号 753430447</span></span></a>
+<a id="btnQRCode" href="javascript:void(0)" class="nav-item btn-sm" style="cursor:pointer;"><span class="shimmer-text"><span class="btn-icon">🎫</span><span class="btn-label">点击TG咨询代理低价批卡</span></span></a>
+</div>
 
 <!-- 底部信息 -->
 <div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(140,130,190,.35);letter-spacing:1px;">
