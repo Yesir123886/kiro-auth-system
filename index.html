@@ -830,7 +830,7 @@ footer.footer { display: none !important; }
 }
 .music-controller .mc-label {
   font-size: 10px; color: rgba(160,150,210,.6);
-  white-space: nowrap; max-width: 80px;
+  white-space: nowrap; max-width: 110px;
   overflow: hidden; text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
@@ -1664,16 +1664,15 @@ html { scroll-behavior: smooth; }
 <footer class="footer"><p>&copy; 2026 ANGEL.</p></footer>
 </div>
 
-<!-- 背景音乐：夏天的风 - 温岚 -->
-<audio id="bgMusic" loop preload="auto" autoplay>
-  <source src="assets/summer-wind.mp3" type="audio/mpeg">
-</audio>
+<!-- 背景音乐播放器（多首随机播放） -->
+<audio id="bgMusic" preload="auto" autoplay></audio>
 <!-- 音乐控制器 -->
 <div class="music-controller" id="musicController">
   <button class="mc-btn" id="musicBtn" title="播放/暂停" onclick="toggleMusic()">🎵</button>
+  <button class="mc-btn mc-next-btn" id="nextBtn" title="下一首" onclick="nextTrack()">⏭</button>
   <button class="mc-stereo-btn stereo-active" id="stereoBtn" title="立体声交替" onclick="toggleStereo()">🔊</button>
-  <input type="range" class="mc-slider" id="volSlider" min="0" max="100" value="55" title="音量">
-  <span class="mc-label">夏天的风</span>
+  <input type="range" class="mc-slider" id="volSlider" min="0" max="100" value="45" title="音量">
+  <span class="mc-label" id="trackLabel">随机播放中</span>
 </div>
 
 <!-- 返回顶部按钮 -->
@@ -2177,9 +2176,9 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode
     stereoPanner.pan.value=0;
   }catch(e){console.warn('Web Audio API 不可用:',e);}
 
-  // 恢复音量
+  // 恢复音量（默认 45%）
   var saved=localStorage.getItem(KEY);
-  var v=saved?parseFloat(saved):0.55;
+  var v=saved?parseFloat(saved):0.45;
   if(gainNode) gainNode.gain.value=v;
   slider.value=Math.round(v*100);
   slider.addEventListener('change',function(){
@@ -2452,22 +2451,116 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
 
 <!-- 背景音乐控制 -->
 <script>
+// ====== 多首歌曲随机播放列表 ======
+// 说明：你需要把对应 MP3 文件放到 assets/music/ 目录下。
+// 文件命名规则：01.mp3 ~ 19.mp3，与下面列表顺序一一对应。
+var PLAYLIST = [
+  { title: '世界上的另一个我', artist: '阿肆 / 郭采洁', src: 'assets/music/01.mp3', startTime: 14 },
+  { title: 'Call You Tonight', artist: 'Whitney Houston', src: 'assets/music/02.mp3', startTime: 0 },
+  { title: 'Y (Please Tell Me Why)', artist: 'Free Style', src: 'assets/music/03.mp3', startTime: 0 },
+  { title: 'Take Me Hand', artist: 'DAISHI DANCE / Cécile Corbel', src: 'assets/music/04.mp3', startTime: 0 },
+  { title: '溯 (Reverse)feat. 马吟吟', artist: 'CORSAK胡梦周 / 马吟吟', src: 'assets/music/05.mp3', startTime: 0 },
+  { title: 'Alive (Mortal Remix)', artist: '404Hz / Vicks Noeuz', src: 'assets/music/06.mp3', startTime: 0 },
+  { title: '我的雅典娜', artist: '薛之谦', src: 'assets/music/07.mp3', startTime: 0 },
+  { title: '那天下雨了', artist: '周杰伦', src: 'assets/music/08.mp3', startTime: 38 },
+  { title: '女孩', artist: '韦礼安', src: 'assets/music/09.mp3', startTime: 0 },
+  { title: '恋人', artist: '李荣浩', src: 'assets/music/10.mp3', startTime: 0 },
+  { title: '坏女孩', artist: '徐良 / 小凌', src: 'assets/music/11.mp3', startTime: 0 },
+  { title: '简单爱', artist: '周杰伦', src: 'assets/music/12.mp3', startTime: 0 },
+  { title: '枫', artist: '周杰伦', src: 'assets/music/13.mp3', startTime: 0 },
+  { title: '龙卷风', artist: '周杰伦', src: 'assets/music/14.mp3', startTime: 0 },
+  { title: '我们', artist: '刘初寻 / 白色', src: 'assets/music/15.mp3', startTime: 0 },
+  { title: '怎么办我爱你', artist: '本兮', src: 'assets/music/16.mp3', startTime: 0 },
+  { title: '戒烟', artist: '李荣浩', src: 'assets/music/17.mp3', startTime: 0 },
+  { title: '反方向的钟', artist: '周杰伦', src: 'assets/music/18.mp3', startTime: 0 },
+  { title: '海海海', artist: '阿悄', src: 'assets/music/19.mp3', startTime: 0 }
+];
+
 var bgm=document.getElementById('bgMusic');
 var musicBtn=document.getElementById('musicBtn');
+var trackLabel=document.getElementById('trackLabel');
+var currentTrackIndex=-1;
 // 音量由 gainNode 控制（见上方 Web Audio API 初始化），不再直接设置 bgm.volume
 
-// 统一的播放入口
-function tryPlayBgm(){
+// 随机选择一首（不重复当前）
+function pickRandomTrack(){
+  if(PLAYLIST.length<=1) return 0;
+  var idx;
+  do{ idx=Math.floor(Math.random()*PLAYLIST.length); }
+  while(idx===currentTrackIndex);
+  return idx;
+}
+
+function updateTrackLabel(){
+  if(!trackLabel) return;
+  var track=PLAYLIST[currentTrackIndex];
+  if(track){
+    trackLabel.textContent=track.title + ' - ' + track.artist;
+    trackLabel.title=trackLabel.textContent;
+  }else{
+    trackLabel.textContent='随机播放中';
+    trackLabel.title='';
+  }
+}
+
+function loadTrack(index){
+  if(!bgm || !PLAYLIST.length) return;
+  currentTrackIndex=index;
+  var track=PLAYLIST[index];
+  bgm.src=track.src;
+  bgm.load();
+  updateTrackLabel();
+}
+
+function playTrack(){
   if(!bgm) return;
+  var track=PLAYLIST[currentTrackIndex];
+  if(track && track.startTime>0){
+    // 尝试从指定时间开始；若元数据尚未加载，canplaythrough 时再次设置
+    bgm.currentTime=track.startTime;
+    var onCanPlay=function(){
+      bgm.currentTime=track.startTime;
+      bgm.removeEventListener('canplaythrough',onCanPlay);
+      bgm.removeEventListener('loadedmetadata',onCanPlay);
+    };
+    bgm.addEventListener('canplaythrough',onCanPlay);
+    bgm.addEventListener('loadedmetadata',onCanPlay);
+  }
   var p=bgm.play();
   if(p&&p.then){
     p.then(function(){
       if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
       if(musicBtn){musicBtn.textContent='🎵';musicBtn.style.background='rgba(108,92,231,.3)';}
-      // 音乐开始播放后，启动 LFO 立体声
       if(window._startStereoPan) window._startStereoPan();
     }).catch(function(){});
   }
+}
+
+function nextTrack(){
+  if(!PLAYLIST.length) return;
+  var next=pickRandomTrack();
+  loadTrack(next);
+  playTrack();
+}
+
+// 初始化第一首（随机）
+loadTrack(pickRandomTrack());
+
+// 曲目自然结束时随机切换下一首
+if(bgm){
+  bgm.addEventListener('ended',function(){
+    nextTrack();
+  });
+}
+
+// 统一的播放入口
+function tryPlayBgm(){
+  if(!bgm) return;
+  // 如果没有 src，先加载一首
+  if(!bgm.src || bgm.src===window.location.href){
+    loadTrack(pickRandomTrack());
+  }
+  playTrack();
 }
 
 // 页面加载立即尝试自动播放
