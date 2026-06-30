@@ -1389,7 +1389,157 @@ html { scroll-behavior: smooth; }
   .nav-group-card { opacity: 1; transform: none; }
   .nav-title .title-char { animation: none; opacity: 1; }
   .main-wrapper { transform: none !important; }
+  .aurora-blob, .crt-scanlines { animation: none !important; }
 }
+
+/* ====== Aurora 极光流动光斑 ====== */
+.aurora-bg {
+  position: fixed; inset: 0; z-index: -4; pointer-events: none; overflow: hidden;
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: .3;
+  mix-blend-mode: screen;
+}
+.aurora-blob:nth-child(1) {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #6c5ce7, transparent 70%);
+  top: -100px; left: -100px;
+  animation: aurora1 18s ease-in-out infinite;
+}
+.aurora-blob:nth-child(2) {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #00d2d3, transparent 70%);
+  bottom: -150px; right: -150px;
+  animation: aurora2 22s ease-in-out infinite;
+}
+.aurora-blob:nth-child(3) {
+  width: 450px; height: 450px;
+  background: radial-gradient(circle, #c44dff, transparent 70%);
+  top: 40%; left: 50%;
+  animation: aurora3 16s ease-in-out infinite;
+}
+@keyframes aurora1 {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(200px, 100px) scale(1.2); }
+  66% { transform: translate(100px, 300px) scale(.9); }
+}
+@keyframes aurora2 {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(-150px, -100px) scale(1.15); }
+  66% { transform: translate(-200px, 50px) scale(.85); }
+}
+@keyframes aurora3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  33% { transform: translate(-30%, -70%) scale(1.3); }
+  66% { transform: translate(-70%, -30%) scale(.8); }
+}
+
+/* ====== 页面暗角 Vignette ====== */
+.vignette-overlay {
+  position: fixed; inset: 0; z-index: 9995; pointer-events: none;
+  background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 50%, rgba(0,0,0,.45) 100%);
+}
+
+/* ====== CRT 扫描线效果 ====== */
+.crt-scanlines {
+  position: fixed; inset: 0; z-index: 9994; pointer-events: none; opacity: .05;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.6) 0px,
+    rgba(0,0,0,.6) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: crtFlicker .15s steps(2) infinite;
+}
+@keyframes crtFlicker {
+  0%, 100% { opacity: .04; }
+  50% { opacity: .07; }
+}
+
+/* ====== 音频频谱可视化器 ====== */
+.spectrum-visualizer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9990;
+  height: 80px; pointer-events: none;
+  opacity: 0; transform: translateY(100%);
+  transition: opacity .4s ease, transform .4s ease;
+}
+.spectrum-visualizer.active {
+  opacity: 1; transform: translateY(0);
+}
+.spectrum-visualizer canvas {
+  width: 100%; height: 100%; display: block;
+}
+@media (max-width: 600px) {
+  .spectrum-visualizer { height: 50px; }
+}
+
+/* ====== 实时时钟 + 在线时长 ====== */
+.panel-clock {
+  margin-top: 16px;
+  text-align: center;
+  width: 100%;
+}
+.panel-clock .clock-time {
+  font-family: 'Orbitron', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: rgba(220,210,255,.9);
+  text-shadow: 0 0 12px rgba(196,77,255,.4);
+  line-height: 1;
+}
+.panel-clock .clock-date {
+  font-size: 10px;
+  color: rgba(150,140,210,.5);
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+.panel-clock .clock-session {
+  font-size: 10px;
+  color: rgba(108,255,206,.6);
+  letter-spacing: 1px;
+  margin-top: 6px;
+  font-family: 'Orbitron', monospace;
+}
+@media (max-width: 768px) {
+  .panel-clock .clock-time { font-size: 22px; }
+}
+
+/* ====== 时段问候语 ====== */
+.greeting-text {
+  font-size: 13px;
+  margin-top: 10px;
+  letter-spacing: 1px;
+  opacity: .8;
+  animation: greetingFade .8s ease;
+}
+@keyframes greetingFade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: .8; transform: translateY(0); }
+}
+
+/* ====== FPS 性能监控角标 ====== */
+.fps-monitor {
+  position: fixed; top: 12px; right: 12px; z-index: 9996;
+  padding: 4px 10px; border-radius: 8px;
+  background: rgba(20,25,55,.7);
+  border: 1px solid rgba(120,110,200,.15);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  font-family: 'Orbitron', monospace;
+  font-size: 11px; font-weight: 700;
+  color: rgba(108,255,206,.8);
+  letter-spacing: 1px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.fps-monitor.visible { opacity: 1; }
+.fps-monitor.warning { color: #ffd93d; border-color: rgba(255,217,61,.3); }
+.fps-monitor.danger { color: #ff6b6b; border-color: rgba(255,107,107,.3); }
 </style>
 </head>
 <body style="background:#080a14;min-height:100vh;">
@@ -1399,6 +1549,22 @@ html { scroll-behavior: smooth; }
 <div class="bg-grid"></div>
 <!-- CSS 星光背景 -->
 <div class="stars-bg"></div>
+<!-- Aurora 极光流动光斑 -->
+<div class="aurora-bg">
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+</div>
+<!-- 页面暗角 Vignette -->
+<div class="vignette-overlay"></div>
+<!-- CRT 扫描线效果 -->
+<div class="crt-scanlines"></div>
+<!-- 音频频谱可视化器 -->
+<div class="spectrum-visualizer" id="spectrumVisualizer">
+  <canvas id="spectrumCanvas"></canvas>
+</div>
+<!-- FPS 性能监控角标 -->
+<div class="fps-monitor" id="fpsMonitor">FPS 60</div>
 <!-- 滚动进度条 -->
 <div class="scroll-progress" id="scrollProgress"></div>
 <!-- 页面过渡遮罩 -->
@@ -1487,6 +1653,14 @@ html { scroll-behavior: smooth; }
     👁️ 总访问量：<span id="visitCount" style="color:#a78bfa;font-weight:600;">...</span> 次
   </div>
   <div class="online-status"><span class="dot"></span> 系统在线运行中</div>
+  <!-- 时段问候语 -->
+  <div class="greeting-text" id="greetingText"></div>
+  <!-- 实时时钟 + 在线时长 -->
+  <div class="panel-clock">
+    <div class="clock-time" id="clockTime">00:00:00</div>
+    <div class="clock-date" id="clockDate">—</div>
+    <div class="clock-session" id="clockSession">⏱ 在线 0s</div>
+  </div>
 </div>
 
 <!-- 右侧面板：所有按钮 -->
@@ -1925,7 +2099,7 @@ window.addEventListener('load',function(){
 })();
 
 // ====== 音量记忆（localStorage） + Web Audio API 立体声交替 ======
-var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode=null;
+var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode=null, analyserNode=null;
 (function(){
   var bgm=document.getElementById('bgMusic');
   var slider=document.getElementById('volSlider');
@@ -1938,10 +2112,14 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode
     var source=audioCtx.createMediaElementSource(bgm);
     stereoPanner=audioCtx.createStereoPanner();
     gainNode=audioCtx.createGain();
-    // 链路: Source → Gain(音量) → Panner(声道) → 输出
+    analyserNode=audioCtx.createAnalyser();
+    analyserNode.fftSize=128;
+    analyserNode.smoothingTimeConstant=0.8;
+    // 链路: Source → Gain(音量) → Panner(声道) → Analyser(频谱) → 输出
     source.connect(gainNode);
     gainNode.connect(stereoPanner);
-    stereoPanner.connect(audioCtx.destination);
+    stereoPanner.connect(analyserNode);
+    analyserNode.connect(audioCtx.destination);
     stereoPanner.pan.value=0;
   }catch(e){console.warn('Web Audio API 不可用:',e);}
 
@@ -2357,6 +2535,122 @@ function toggleMusic(){
     }
     requestAnimationFrame(animate);
   }catch(e){ el.textContent='8,889'; }
+})();
+
+// ====== 音频频谱可视化器 ======
+(function(){
+  var canvas=document.getElementById('spectrumCanvas');
+  var visualizer=document.getElementById('spectrumVisualizer');
+  if(!canvas||!visualizer) return;
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  function resize(){
+    canvas.width=canvas.offsetWidth*dpr;
+    canvas.height=canvas.offsetHeight*dpr;
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  var barCount=64;
+  var freqData=new Uint8Array(barCount);
+  var isActive=false;
+  var colors=['#ff6b9d','#c44dff','#6cb4ee','#6cffce','#ffd93d'];
+
+  function draw(){
+    requestAnimationFrame(draw);
+    var bgm=document.getElementById('bgMusic');
+    if(!bgm||bgm.paused){
+      if(isActive){visualizer.classList.remove('active');isActive=false;}
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      return;
+    }
+    if(!isActive){visualizer.classList.add('active');isActive=true;}
+    if(!analyserNode) return;
+
+    analyserNode.getByteFrequencyData(freqData);
+    var w=canvas.width, h=canvas.height;
+    ctx.clearRect(0,0,w,h);
+    var barW=w/barCount;
+    for(var i=0;i<barCount;i++){
+      var val=freqData[i]/255;
+      var barH=Math.max(2,val*h*0.85);
+      var x=i*barW;
+      var grad=ctx.createLinearGradient(0,h,0,h-barH);
+      grad.addColorStop(0,colors[i%colors.length]);
+      grad.addColorStop(1,colors[(i+2)%colors.length]);
+      ctx.fillStyle=grad;
+      ctx.fillRect(x+1,h-barH,barW-2,barH);
+      // 顶端亮点
+      if(barH>6){
+        ctx.fillStyle='rgba(255,255,255,.5)';
+        ctx.fillRect(x+1,h-barH-2,barW-2,2);
+      }
+    }
+  }
+  draw();
+})();
+
+// ====== 实时时钟 + 在线时长 ======
+(function(){
+  var timeEl=document.getElementById('clockTime');
+  var dateEl=document.getElementById('clockDate');
+  var sessionEl=document.getElementById('clockSession');
+  if(!timeEl) return;
+  var startTime=Date.now();
+  var weekdays=['周日','周一','周二','周三','周四','周五','周六'];
+  function pad(n){return n<10?'0'+n:''+n;}
+  function update(){
+    var now=new Date();
+    timeEl.textContent=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    dateEl.textContent=(now.getMonth()+1)+'月'+now.getDate()+'日 '+weekdays[now.getDay()];
+    var elapsed=Math.floor((Date.now()-startTime)/1000);
+    var h=Math.floor(elapsed/3600), m=Math.floor((elapsed%3600)/60), s=elapsed%60;
+    var str='';
+    if(h>0) str+=h+'h ';
+    if(m>0||h>0) str+=m+'m ';
+    str+=s+'s';
+    sessionEl.textContent='⏱ 在线 '+str;
+  }
+  update();
+  setInterval(update,1000);
+})();
+
+// ====== 时段问候语 ======
+(function(){
+  var el=document.getElementById('greetingText');
+  if(!el) return;
+  var h=new Date().getHours();
+  var greeting='';
+  if(h<6) greeting='🌙 凌晨好，夜深了注意休息';
+  else if(h<9) greeting='☀️ 早上好，新的一天开始了';
+  else if(h<12) greeting='🌤️ 上午好，元气满满';
+  else if(h<14) greeting='🍚 中午好，该吃饭啦';
+  else if(h<18) greeting='🌇 下午好，继续加油';
+  else if(h<22) greeting='🌆 晚上好，放松一下吧';
+  else greeting='🌃 深夜好，别熬太晚';
+  el.textContent=greeting;
+})();
+
+// ====== FPS 性能监控角标 ======
+(function(){
+  var el=document.getElementById('fpsMonitor');
+  if(!el) return;
+  var frames=0, lastTime=performance.now();
+  function loop(now){
+    frames++;
+    if(now-lastTime>=500){
+      var fps=Math.round(frames*1000/(now-lastTime));
+      el.textContent='FPS '+fps;
+      el.classList.remove('warning','danger');
+      if(fps<30) el.classList.add('danger');
+      else if(fps<50) el.classList.add('warning');
+      el.classList.add('visible');
+      frames=0;
+      lastTime=now;
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
 })();
 </script>
 
