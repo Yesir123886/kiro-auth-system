@@ -1187,6 +1187,44 @@ html { scroll-behavior: smooth; }
   100% { transform: scale(1) translateY(0); }
 }
 
+/* ====== 按钮悬浮提示 Tooltip ====== */
+.nav-item[data-tooltip] { position: relative; }
+.nav-item[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%; bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(30,25,60,.95);
+  border: 1px solid rgba(140,120,230,.35);
+  color: rgba(220,210,255,.9);
+  font-size: 11px; font-weight: 400; letter-spacing: .3px;
+  padding: 6px 12px; border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s, transform .2s;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+.nav-item[data-tooltip]:hover::after {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+.nav-item[data-tooltip]::before {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: calc(100% + 2px);
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(140,120,230,.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+  z-index: 10;
+}
+.nav-item[data-tooltip]:hover::before { opacity: 1; }
+
 /* ====== 手机底部固定导航栏 ====== */
 .mobile-bottom-nav {
   display: none;
@@ -1423,28 +1461,28 @@ html { scroll-behavior: smooth; }
 <!-- === Kiro 板块 === -->
 <div class="nav-group-card nav-group-kiro">
 <div class="nav-group-label">— Kiro —</div>
-<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-pDg7v" target="_blank" class="nav-item kiro-btn btn-md"><span class="shimmer-text"><span class="btn-icon">🎮</span><span class="btn-label">点我下载最新辅助</span></span></a>
-<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-YGEbv" target="_blank" class="nav-item kiro-btn btn-md"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载左右飞/替换卡密（参数）</span></span></a>
-<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-fDg7v" target="_blank" class="nav-item kiro-btn btn-md"><span class="shimmer-text"><span class="btn-icon">🌤️</span><span class="btn-label">点我下载天空盒</span></span></a>
-<a href="javascript:void(0)" data-href="https://buy.jry0.com/shop/E0ZBFJ5E" target="_blank" class="nav-item kiro-btn accent btn-lg"><span class="shimmer-text"><span class="btn-icon">🛒</span><span class="btn-label">点我--提卡/参数/币号</span></span></a>
-<a href="javascript:void(0)" data-href="https://www.chaoziran.com/?aid=3861915" target="_blank" class="nav-item kiro-btn btn-md"><span class="shimmer-text"><span class="btn-icon">🌐</span><span class="btn-label">点我下载适配的超自然版本（下网页版）</span></span></a>
-<a href="javascript:void(0)" data-href="http://hp.hysafe.top:9191/" target="_blank" class="nav-item kiro-btn lottery btn-lg"><span class="shimmer-text"><span class="btn-icon">🎁</span><span class="btn-label">点我跳转kiro抽奖地址</span></span></a>
+<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-pDg7v" target="_blank" class="nav-item kiro-btn btn-md" data-tooltip="123云盘下载 · 最新版本辅助程序"><span class="shimmer-text"><span class="btn-icon">🎮</span><span class="btn-label">点我下载最新辅助</span></span></a>
+<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-YGEbv" target="_blank" class="nav-item kiro-btn btn-md" data-tooltip="左右飞 + 替换卡密参数包"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载左右飞/替换卡密（参数）</span></span></a>
+<a href="javascript:void(0)" data-href="https://1842160496.share.123pan.cn/123pan/hAs0Td-fDg7v" target="_blank" class="nav-item kiro-btn btn-md" data-tooltip="游戏天空盒资源包"><span class="shimmer-text"><span class="btn-icon">🌤️</span><span class="btn-label">点我下载天空盒</span></span></a>
+<a href="javascript:void(0)" data-href="https://buy.jry0.com/shop/E0ZBFJ5E" target="_blank" class="nav-item kiro-btn accent btn-lg" data-tooltip="前往发卡网购买卡密/参数/币号"><span class="shimmer-text"><span class="btn-icon">🛒</span><span class="btn-label">点我--提卡/参数/币号</span></span></a>
+<a href="javascript:void(0)" data-href="https://www.chaoziran.com/?aid=3861915" target="_blank" class="nav-item kiro-btn btn-md" data-tooltip="下载超自然适配版本 · 选网页版即可"><span class="shimmer-text"><span class="btn-icon">🌐</span><span class="btn-label">点我下载适配的超自然版本（下网页版）</span></span></a>
+<a href="javascript:void(0)" data-href="http://hp.hysafe.top:9191/" target="_blank" class="nav-item kiro-btn lottery btn-lg" data-tooltip="🎉 Kiro 专属抽奖活动页"><span class="shimmer-text"><span class="btn-icon">🎁</span><span class="btn-label">点我跳转kiro抽奖地址</span></span></a>
 </div>
 
 <!-- === 参数下载 === -->
 <div class="nav-group-card nav-group-download">
 <div class="nav-group-label">— 云参数下载 —</div>
-<a id="btnDownloadPub" href="javascript:void(0)" data-href="/api/params/公益.json" class="nav-item download btn-md"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 公益版参数（免费）</span></span></a>
-<a id="btnDownloadPaid" href="javascript:void(0)" data-href="/api/params/皇参.json" class="nav-item download paid btn-md"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 皇参版参数（需授权）</span></span></a>
+<a id="btnDownloadPub" href="javascript:void(0)" data-href="/api/params/公益.json" class="nav-item download btn-md" data-tooltip="免费公益版 · 无需授权直接下载"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 公益版参数（免费）</span></span></a>
+<a id="btnDownloadPaid" href="javascript:void(0)" data-href="/api/params/皇参.json" class="nav-item download paid btn-md" data-tooltip="付费皇参版 · 需购买授权后使用"><span class="shimmer-text"><span class="btn-icon">📥</span><span class="btn-label">点我下载 皇参版参数（需授权）</span></span></a>
 </div>
 
 <!-- === 社群 & 联系 === -->
 <div class="nav-group-card nav-group-community">
 <div class="nav-group-label">— 社群 & 联系 —</div>
-<a href="javascript:void(0)" data-href="https://t.me/Czr114514nb" target="_blank" class="nav-item btn-sm"><span class="shimmer-text"><span class="btn-icon">📢</span><span class="btn-label">点我加入TG频道（需挂梯子）</span></span></a>
-<a href="javascript:void(0)" data-href="https://qm.qq.com/q/K4BdkG1FCi" target="_blank" class="nav-item btn-sm"><span class="shimmer-text"><span class="btn-icon">👥</span><span class="btn-label">点我加入QQ闲聊群</span></span></a>
-<a id="btnCopyQQ" href="javascript:void(0)" class="nav-item btn-sm" style="cursor:pointer;"><span class="shimmer-text"><span class="btn-icon">📋</span><span class="btn-label">点击复制QQ群号 753430447</span></span></a>
-<a id="btnQRCode" href="javascript:void(0)" class="nav-item btn-sm" style="cursor:pointer;"><span class="shimmer-text"><span class="btn-icon">🎫</span><span class="btn-label">点击TG咨询代理低价批卡</span></span></a>
+<a href="javascript:void(0)" data-href="https://t.me/Czr114514nb" target="_blank" class="nav-item btn-sm" data-tooltip="Telegram 频道 · 需科学上网"><span class="shimmer-text"><span class="btn-icon">📢</span><span class="btn-label">点我加入TG频道（需挂梯子）</span></span></a>
+<a href="javascript:void(0)" data-href="https://qm.qq.com/q/K4BdkG1FCi" target="_blank" class="nav-item btn-sm" data-tooltip="QQ 闲聊群 · 吹水聊天交流"><span class="shimmer-text"><span class="btn-icon">👥</span><span class="btn-label">点我加入QQ闲聊群</span></span></a>
+<a id="btnCopyQQ" href="javascript:void(0)" class="nav-item btn-sm" style="cursor:pointer;" data-tooltip="一键复制群号到剪贴板"><span class="shimmer-text"><span class="btn-icon">📋</span><span class="btn-label">点击复制QQ群号 753430447</span></span></a>
+<a id="btnQRCode" href="javascript:void(0)" class="nav-item btn-sm" style="cursor:pointer;" data-tooltip="咨询 TG 代理 · 低价批发卡密"><span class="shimmer-text"><span class="btn-icon">🎫</span><span class="btn-label">点击TG咨询代理低价批卡</span></span></a>
 </div>
 
 <!-- 底部信息 -->
@@ -2221,6 +2259,29 @@ function toggleMusic(){
   },{passive:true});
 
   updateParallax();
+})();
+
+// ====== 标签页标题动画：切走时变撩人提示 ======
+(function(){
+  var origTitle=document.title;
+  var awayTitle='💔 快回来！ANGEL 在等你...';
+  var blinkTimer=null;
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){
+      document.title=awayTitle;
+      // 标题闪烁一下
+      var dots=['','.','..','...'];
+      var i=0;
+      clearInterval(blinkTimer);
+      blinkTimer=setInterval(function(){
+        document.title=awayTitle+dots[i];
+        i=(i+1)%4;
+      },400);
+    }else{
+      clearInterval(blinkTimer);
+      document.title=origTitle;
+    }
+  });
 })();
 </script>
 
