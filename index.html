@@ -1461,23 +1461,6 @@ html { scroll-behavior: smooth; }
   50% { opacity: .07; }
 }
 
-/* ====== 音频频谱可视化器 ====== */
-.spectrum-visualizer {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9990;
-  height: 80px; pointer-events: none;
-  opacity: 0; transform: translateY(100%);
-  transition: opacity .4s ease, transform .4s ease;
-}
-.spectrum-visualizer.active {
-  opacity: 1; transform: translateY(0);
-}
-.spectrum-visualizer canvas {
-  width: 100%; height: 100%; display: block;
-}
-@media (max-width: 600px) {
-  .spectrum-visualizer { height: 50px; }
-}
-
 /* ====== 实时时钟 + 在线时长 ====== */
 .panel-clock {
   margin-top: 16px;
@@ -1542,11 +1525,6 @@ html { scroll-behavior: smooth; }
 .fps-monitor.warning { color: #ffd93d; border-color: rgba(255,217,61,.3); }
 .fps-monitor.danger { color: #ff6b6b; border-color: rgba(255,107,107,.3); }
 
-/* ====== 流星划过 ====== */
-.meteor-canvas {
-  position: fixed; inset: 0; z-index: -2; pointer-events: none;
-}
-
 /* ====== 鼠标拖尾粒子流 Canvas ====== */
 .cursor-trail-canvas {
   position: fixed; inset: 0; z-index: 99997; pointer-events: none;
@@ -1594,8 +1572,6 @@ html { scroll-behavior: smooth; }
 <div class="bg-grid"></div>
 <!-- CSS 星光背景 -->
 <div class="stars-bg"></div>
-<!-- 流星划过 -->
-<canvas id="meteorCanvas" class="meteor-canvas"></canvas>
 <!-- 天气感知（昼夜色温） -->
 <div class="day-night-overlay" id="dayNightOverlay"></div>
 <!-- Aurora 极光流动光斑 -->
@@ -1608,10 +1584,6 @@ html { scroll-behavior: smooth; }
 <div class="vignette-overlay"></div>
 <!-- CRT 扫描线效果 -->
 <div class="crt-scanlines"></div>
-<!-- 音频频谱可视化器 -->
-<div class="spectrum-visualizer" id="spectrumVisualizer">
-  <canvas id="spectrumCanvas"></canvas>
-</div>
 <!-- FPS 性能监控角标 -->
 <div class="fps-monitor" id="fpsMonitor">FPS 60</div>
 <!-- 滚动进度条 -->
@@ -2152,7 +2124,7 @@ window.addEventListener('load',function(){
 })();
 
 // ====== 音量记忆（localStorage） + Web Audio API 立体声交替 ======
-var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode=null, analyserNode=null;
+var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode=null;
 (function(){
   var bgm=document.getElementById('bgMusic');
   var slider=document.getElementById('volSlider');
@@ -2165,14 +2137,10 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode
     var source=audioCtx.createMediaElementSource(bgm);
     stereoPanner=audioCtx.createStereoPanner();
     gainNode=audioCtx.createGain();
-    analyserNode=audioCtx.createAnalyser();
-    analyserNode.fftSize=128;
-    analyserNode.smoothingTimeConstant=0.8;
-    // 链路: Source → Gain(音量) → Panner(声道) → Analyser(频谱) → 输出
+    // 链路: Source → Gain(音量) → Panner(声道) → 输出
     source.connect(gainNode);
     gainNode.connect(stereoPanner);
-    stereoPanner.connect(analyserNode);
-    analyserNode.connect(audioCtx.destination);
+    stereoPanner.connect(audioCtx.destination);
     stereoPanner.pan.value=0;
   }catch(e){console.warn('Web Audio API 不可用:',e);}
 
@@ -2721,59 +2689,6 @@ function toggleMusic(){
   }catch(e){ el.textContent='8,889'; }
 })();
 
-// ====== 音频频谱可视化器 ======
-(function(){
-  var canvas=document.getElementById('spectrumCanvas');
-  var visualizer=document.getElementById('spectrumVisualizer');
-  if(!canvas||!visualizer) return;
-  var ctx=canvas.getContext('2d');
-  var dpr=window.devicePixelRatio||1;
-  function resize(){
-    canvas.width=canvas.offsetWidth*dpr;
-    canvas.height=canvas.offsetHeight*dpr;
-  }
-  resize();
-  window.addEventListener('resize',resize);
-
-  var barCount=64;
-  var freqData=new Uint8Array(barCount);
-  var isActive=false;
-  var colors=['#ff6b9d','#c44dff','#6cb4ee','#6cffce','#ffd93d'];
-
-  function draw(){
-    requestAnimationFrame(draw);
-    var bgm=document.getElementById('bgMusic');
-    if(!bgm||bgm.paused){
-      if(isActive){visualizer.classList.remove('active');isActive=false;}
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      return;
-    }
-    if(!isActive){visualizer.classList.add('active');isActive=true;}
-    if(!analyserNode) return;
-
-    analyserNode.getByteFrequencyData(freqData);
-    var w=canvas.width, h=canvas.height;
-    ctx.clearRect(0,0,w,h);
-    var barW=w/barCount;
-    for(var i=0;i<barCount;i++){
-      var val=freqData[i]/255;
-      var barH=Math.max(2,val*h*0.85);
-      var x=i*barW;
-      var grad=ctx.createLinearGradient(0,h,0,h-barH);
-      grad.addColorStop(0,colors[i%colors.length]);
-      grad.addColorStop(1,colors[(i+2)%colors.length]);
-      ctx.fillStyle=grad;
-      ctx.fillRect(x+1,h-barH,barW-2,barH);
-      // 顶端亮点
-      if(barH>6){
-        ctx.fillStyle='rgba(255,255,255,.5)';
-        ctx.fillRect(x+1,h-barH-2,barW-2,2);
-      }
-    }
-  }
-  draw();
-})();
-
 // ====== 实时时钟 + 在线时长 ======
 (function(){
   var timeEl=document.getElementById('clockTime');
@@ -2835,86 +2750,6 @@ function toggleMusic(){
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
-})();
-
-// ====== 流星划过 ======
-(function(){
-  var canvas=document.getElementById('meteorCanvas');
-  if(!canvas) return;
-  var ctx=canvas.getContext('2d');
-  var w,h,dpr=window.devicePixelRatio||1;
-  function resize(){
-    w=window.innerWidth;h=window.innerHeight;
-    canvas.width=w*dpr;canvas.height=h*dpr;
-    canvas.style.width=w+'px';canvas.style.height=h+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  resize();
-  window.addEventListener('resize',resize);
-
-  var meteors=[];
-  var palette=[
-    {head:'#ffffff',tail:'rgba(255,255,255,'},
-    {head:'#a78bfa',tail:'rgba(167,139,250,'},
-    {head:'#6cffce',tail:'rgba(108,255,206,'},
-    {head:'#6cb4ee',tail:'rgba(108,180,238,'},
-    {head:'#ffd93d',tail:'rgba(255,217,61,'}
-  ];
-
-  function spawn(){
-    var angle=Math.PI*0.72+Math.random()*0.36;
-    var speed=7+Math.random()*5;
-    meteors.push({
-      x:w+30,
-      y:Math.random()*h*0.45,
-      vx:-Math.cos(Math.PI-angle)*speed,
-      vy:Math.sin(Math.PI-angle)*speed,
-      color:palette[Math.floor(Math.random()*palette.length)],
-      trail:[],
-      maxTrail:18+Math.floor(Math.random()*12)
-    });
-  }
-
-  function draw(){
-    ctx.clearRect(0,0,w,h);
-    for(var i=meteors.length-1;i>=0;i--){
-      var m=meteors[i];
-      m.trail.push({x:m.x,y:m.y});
-      if(m.trail.length>m.maxTrail) m.trail.shift();
-      m.x+=m.vx; m.y+=m.vy;
-
-      // Draw trail
-      for(var j=1;j<m.trail.length;j++){
-        var t1=m.trail[j-1], t2=m.trail[j];
-        var ratio=j/m.trail.length;
-        ctx.strokeStyle=m.color.tail+(ratio*0.8)+')';
-        ctx.lineWidth=ratio*2.5;
-        ctx.lineCap='round';
-        ctx.beginPath();
-        ctx.moveTo(t1.x,t1.y);
-        ctx.lineTo(t2.x,t2.y);
-        ctx.stroke();
-      }
-      // Draw head
-      ctx.shadowBlur=12;
-      ctx.shadowColor=m.color.head;
-      ctx.fillStyle=m.color.head;
-      ctx.beginPath();
-      ctx.arc(m.x,m.y,2.2,0,Math.PI*2);
-      ctx.fill();
-      ctx.shadowBlur=0;
-
-      if(m.x<-80||m.y>h+80) meteors.splice(i,1);
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-
-  function schedule(){
-    var delay=2500+Math.random()*5000;
-    setTimeout(function(){ spawn(); schedule(); },delay);
-  }
-  setTimeout(schedule,1500);
 })();
 
 // ====== 3D 粒子球体 ======
