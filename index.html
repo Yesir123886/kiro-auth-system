@@ -1232,6 +1232,84 @@ html { scroll-behavior: smooth; }
   .main-wrapper { padding-bottom: 90px; }
   .music-controller { bottom: 80px; }
   .dl-feedback { bottom: 110px; }
+  .footer-info { font-size: 10px; gap: 8px; }
+  .nav-group-card { animation-delay: .6s !important; animation-duration: .4s !important; }
+}
+
+/* ====== 标题 ANGEL 每个字母独立呼吸发光 ====== */
+.nav-title .title-char {
+  display: inline-block;
+  animation: charBreathe 3.5s ease-in-out infinite;
+}
+.nav-title .title-char:nth-child(1) { animation-delay: 0.00s; }
+.nav-title .title-char:nth-child(2) { animation-delay: 0.15s; }
+.nav-title .title-char:nth-child(3) { animation-delay: 0.30s; }
+.nav-title .title-char:nth-child(4) { animation-delay: 0.45s; }
+.nav-title .title-char:nth-child(5) { animation-delay: 0.60s; }
+@keyframes charBreathe {
+  0%, 100% { opacity: .75; transform: translateY(0) scale(1); text-shadow: 0 0 6px rgba(196,77,255,.3), 0 0 12px rgba(108,180,238,.15); }
+  25%      { opacity: 1;   transform: translateY(-3px) scale(1.1); text-shadow: 0 0 14px rgba(196,77,255,.7), 0 0 28px rgba(108,180,238,.4), 0 0 40px rgba(108,255,206,.25); }
+  50%      { opacity: .85; transform: translateY(0) scale(1.02); text-shadow: 0 0 8px rgba(196,77,255,.4), 0 0 16px rgba(108,180,238,.2); }
+  75%      { opacity: .9;  transform: translateY(-1px) scale(1.06); text-shadow: 0 0 10px rgba(196,77,255,.5), 0 0 20px rgba(108,180,238,.3); }
+}
+
+/* ====== 整页鼠标跟随微视差 ====== */
+.main-wrapper {
+  transition: transform .6s cubic-bezier(.25,.1,.25,1);
+}
+
+/* ====== 按钮按下弹性反馈 ====== */
+.nav-item { transition: background .2s, border-color .2s, box-shadow .2s; }
+.nav-item.magnet-active { transition: background .2s, border-color .2s, box-shadow .2s, transform .08s ease; }
+.nav-item.pressed {
+  transform: scale(.94) !important;
+  transition: transform .06s ease !important;
+}
+.nav-item.pressed.released {
+  transform: scale(1) !important;
+  transition: transform .45s cubic-bezier(.34,1.56,.64,1) !important;
+}
+
+/* ====== 右侧分组卡片交错入场 ====== */
+.nav-group-card {
+  opacity: 0;
+  transform: translateX(50px);
+  animation: cardSlideIn .6s cubic-bezier(.25,.1,.25,1) forwards;
+}
+.nav-group-card:nth-of-type(1) { animation-delay: 1.2s; }
+.nav-group-card:nth-of-type(2) { animation-delay: 1.4s; }
+.nav-group-card:nth-of-type(3) { animation-delay: 1.6s; }
+@keyframes cardSlideIn {
+  from { opacity: 0; transform: translateX(50px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ====== 底部信息美化 ====== */
+.footer-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(120,110,200,.08);
+  font-size: 11px;
+  color: rgba(150,140,210,.4);
+  letter-spacing: 1px;
+}
+.footer-info .fi-sep {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(150,140,210,.3);
+}
+.footer-info .fi-pulse {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #6cffce;
+  box-shadow: 0 0 4px rgba(108,255,206,.6);
+  margin-left: 4px;
+  animation: onlinePulse 2s ease-in-out infinite;
 }
 
 /* ====== prefers-reduced-motion ====== */
@@ -1240,6 +1318,9 @@ html { scroll-behavior: smooth; }
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;
   }
+  .nav-group-card { opacity: 1; transform: none; }
+  .nav-title .title-char { animation: none; opacity: 1; }
+  .main-wrapper { transform: none !important; }
 }
 </style>
 </head>
@@ -1367,8 +1448,12 @@ html { scroll-behavior: smooth; }
 </div>
 
 <!-- 底部信息 -->
-<div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(140,130,190,.35);letter-spacing:1px;">
-  <span>最后更新：2026-06-30</span> · <span>© ANGEL</span>
+<div class="footer-info">
+  <span>v2.0</span>
+  <span class="fi-sep"></span>
+  <span>最后更新 2026-06-30</span>
+  <span class="fi-sep"></span>
+  <span>&copy; ANGEL <span class="fi-pulse"></span></span>
 </div>
 
 <!-- 底部留白 -->
@@ -1571,12 +1656,24 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
     var r=btn.getBoundingClientRect();
     var x=(e.clientX-r.left)/r.width-.5;
     var y=(e.clientY-r.top)/r.height-.5;
+    btn.classList.add('magnet-active');
     btn.style.transform='perspective(700px) translateY(-3px) rotateY('+(x*8)+'deg) rotateX('+(-y*8)+'deg) scale(1.02)';
-    btn.style.transition='transform .08s ease';
   });
   btn.addEventListener('mouseleave',function(){
+    btn.classList.remove('magnet-active');
     btn.style.transform='perspective(700px) translateY(0) rotateY(0deg) rotateX(0deg) scale(1)';
     btn.style.transition='transform .35s ease';
+  });
+  // 按钮按下弹性反馈
+  btn.addEventListener('mousedown',function(){
+    btn.classList.add('pressed');
+    btn.classList.remove('released');
+  });
+  btn.addEventListener('mouseup',function(){
+    btn.classList.add('released');
+  });
+  btn.addEventListener('mouseleave',function(){
+    btn.classList.remove('pressed','released');
   });
 });
 
@@ -1627,7 +1724,19 @@ document.querySelectorAll('.nav-item').forEach(function(btn){
       i++;
       setTimeout(type,260);
     }else{
-      // 标题打完，开始副标题
+      // 标题打完 → 拆分成独立字母
+      if(title && title.textContent===titleText){
+        var chars=titleText.split('');
+        title.innerHTML='';
+        chars.forEach(function(ch,ci){
+          var s=document.createElement('span');
+          s.className='title-char';
+          s.style.animationDelay=(ci*0.12)+'s';
+          s.textContent=ch;
+          title.appendChild(s);
+        });
+      }
+      // 开始副标题
       var j=0;
       setTimeout(function typeSub(){
         if(subtitle&&j<subText.length){
@@ -1954,6 +2063,25 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
   // 鼠标离开窗口时隐藏
   document.addEventListener('mouseleave',function(){dot.style.opacity='0';ring.style.opacity='0';});
   document.addEventListener('mouseenter',function(){dot.style.opacity='1';ring.style.opacity='1';});
+})();
+
+// ====== 整页鼠标跟随微视差（仅桌面端） ======
+(function(){
+  if(!window.matchMedia('(pointer:fine)').matches) return;
+  var wrapper=document.querySelector('.main-wrapper');
+  if(!wrapper) return;
+  var tiltX=0,tiltY=0,targetX=0,targetY=0;
+  document.addEventListener('mousemove',function(e){
+    targetX=(e.clientX/window.innerWidth-.5)*8;
+    targetY=(e.clientY/window.innerHeight-.5)*8;
+  });
+  function updateTilt(){
+    tiltX+=(targetX-tiltX)*.05;
+    tiltY+=(targetY-tiltY)*.05;
+    wrapper.style.transform='perspective(1200px) rotateY('+tiltX+'deg) rotateX('+(-tiltY)+'deg)';
+    requestAnimationFrame(updateTilt);
+  }
+  updateTilt();
 })();
 
 // ====== 鼠标拖尾粒子 ======
