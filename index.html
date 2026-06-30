@@ -1118,7 +1118,7 @@ html { scroll-behavior: smooth; }
 <!-- 音乐控制器 -->
 <div class="music-controller" id="musicController">
   <button class="mc-btn" id="musicBtn" title="播放/暂停" onclick="toggleMusic()">🎵</button>
-  <button class="mc-stereo-btn" id="stereoBtn" title="立体声交替" onclick="toggleStereo()">🔊</button>
+  <button class="mc-stereo-btn stereo-active" id="stereoBtn" title="立体声交替" onclick="toggleStereo()">🔊</button>
   <input type="range" class="mc-slider" id="volSlider" min="0" max="100" value="55" title="音量">
   <span class="mc-label">夏天的风</span>
 </div>
@@ -1561,15 +1561,15 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
     localStorage.setItem(KEY,gv.toString());
   });
 
-  // 立体声交替：约3秒切换左右声道，0.8秒平滑过渡
+  // 立体声交替：约2秒切换左右声道，1.2秒平滑过渡
   var side=1; // 1=向右, -1=向左
   function panStep(){
     if(!stereoActive||!stereoPanner||!audioCtx) return;
     if(bgm.paused){requestAnimationFrame(panStep);return;}
     var target=side;
-    try{stereoPanner.pan.linearRampToValueAtTime(target,audioCtx.currentTime+0.8);}catch(e){}
+    try{stereoPanner.pan.linearRampToValueAtTime(target,audioCtx.currentTime+1.2);}catch(e){}
     side*=-1;
-    setTimeout(panStep,2800);
+    setTimeout(panStep,2000);
   }
   function toggleStereo(){
     if(!audioCtx||!stereoPanner){showToast('⚠️ 当前浏览器不支持立体声交替');return;}
@@ -1578,7 +1578,6 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
     if(stereoActive){
       if(audioCtx.state==='suspended') audioCtx.resume();
       btn.classList.add('stereo-active'); btn.textContent='🔊';
-      showToast('🎧 立体声交替 已开启');
       panStep();
     }else{
       btn.classList.remove('stereo-active'); btn.textContent='🔇';
@@ -1587,6 +1586,14 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false;
     }
   }
   window.toggleStereo=toggleStereo;
+
+  // 默认开启立体声交替
+  if(audioCtx && stereoPanner){
+    stereoActive=true;
+    var stereoBtn=document.getElementById('stereoBtn');
+    if(stereoBtn){stereoBtn.classList.add('stereo-active'); stereoBtn.textContent='🔊';}
+    panStep();
+  }
 })();
 
 // ====== 页面入场动画触发 ======
