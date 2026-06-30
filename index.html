@@ -1530,31 +1530,6 @@ html { scroll-behavior: smooth; }
   position: fixed; inset: 0; z-index: 99997; pointer-events: none;
 }
 
-/* ====== 3D 粒子球体 ====== */
-.particle-sphere-wrap {
-  margin-top: 14px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-.particle-sphere {
-  width: 120px;
-  height: 120px;
-}
-.particle-sphere-label {
-  font-size: 9px;
-  color: rgba(150,140,210,.4);
-  letter-spacing: 2px;
-  text-align: center;
-  text-transform: uppercase;
-  font-family: 'Orbitron', monospace;
-}
-@media (max-width: 768px) {
-  .particle-sphere { width: 90px; height: 90px; }
-}
-
 /* ====== 天气感知（昼夜色温） ====== */
 .day-night-overlay {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
@@ -1680,11 +1655,6 @@ html { scroll-behavior: smooth; }
     <div class="clock-time" id="clockTime">00:00:00</div>
     <div class="clock-date" id="clockDate">—</div>
     <div class="clock-session" id="clockSession">⏱ 在线 0s</div>
-  </div>
-  <!-- 3D 粒子球体 -->
-  <div class="particle-sphere-wrap">
-    <canvas id="particleSphere" class="particle-sphere"></canvas>
-    <div class="particle-sphere-label">Angel Core</div>
   </div>
 </div>
 
@@ -2421,7 +2391,7 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
 <script>
 // ====== 多首歌曲随机播放列表 ======
 // 说明：你需要把对应 MP3 文件放到 assets/music/ 目录下。
-// 文件命名规则：01.mp3 ~ 19.mp3，与下面列表顺序一一对应。
+// 文件命名规则：01.mp3 ~ 20.mp3，与下面列表顺序一一对应。
 var PLAYLIST = [
   { title: '世界上的另一个我', artist: '阿肆 / 郭采洁', src: 'assets/music/01.mp3', startTime: 14 },
   { title: 'Call You Tonight', artist: 'Whitney Houston', src: 'assets/music/02.mp3', startTime: 0 },
@@ -2441,7 +2411,8 @@ var PLAYLIST = [
   { title: '怎么办我爱你', artist: '本兮', src: 'assets/music/16.mp3', startTime: 0 },
   { title: '戒烟', artist: '李荣浩', src: 'assets/music/17.mp3', startTime: 0 },
   { title: '反方向的钟', artist: '周杰伦', src: 'assets/music/18.mp3', startTime: 0 },
-  { title: '海海海', artist: '阿悄', src: 'assets/music/19.mp3', startTime: 0 }
+  { title: '海海海', artist: '阿悄', src: 'assets/music/19.mp3', startTime: 0 },
+  { title: '思念蔓延', artist: '陶幽冉 / 二直', src: 'assets/music/20.mp3', startTime: 0 }
 ];
 
 var bgm=document.getElementById('bgMusic');
@@ -2750,75 +2721,6 @@ function toggleMusic(){
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
-})();
-
-// ====== 3D 粒子球体 ======
-(function(){
-  var canvas=document.getElementById('particleSphere');
-  if(!canvas) return;
-  var ctx=canvas.getContext('2d');
-  var dpr=window.devicePixelRatio||1;
-  var size=canvas.offsetWidth||120;
-  canvas.width=size*dpr;
-  canvas.height=size*dpr;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-
-  var cx=size/2, cy=size/2;
-  var radius=size*0.35;
-  var numPoints=160;
-  var points=[];
-  var phi=Math.PI*(3-Math.sqrt(5));
-  for(var i=0;i<numPoints;i++){
-    var y=1-(i/(numPoints-1))*2;
-    var r=Math.sqrt(1-y*y);
-    var theta=phi*i;
-    points.push({x:Math.cos(theta)*r, y:y, z:Math.sin(theta)*r});
-  }
-
-  var rotY=0, rotX=0;
-  var colors=['#c44dff','#6c5ce7','#00d2d3','#6cffce','#a78bfa','#6cb4ee'];
-
-  function draw(){
-    ctx.clearRect(0,0,size,size);
-    rotY+=0.007;
-    rotX+=0.0025;
-    var cosY=Math.cos(rotY), sinY=Math.sin(rotY);
-    var cosX=Math.cos(rotX), sinX=Math.sin(rotX);
-    var projected=[];
-    for(var i=0;i<points.length;i++){
-      var p=points[i];
-      var x1=p.x*cosY-p.z*sinY;
-      var z1=p.x*sinY+p.z*cosY;
-      var y1=p.y*cosX-z1*sinX;
-      var z2=p.y*sinX+z1*cosX;
-      var persp=180/(180+z2*radius);
-      projected.push({
-        x:cx+x1*radius*persp,
-        y:cy+y1*radius*persp,
-        z:z2,
-        s:persp
-      });
-    }
-    projected.sort(function(a,b){return a.z-b.z;});
-    for(var i=0;i<projected.length;i++){
-      var p=projected[i];
-      var depth=(p.z+1)/2;
-      var alpha=0.15+depth*0.85;
-      var r=Math.max(0.5,0.8+depth*2.2);
-      var color=colors[i%colors.length];
-      ctx.globalAlpha=alpha;
-      ctx.shadowBlur=5*depth;
-      ctx.shadowColor=color;
-      ctx.fillStyle=color;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,r,0,Math.PI*2);
-      ctx.fill();
-    }
-    ctx.globalAlpha=1;
-    ctx.shadowBlur=0;
-    requestAnimationFrame(draw);
-  }
-  draw();
 })();
 
 // ====== 天气感知（昼夜色温变化） ======
