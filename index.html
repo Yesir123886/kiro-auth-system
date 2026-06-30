@@ -1066,6 +1066,35 @@ html { scroll-behavior: smooth; }
   background-size: 200px 200px;
 }
 
+/* ====== 背景微网格 — 科技感纹理 ====== */
+.bg-grid {
+  position: fixed; inset: 0; z-index: -3; pointer-events: none; opacity: .06;
+  background-image:
+    linear-gradient(rgba(120,100,210,.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,100,210,.3) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, black 40%, transparent 100%);
+}
+
+/* ====== 返回顶部按钮 ====== */
+.back-to-top {
+  position: fixed; right: 20px; bottom: 80px; z-index: 9990;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(25,30,60,.85); border: 1px solid rgba(120,100,210,.25);
+  color: rgba(200,190,240,.8); font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  opacity: 0; transform: translateY(20px); pointer-events: none;
+  transition: opacity .3s, transform .3s;
+}
+.back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.back-to-top:hover {
+  background: rgba(45,35,80,.9); border-color: rgba(150,130,230,.5);
+  color: #fff; box-shadow: 0 4px 25px rgba(120,100,210,.3);
+}
+
 /* ====== CSS 星光背景 ====== */
 .stars-bg {
   position: fixed; inset: 0; z-index: -4; pointer-events: none;
@@ -1269,6 +1298,7 @@ html { scroll-behavior: smooth; }
   .mobile-bottom-nav { display: flex; }
   .main-wrapper { padding-bottom: 90px; }
   .music-controller { bottom: 80px; }
+  .back-to-top { right: 12px; bottom: 120px; }
   .dl-feedback { bottom: 110px; }
   .footer-info { font-size: 10px; gap: 8px; }
   .nav-group-card { animation-delay: .6s !important; animation-duration: .4s !important; }
@@ -1365,6 +1395,8 @@ html { scroll-behavior: smooth; }
 <body style="background:#080a14;min-height:100vh;">
 <!-- 噪点纹理叠加 -->
 <div class="noise-overlay"></div>
+<!-- 背景微网格 -->
+<div class="bg-grid"></div>
 <!-- CSS 星光背景 -->
 <div class="stars-bg"></div>
 <!-- 滚动进度条 -->
@@ -1428,6 +1460,9 @@ html { scroll-behavior: smooth; }
   <input type="range" class="mc-slider" id="volSlider" min="0" max="100" value="55" title="音量">
   <span class="mc-label">夏天的风</span>
 </div>
+
+<!-- 返回顶部按钮 -->
+<button class="back-to-top" id="backToTop" title="返回顶部" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
 
 <!-- 手机底部固定导航栏 -->
 <nav class="mobile-bottom-nav" id="mobileNav">
@@ -2021,30 +2056,6 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
   }
 });
 
-// ====== 访问量统计（本地存储 + 模拟） ======
-(function(){
-  var KEY='angel_visit_count';
-  var el=document.getElementById('visitCount');
-  if(!el)return;
-  try{
-    var n=parseInt(localStorage.getItem(KEY)||'0',10);
-    // 首次访问初始化一个基础数字
-    if(n===0){n=8888;}
-    n++;
-    localStorage.setItem(KEY,n.toString());
-    // 数字滚动动画
-    var display=0;
-    var step=Math.ceil(n/40);
-    var timer=setInterval(function(){
-      display+=step;
-      if(display>=n){display=n;clearInterval(timer);}
-      el.textContent=display.toLocaleString();
-    },25);
-  }catch(e){
-    el.textContent='8,889';
-  }
-})();
-
 // ====== 自定义光标（仅桌面端） ======
 (function(){
   if(!window.matchMedia('(pointer:fine)').matches) return;
@@ -2282,6 +2293,70 @@ function toggleMusic(){
       document.title=origTitle;
     }
   });
+})();
+
+// ====== Console 彩蛋 ======
+(function(){
+  var styles=[
+    'color:#a78bfa;font-size:14px;',
+    'color:#c4b5fd;font-size:13px;',
+    'color:#818cf8;font-size:12px;',
+  ];
+  console.log('%c    █████╗ ███╗   ██╗ ██████╗ ███████╗██╗     \n%c   ██╔══██╗████╗  ██║██╔════╝ ██╔════╝██║     \n%c   ███████║██╔██╗ ██║██║  ███╗█████╗  ██║     \n%c   ██╔══██║██║╚██╗██║██║   ██║██╔══╝  ██║     \n%c   ██║  ██║██║ ╚████║╚██████╔╝███████╗███████╗\n%c   ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚══════╝',
+    styles[0],styles[0],styles[0],styles[1],styles[1],styles[2]);
+  console.log('%c🎯 ANGEL 授权中心 · 枪灵游戏辅助参数管理系统','color:#fbbf24;font-size:16px;font-weight:bold;');
+  console.log('%c   👀 看啥呢？想加入我们吗？联系 TG @Czr114514nb','color:#c4b5fd;font-size:13px;');
+  console.log('%c   💡 如果你发现了这个彩蛋，说明我们是一类人~','color:#818cf8;font-size:12px;font-style:italic;');
+})();
+
+// ====== 返回顶部按钮显示/隐藏 ======
+(function(){
+  var btn=document.getElementById('backToTop');
+  if(!btn)return;
+  var ticking=false;
+  function check(){
+    var st=window.scrollY||document.documentElement.scrollTop;
+    var vh=window.innerHeight;
+    if(st>vh*0.6){btn.classList.add('visible');}
+    else{btn.classList.remove('visible');}
+    ticking=false;
+  }
+  window.addEventListener('scroll',function(){
+    if(!ticking){requestAnimationFrame(check);ticking=true;}
+  },{passive:true});
+  check();
+})();
+
+// ====== 手机端按钮振动反馈 ======
+(function(){
+  if(!('vibrate' in navigator)) return;
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest('.nav-item, .mc-btn, .mc-stereo-btn, .mobile-bottom-nav button');
+    if(btn){ navigator.vibrate(10); }
+  },{passive:true});
+})();
+
+// ====== 访问量数字滚动动画（easeOutCubic 平滑版） ======
+(function(){
+  var KEY='angel_visit_count';
+  var el=document.getElementById('visitCount');
+  if(!el)return;
+  try{
+    var n=parseInt(localStorage.getItem(KEY)||'0',10);
+    if(n===0){n=8888;} n++;
+    localStorage.setItem(KEY,n.toString());
+    var duration=1200,startTime=null;
+    function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+    function animate(ts){
+      if(!startTime) startTime=ts;
+      var elapsed=ts-startTime;
+      var progress=Math.min(elapsed/duration,1);
+      var current=Math.round(easeOutCubic(progress)*n);
+      el.textContent=current.toLocaleString();
+      if(progress<1){requestAnimationFrame(animate);}
+    }
+    requestAnimationFrame(animate);
+  }catch(e){ el.textContent='8,889'; }
 })();
 </script>
 
