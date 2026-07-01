@@ -2186,17 +2186,10 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
 </style>
 
-<!-- 重新注册自杀型SW v3：强制清缓存+注销，确保所有用户拿到最新资源 -->
+<!-- 重新注册自杀型SW v4：清缓存+注销，不强制刷新（避免循环） -->
 <script>
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js?v=3').then(function(reg){
-    // 监听SW强制刷新消息
-    navigator.serviceWorker.addEventListener('message', function(event){
-      if(event.data && event.data.type==='FORCE_RELOAD'){
-        location.reload(true);
-      }
-    });
-  }).catch(function(){});
+  navigator.serviceWorker.register('sw.js?v=4').then(function(reg){}).catch(function(){});
 }
 </script>
 
