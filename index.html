@@ -1400,9 +1400,10 @@ html { scroll-behavior: smooth; }
 .aurora-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: .3;
+  filter: blur(50px);
+  opacity: .25;
   mix-blend-mode: screen;
+  will-change: transform;
 }
 .aurora-blob:nth-child(1) {
   width: 500px; height: 500px;
@@ -1454,11 +1455,6 @@ html { scroll-behavior: smooth; }
     transparent 1px,
     transparent 3px
   );
-  animation: crtFlicker .15s steps(2) infinite;
-}
-@keyframes crtFlicker {
-  0%, 100% { opacity: .04; }
-  50% { opacity: .07; }
 }
 
 /* ====== 实时时钟 + 在线时长 ====== */
@@ -1730,7 +1726,7 @@ html { scroll-behavior: smooth; }
 (function(){
   var c=document.getElementById('waveBg');
   var ctx=c.getContext('2d');
-  var w,h,t=0,r=window.devicePixelRatio||1;
+  var w,h,t=0,r=Math.min(window.devicePixelRatio||1,1.5);
   function resize(){
     w=window.innerWidth;h=window.innerHeight;
     c.width=w*r;c.height=h*r;
@@ -1751,7 +1747,7 @@ html { scroll-behavior: smooth; }
       var wv=waves[i];
       ctx.beginPath();
       ctx.moveTo(0,h*wv.h);
-      for(var x=0;x<=w;x+=3){
+      for(var x=0;x<=w;x+=6){
         var y=Math.sin(x*wv.freq+t*wv.speed+wv.phase)*h*wv.amp+h*wv.h;
         ctx.lineTo(x,y);
       }
@@ -2033,7 +2029,7 @@ window.addEventListener('load',function(){
   var canvas=document.getElementById('floatParticles');
   if(!canvas) return;
   var ctx=canvas.getContext('2d');
-  var w,h,dpr=window.devicePixelRatio||1;
+  var w,h,dpr=Math.min(window.devicePixelRatio||1,1.5);
   var particles=[];
   var colors=['rgba(196,77,255,','rgba(108,180,238,','rgba(108,255,206,','rgba(255,107,157,','rgba(255,217,61,'];
   function resize(){
@@ -2044,8 +2040,8 @@ window.addEventListener('load',function(){
   }
   resize();
   window.addEventListener('resize',resize);
-  // 创建粒子
-  var count=Math.min(40,Math.floor(w* h/25000));
+  // 创建粒子（减半以提升性能）
+  var count=Math.min(20,Math.floor(w*h/50000));
   for(var i=0;i<count;i++){
     particles.push({
       x:Math.random()*w,
@@ -2067,13 +2063,12 @@ window.addEventListener('load',function(){
       if(p.x<-10)p.x=w+10;
       if(p.x>w+10)p.x=-10;
       ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r*1.8,0,Math.PI*2);
+      ctx.fillStyle=p.color+(p.a*.2)+')';
+      ctx.fill();
+      ctx.beginPath();
       ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
       ctx.fillStyle=p.color+p.a+')';
-      ctx.fill();
-      // 光晕
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r*2,0,Math.PI*2);
-      ctx.fillStyle=p.color+(p.a*.3)+')';
       ctx.fill();
     }
     requestAnimationFrame(draw);
@@ -2098,7 +2093,7 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode
 (function(){
   var bgm=document.getElementById('bgMusic');
   var slider=document.getElementById('volSlider');
-  var KEY='angel_music_volume';
+  var KEY=KEY_VER;
   if(!bgm||!slider) return;
 
   // 初始化 Web Audio API
@@ -2114,9 +2109,12 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode
     stereoPanner.pan.value=0;
   }catch(e){console.warn('Web Audio API 不可用:',e);}
 
-  // 恢复音量（默认 45%）
-  var saved=localStorage.getItem(KEY);
-  var v=saved?parseFloat(saved):0.45;
+  // 恢复音量（默认 25%，重置旧版 45% 的存档）
+  var KEY_VER='angel_music_volume_v2';
+  var saved=localStorage.getItem(KEY_VER);
+  var v=saved?parseFloat(saved):0.25;
+  // 清理旧版键
+  localStorage.removeItem('angel_music_volume');
   if(gainNode) gainNode.gain.value=v;
   slider.value=Math.round(v*100);
   slider.addEventListener('change',function(){
@@ -2283,32 +2281,13 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
   document.addEventListener('mouseenter',function(){dot.style.opacity='1';ring.style.opacity='1';});
 })();
 
-// ====== 整页鼠标跟随微视差（仅桌面端） ======
-(function(){
-  if(!window.matchMedia('(pointer:fine)').matches) return;
-  var wrapper=document.querySelector('.main-wrapper');
-  if(!wrapper) return;
-  var tiltX=0,tiltY=0,targetX=0,targetY=0;
-  document.addEventListener('mousemove',function(e){
-    targetX=(e.clientX/window.innerWidth-.5)*8;
-    targetY=(e.clientY/window.innerHeight-.5)*8;
-  });
-  function updateTilt(){
-    tiltX+=(targetX-tiltX)*.05;
-    tiltY+=(targetY-tiltY)*.05;
-    wrapper.style.transform='perspective(1200px) rotateY('+tiltX+'deg) rotateX('+(-tiltY)+'deg)';
-    requestAnimationFrame(updateTilt);
-  }
-  updateTilt();
-})();
-
-// ====== 鼠标拖尾粒子流（Canvas 增强版） ======
+// ====== 鼠标拖尾粒子流（Canvas 增强版 - 性能优化） ======
 (function(){
   if(!window.matchMedia('(pointer:fine)').matches) return;
   var canvas=document.getElementById('cursorTrailCanvas');
   if(!canvas) return;
   var ctx=canvas.getContext('2d');
-  var w,h,dpr=window.devicePixelRatio||1;
+  var w,h,dpr=Math.min(window.devicePixelRatio||1,1.5);
   function resize(){
     w=window.innerWidth;h=window.innerHeight;
     canvas.width=w*dpr;canvas.height=h*dpr;
@@ -2318,33 +2297,48 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
   resize();
   window.addEventListener('resize',resize);
 
-  var particles=[];
-  var maxParticles=80;
+  // 预渲染粒子精灵（6种颜色各一张，避免每帧 createRadialGradient）
+  var SPRITE_SIZE=32;
+  var sprites=[];
   var colors=[
     [255,107,157],[196,77,255],[108,180,238],
     [108,255,206],[255,217,61],[167,139,250]
   ];
+  for(var ci=0;ci<colors.length;ci++){
+    var sc=document.createElement('canvas');
+    sc.width=SPRITE_SIZE; sc.height=SPRITE_SIZE;
+    var sctx=sc.getContext('2d');
+    var grad=sctx.createRadialGradient(SPRITE_SIZE/2,SPRITE_SIZE/2,0,SPRITE_SIZE/2,SPRITE_SIZE/2,SPRITE_SIZE/2);
+    grad.addColorStop(0,'rgba('+colors[ci][0]+','+colors[ci][1]+','+colors[ci][2]+',1)');
+    grad.addColorStop(1,'rgba('+colors[ci][0]+','+colors[ci][1]+','+colors[ci][2]+',0)');
+    sctx.fillStyle=grad;
+    sctx.fillRect(0,0,SPRITE_SIZE,SPRITE_SIZE);
+    sprites.push(sc);
+  }
+
+  var particles=[];
+  var maxParticles=50;
   var mx=0,my=0,lastX=0,lastY=0,lastSpawn=0;
 
   document.addEventListener('mousemove',function(e){
     mx=e.clientX;my=e.clientY;
     var now=performance.now();
-    if(now-lastSpawn<12) return;
+    if(now-lastSpawn<16) return;
     lastSpawn=now;
     var dx=mx-lastX,dy=my-lastY;
     var dist=Math.sqrt(dx*dx+dy*dy);
-    var count=Math.min(4,Math.ceil(dist/6));
+    var count=Math.min(3,Math.ceil(dist/8));
     for(var i=0;i<count;i++){
-      var c=colors[Math.floor(Math.random()*colors.length)];
+      var idx=Math.floor(Math.random()*colors.length);
       particles.push({
         x:mx+(Math.random()-.5)*6,
         y:my+(Math.random()-.5)*6,
         vx:dx*0.04+(Math.random()-.5)*1.8,
         vy:dy*0.04+(Math.random()-.5)*1.8-0.4,
-        r:2+Math.random()*4,
+        r:3+Math.random()*4,
         life:1,
-        decay:0.012+Math.random()*0.018,
-        c:c
+        decay:0.015+Math.random()*0.02,
+        si:idx
       });
     }
     lastX=mx;lastY=my;
@@ -2362,19 +2356,12 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
       p.life-=p.decay;
       if(p.life<=0){ particles.splice(i,1); continue; }
       var alpha=p.life*0.7;
-      var r=Math.max(0.5,p.r*p.life);
-      var grad=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,Math.max(0.1,r*3));
-      grad.addColorStop(0,'rgba('+p.c[0]+','+p.c[1]+','+p.c[2]+','+alpha+')');
-      grad.addColorStop(1,'rgba('+p.c[0]+','+p.c[1]+','+p.c[2]+',0)');
-      ctx.fillStyle=grad;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,r*3,0,Math.PI*2);
-      ctx.fill();
-      ctx.fillStyle='rgba('+p.c[0]+','+p.c[1]+','+p.c[2]+','+alpha+')';
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,r,0,Math.PI*2);
-      ctx.fill();
+      var r=Math.max(1,p.r*p.life);
+      // 用预渲染精灵代替 createRadialGradient
+      ctx.globalAlpha=alpha;
+      ctx.drawImage(sprites[p.si],p.x-r,p.y-r,r*2,r*2);
     }
+    ctx.globalAlpha=1;
     ctx.globalCompositeOperation='source-over';
     requestAnimationFrame(draw);
   }
