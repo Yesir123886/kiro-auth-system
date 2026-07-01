@@ -105,22 +105,6 @@ body, .nav-item, .nav-subtitle, .nav-quote, .nav-group-label, .tg-link, .music-c
 
 /* ====== 超大柔和光斑（极简高级） ====== */
 
-/* 文字闪烁光标（标题后） */
-.nav-title::after {
-  content: '|';
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: #c44dff;
-  background-clip: unset;
-  color: #c44dff;
-  animation: cursorBlink .9s step-end infinite;
-  margin-left: 4px;
-  font-weight: 300;
-}
-@keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0; }
-}
-
 /* ========== 左右分栏布局 ========== */
 .main-wrapper {
   max-width: 920px;
@@ -1315,10 +1299,10 @@ html { scroll-behavior: smooth; }
 .nav-title .title-char:nth-child(4) { animation-delay: 0.45s; }
 .nav-title .title-char:nth-child(5) { animation-delay: 0.60s; }
 @keyframes charBreathe {
-  0%, 100% { opacity: .75; transform: translateY(0) scale(1); text-shadow: 0 0 6px rgba(196,77,255,.3), 0 0 12px rgba(108,180,238,.15); }
-  25%      { opacity: 1;   transform: translateY(-3px) scale(1.1); text-shadow: 0 0 14px rgba(196,77,255,.7), 0 0 28px rgba(108,180,238,.4), 0 0 40px rgba(108,255,206,.25); }
-  50%      { opacity: .85; transform: translateY(0) scale(1.02); text-shadow: 0 0 8px rgba(196,77,255,.4), 0 0 16px rgba(108,180,238,.2); }
-  75%      { opacity: .9;  transform: translateY(-1px) scale(1.06); text-shadow: 0 0 10px rgba(196,77,255,.5), 0 0 20px rgba(108,180,238,.3); }
+  0%, 100% { opacity: .85; transform: translateY(0) scale(1); text-shadow: 0 0 4px rgba(196,77,255,.2), 0 0 8px rgba(108,180,238,.08); }
+  25%      { opacity: 1;   transform: translateY(-2px) scale(1.04); text-shadow: 0 0 8px rgba(196,77,255,.35), 0 0 14px rgba(108,180,238,.15); }
+  50%      { opacity: .9;  transform: translateY(0) scale(1.01); text-shadow: 0 0 5px rgba(196,77,255,.22), 0 0 10px rgba(108,180,238,.1); }
+  75%      { opacity: .95; transform: translateY(-1px) scale(1.03); text-shadow: 0 0 6px rgba(196,77,255,.28), 0 0 12px rgba(108,180,238,.12); }
 }
 
 /* ====== 整页鼠标跟随微视差 ====== */
