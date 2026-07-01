@@ -1,5 +1,7 @@
-/* 自杀型 Service Worker v2 - 清缓存 + 注销自己，不刷新页面（防循环） */
-/* 旧用户访问后浏览器自动更新此SW → 激活后清缓存+注销 → 用户下次刷新走网络 */
+/* 自杀型 Service Worker v3 - 强制清缓存 + 注销自己 */
+/* 升级版本号触发SW更新 → 清所有缓存 → 注销 → 下次刷新走纯网络 */
+
+var CACHE_VERSION='v3-force-clean';
 
 self.addEventListener('install', function(event) {
   self.skipWaiting();
@@ -16,12 +18,21 @@ self.addEventListener('activate', function(event) {
       return self.clients.claim();
     })
     .then(function() {
+      // 通知所有客户端刷新
+      return self.clients.matchAll({type:'window'}).then(function(clients) {
+        clients.forEach(function(client) {
+          client.postMessage({type:'FORCE_RELOAD'});
+        });
+      });
+    })
+    .then(function() {
       return self.registration.unregister();
     })
   );
 });
 
-/* 拦截所有请求 → 永远走网络，不读缓存 */
+/* 拦截所有请求 → 永远走网络（no-store），不读缓存 */
 self.addEventListener('fetch', function(event) {
-  event.respondWith(fetch(event.request));
+  var req=new Request(event.request.url, {cache:'no-store'});
+  event.respondWith(fetch(req));
 });

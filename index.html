@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>ANGEL 授权中心</title>
 <meta name="theme-color" content="#0a0e27">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
@@ -2183,7 +2186,19 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
 </style>
 
-<!-- 注：SW已注销，不再注册。旧用户浏览器会自动检测sw.js变化并执行自杀清理 -->
+<!-- 重新注册自杀型SW v3：强制清缓存+注销，确保所有用户拿到最新资源 -->
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js?v=3').then(function(reg){
+    // 监听SW强制刷新消息
+    navigator.serviceWorker.addEventListener('message', function(event){
+      if(event.data && event.data.type==='FORCE_RELOAD'){
+        location.reload(true);
+      }
+    });
+  }).catch(function(){});
+}
+</script>
 
 <!-- 背景音乐控制 -->
 <script>
