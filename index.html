@@ -661,7 +661,7 @@ footer.footer { display: none !important; }
     pointer-events: none;
     z-index: 99998;
     transform: translate(-50%,-50%);
-    transition: width .25s ease, height .25s ease, border-color .25s ease;
+    transition: width .25s ease, height .25s ease, border-color .25s ease, left .12s ease, top .12s ease;
   }
 
   /* 悬停可交互元素 */
@@ -1384,25 +1384,25 @@ html { scroll-behavior: smooth; }
 .aurora-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(50px);
+  filter: blur(30px);
   opacity: .25;
   mix-blend-mode: screen;
   will-change: transform;
 }
 .aurora-blob:nth-child(1) {
-  width: 500px; height: 500px;
+  width: 400px; height: 400px;
   background: radial-gradient(circle, #6c5ce7, transparent 70%);
-  top: -100px; left: -100px;
+  top: -80px; left: -80px;
   animation: aurora1 18s ease-in-out infinite;
 }
 .aurora-blob:nth-child(2) {
-  width: 600px; height: 600px;
+  width: 450px; height: 450px;
   background: radial-gradient(circle, #00d2d3, transparent 70%);
-  bottom: -150px; right: -150px;
+  bottom: -120px; right: -120px;
   animation: aurora2 22s ease-in-out infinite;
 }
 .aurora-blob:nth-child(3) {
-  width: 450px; height: 450px;
+  width: 400px; height: 400px;
   background: radial-gradient(circle, #c44dff, transparent 70%);
   top: 40%; left: 50%;
   animation: aurora3 16s ease-in-out infinite;
@@ -1486,24 +1486,6 @@ html { scroll-behavior: smooth; }
   to { opacity: .8; transform: translateY(0); }
 }
 
-/* ====== FPS 性能监控角标 ====== */
-.fps-monitor {
-  position: fixed; top: 12px; right: 12px; z-index: 9996;
-  padding: 4px 10px; border-radius: 8px;
-  background: rgba(20,25,55,.7);
-  border: 1px solid rgba(120,110,200,.15);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  font-family: 'Orbitron', monospace;
-  font-size: 11px; font-weight: 700;
-  color: rgba(108,255,206,.8);
-  letter-spacing: 1px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .3s;
-}
-.fps-monitor.visible { opacity: 1; }
-.fps-monitor.warning { color: #ffd93d; border-color: rgba(255,217,61,.3); }
-.fps-monitor.danger { color: #ff6b6b; border-color: rgba(255,107,107,.3); }
 
 
 /* ====== 天气感知（昼夜色温） ====== */
@@ -1527,14 +1509,11 @@ html { scroll-behavior: smooth; }
 <div class="aurora-bg">
   <div class="aurora-blob"></div>
   <div class="aurora-blob"></div>
-  <div class="aurora-blob"></div>
 </div>
 <!-- 页面暗角 Vignette -->
 <div class="vignette-overlay"></div>
 <!-- CRT 扫描线效果 -->
 <div class="crt-scanlines"></div>
-<!-- FPS 性能监控角标 -->
-<div class="fps-monitor" id="fpsMonitor">FPS 60</div>
 <!-- 滚动进度条 -->
 <div class="scroll-progress" id="scrollProgress"></div>
 <!-- 页面过渡遮罩 -->
@@ -1550,8 +1529,6 @@ html { scroll-behavior: smooth; }
 </div>
 <!-- Canvas 波浪背景 -->
 <canvas id="waveBg"></canvas>
-<!-- 背景飘浮粒子 -->
-<canvas id="floatParticles"></canvas>
 
 
 <div class="tg-banner">📢 TG 频道：<a href="javascript:void(0)" data-href="https://t.me/Czr114514nb" target="_blank">@Czr114514nb</a></div>
@@ -1712,12 +1689,10 @@ html { scroll-behavior: smooth; }
     ctx.scale(r,r);
   }
   resize();window.addEventListener('resize',resize);
-  // 4层波浪：紫色→蓝色→青色→粉色
+  // 2层波浪（精简以提升性能）
   var waves=[
-    {amp:.04,freq:.025,phase:0,speed:.0008,color:'rgba(130,100,240,.18)',h:.38},
-    {amp:.05,freq:.02,phase:1.2,speed:.001,color:'rgba(60,140,230,.15)',h:.42},
-    {amp:.04,freq:.03,phase:2.5,speed:.0007,color:'rgba(30,200,190,.12)',h:.46},
-    {amp:.06,freq:.018,phase:4,speed:.0009,color:'rgba(200,100,200,.14)',h:.36}
+    {amp:.05,freq:.022,phase:0,speed:.0008,color:'rgba(130,100,240,.16)',h:.4},
+    {amp:.05,freq:.018,phase:2.5,speed:.0009,color:'rgba(30,200,190,.12)',h:.44}
   ];
   function draw(){
     ctx.clearRect(0,0,w,h);
@@ -1725,7 +1700,7 @@ html { scroll-behavior: smooth; }
       var wv=waves[i];
       ctx.beginPath();
       ctx.moveTo(0,h*wv.h);
-      for(var x=0;x<=w;x+=6){
+      for(var x=0;x<=w;x+=10){
         var y=Math.sin(x*wv.freq+t*wv.speed+wv.phase)*h*wv.amp+h*wv.h;
         ctx.lineTo(x,y);
       }
@@ -2002,58 +1977,6 @@ window.addEventListener('load',function(){
   },300);
 });
 
-// ====== 背景飘浮粒子 ======
-(function(){
-  var canvas=document.getElementById('floatParticles');
-  if(!canvas) return;
-  var ctx=canvas.getContext('2d');
-  var w,h,dpr=Math.min(window.devicePixelRatio||1,1.5);
-  var particles=[];
-  var colors=['rgba(196,77,255,','rgba(108,180,238,','rgba(108,255,206,','rgba(255,107,157,','rgba(255,217,61,'];
-  function resize(){
-    w=window.innerWidth;h=window.innerHeight;
-    canvas.width=w*dpr;canvas.height=h*dpr;
-    canvas.style.width=w+'px';canvas.style.height=h+'px';
-    ctx.scale(dpr,dpr);
-  }
-  resize();
-  window.addEventListener('resize',resize);
-  // 创建粒子（减半以提升性能）
-  var count=Math.min(20,Math.floor(w*h/50000));
-  for(var i=0;i<count;i++){
-    particles.push({
-      x:Math.random()*w,
-      y:Math.random()*h,
-      r:1+Math.random()*2.5,
-      vx:(Math.random()-.5)*.3,
-      vy:-.2-Math.random()*.4,
-      a:.2+Math.random()*.4,
-      color:colors[Math.floor(Math.random()*colors.length)]
-    });
-  }
-  function draw(){
-    ctx.clearRect(0,0,w,h);
-    for(var i=0;i<particles.length;i++){
-      var p=particles[i];
-      p.x+=p.vx; p.y+=p.vy;
-      // 边界循环
-      if(p.y<-10){p.y=h+10;p.x=Math.random()*w;}
-      if(p.x<-10)p.x=w+10;
-      if(p.x>w+10)p.x=-10;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r*1.8,0,Math.PI*2);
-      ctx.fillStyle=p.color+(p.a*.2)+')';
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=p.color+p.a+')';
-      ctx.fill();
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
 // ====== 页面过渡动画（外链跳转淡出） ======
 (function(){
   var overlay=document.getElementById('pageTransition');
@@ -2079,26 +2002,29 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode
     var source=audioCtx.createMediaElementSource(bgm);
     stereoPanner=audioCtx.createStereoPanner();
     gainNode=audioCtx.createGain();
-    // 链路: Source → Gain(音量) → Panner(声道) → 输出
+    // 链路: Source → Gain(固定1.0) → Panner(声道) → 输出
+    // 音量直接由 bgm.volume 控制，gainNode 仅做通道路由
     source.connect(gainNode);
     gainNode.connect(stereoPanner);
     stereoPanner.connect(audioCtx.destination);
     stereoPanner.pan.value=0;
+    gainNode.gain.value=1.0;
   }catch(e){console.warn('Web Audio API 不可用:',e);}
 
-  // 恢复音量（默认 20%，重置旧版存档）
-  var KEY_VER='angel_music_volume_v3';
-  var saved=localStorage.getItem(KEY_VER);
-  var v=saved?parseFloat(saved):0.20;
+  // 音量控制：直接设置 bgm.volume（最可靠方式）
+  var KEY_VOL='angel_music_volume_v4';
+  var savedVol=localStorage.getItem(KEY_VOL);
+  var vol=savedVol?parseFloat(savedVol):0.20;
   // 清理旧版键
+  localStorage.removeItem('angel_music_volume_v3');
   localStorage.removeItem('angel_music_volume_v2');
   localStorage.removeItem('angel_music_volume');
-  if(gainNode) gainNode.gain.value=v;
-  slider.value=Math.round(v*100);
-  slider.addEventListener('change',function(){
+  bgm.volume=vol;
+  slider.value=Math.round(vol*100);
+  slider.addEventListener('input',function(){
     var gv=slider.value/100;
-    if(gainNode) gainNode.gain.value=gv;
-    localStorage.setItem(KEY_VER,gv.toString());
+    bgm.volume=gv;
+    localStorage.setItem(KEY_VOL,gv.toString());
   });
 
   // 立体声交替：LFO 低频振荡器驱动 pan，音频采样级精度，零断层
@@ -2219,17 +2145,10 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
     mx=e.clientX; my=e.clientY;
     dot.style.left=mx+'px';
     dot.style.top=my+'px';
+    // 用 CSS transition 代替 rAF lerp，零开销
+    ring.style.left=mx+'px';
+    ring.style.top=my+'px';
   });
-
-  // 外环平滑跟随（滞后效果）
-  function animateRing(){
-    rx+=(mx-rx)*.18;
-    ry+=(my-ry)*.18;
-    ring.style.left=rx+'px';
-    ring.style.top=ry+'px';
-    requestAnimationFrame(animateRing);
-  }
-  animateRing();
 
   // 悬停可交互元素 → 放大+变色
   function addHover(el){
@@ -2298,7 +2217,7 @@ var bgm=document.getElementById('bgMusic');
 var musicBtn=document.getElementById('musicBtn');
 var trackLabel=document.getElementById('trackLabel');
 var currentTrackIndex=-1;
-// 音量由 gainNode 控制（见上方 Web Audio API 初始化），不再直接设置 bgm.volume
+// 音量由 bgm.volume 直接控制（gainNode 固定 1.0 仅做通道路由）
 
 // 随机选择一首（不重复当前）
 function pickRandomTrack(){
@@ -2431,15 +2350,13 @@ function toggleMusic(){
 // ====== 视差滚动 ======
 (function(){
   var waveBg=document.getElementById('waveBg');
-  var floatP=document.getElementById('floatParticles');
   var avatar=document.querySelector('.avatar-wrap');
   var ticking=false;
 
   function updateParallax(){
     var st=window.scrollY||document.documentElement.scrollTop;
-    // 背景层：波浪慢移，粒子稍快，营造深度
+    // 背景层：波浪慢移
     if(waveBg){waveBg.style.transform='translate3d(0,'+(st*0.12)+'px,0)';}
-    if(floatP){floatP.style.transform='translate3d(0,'+(st*0.22)+'px,0)';}
     // 头像微移（不触碰sticky面板本身，避免破坏吸附）
     if(avatar){avatar.style.transform='translate3d(0,'+(st*-0.04)+'px,0)';}
     ticking=false;
@@ -2578,28 +2495,6 @@ function toggleMusic(){
   else if(h<22) greeting='🌆 晚上好，放松一下吧';
   else greeting='🌃 深夜好，别熬太晚';
   el.textContent=greeting;
-})();
-
-// ====== FPS 性能监控角标 ======
-(function(){
-  var el=document.getElementById('fpsMonitor');
-  if(!el) return;
-  var frames=0, lastTime=performance.now();
-  function loop(now){
-    frames++;
-    if(now-lastTime>=500){
-      var fps=Math.round(frames*1000/(now-lastTime));
-      el.textContent='FPS '+fps;
-      el.classList.remove('warning','danger');
-      if(fps<30) el.classList.add('danger');
-      else if(fps<50) el.classList.add('warning');
-      el.classList.add('visible');
-      frames=0;
-      lastTime=now;
-    }
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
 })();
 
 // ====== 天气感知（昼夜色温变化） ======
