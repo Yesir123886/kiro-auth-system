@@ -652,7 +652,7 @@ footer.footer { display: none !important; }
     box-shadow: 0 0 10px rgba(196,77,255,.8), 0 0 20px rgba(196,77,255,.4);
     pointer-events: none;
     z-index: 99999;
-    transform: translate(-50%,-50%);
+    transform: translate3d(0,0,0) translate(-50%,-50%);
     transition: width .2s ease, height .2s ease, background .2s ease, box-shadow .2s ease;
   }
 
@@ -663,8 +663,8 @@ footer.footer { display: none !important; }
     border: 1.5px solid rgba(196,77,255,.45);
     pointer-events: none;
     z-index: 99998;
-    transform: translate(-50%,-50%);
-    transition: width .25s ease, height .25s ease, border-color .25s ease, left .12s ease, top .12s ease;
+    transform: translate3d(0,0,0) translate(-50%,-50%);
+    transition: width .25s ease, height .25s ease, border-color .25s ease;
   }
 
   /* 悬停可交互元素 */
@@ -2146,11 +2146,10 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
 
   document.addEventListener('mousemove',function(e){
     mx=e.clientX; my=e.clientY;
-    dot.style.left=mx+'px';
-    dot.style.top=my+'px';
-    // 用 CSS transition 代替 rAF lerp，零开销
-    ring.style.left=mx+'px';
-    ring.style.top=my+'px';
+    // 用 transform: translate3d 替代 left/top，GPU合成无延迟
+    var transform='translate3d('+mx+'px,'+my+'px,0) translate(-50%,-50%)';
+    dot.style.transform=transform;
+    ring.style.transform=transform;
   });
 
   // 悬停可交互元素 → 放大+变色
