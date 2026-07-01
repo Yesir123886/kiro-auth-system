@@ -1505,10 +1505,6 @@ html { scroll-behavior: smooth; }
 .fps-monitor.warning { color: #ffd93d; border-color: rgba(255,217,61,.3); }
 .fps-monitor.danger { color: #ff6b6b; border-color: rgba(255,107,107,.3); }
 
-/* ====== 鼠标拖尾粒子流 Canvas ====== */
-.cursor-trail-canvas {
-  position: fixed; inset: 0; z-index: 99997; pointer-events: none;
-}
 
 /* ====== 天气感知（昼夜色温） ====== */
 .day-night-overlay {
@@ -1521,8 +1517,6 @@ html { scroll-behavior: smooth; }
 <body style="background:#080a14;min-height:100vh;">
 <!-- 噪点纹理叠加 -->
 <div class="noise-overlay"></div>
-<!-- 鼠标拖尾粒子流 Canvas -->
-<canvas id="cursorTrailCanvas" class="cursor-trail-canvas"></canvas>
 <!-- 背景微网格 -->
 <div class="bg-grid"></div>
 <!-- CSS 星光背景 -->
@@ -1598,7 +1592,7 @@ html { scroll-behavior: smooth; }
   <button class="mc-btn" id="musicBtn" title="播放/暂停" onclick="toggleMusic()">🎵</button>
   <button class="mc-btn mc-next-btn" id="nextBtn" title="下一首" onclick="nextTrack()">⏭</button>
   <button class="mc-stereo-btn stereo-active" id="stereoBtn" title="立体声交替" onclick="toggleStereo()">🔊</button>
-  <input type="range" class="mc-slider" id="volSlider" min="0" max="100" value="45" title="音量">
+  <input type="range" class="mc-slider" id="volSlider" min="0" max="100" value="20" title="音量">
   <span class="mc-label" id="trackLabel">随机播放中</span>
 </div>
 
@@ -2077,7 +2071,6 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode
 (function(){
   var bgm=document.getElementById('bgMusic');
   var slider=document.getElementById('volSlider');
-  var KEY=KEY_VER;
   if(!bgm||!slider) return;
 
   // 初始化 Web Audio API
@@ -2093,18 +2086,19 @@ var audioCtx=null, stereoPanner=null, gainNode=null, stereoActive=false, lfoNode
     stereoPanner.pan.value=0;
   }catch(e){console.warn('Web Audio API 不可用:',e);}
 
-  // 恢复音量（默认 25%，重置旧版 45% 的存档）
-  var KEY_VER='angel_music_volume_v2';
+  // 恢复音量（默认 20%，重置旧版存档）
+  var KEY_VER='angel_music_volume_v3';
   var saved=localStorage.getItem(KEY_VER);
-  var v=saved?parseFloat(saved):0.25;
+  var v=saved?parseFloat(saved):0.20;
   // 清理旧版键
+  localStorage.removeItem('angel_music_volume_v2');
   localStorage.removeItem('angel_music_volume');
   if(gainNode) gainNode.gain.value=v;
   slider.value=Math.round(v*100);
   slider.addEventListener('change',function(){
     var gv=slider.value/100;
     if(gainNode) gainNode.gain.value=gv;
-    localStorage.setItem(KEY,gv.toString());
+    localStorage.setItem(KEY_VER,gv.toString());
   });
 
   // 立体声交替：LFO 低频振荡器驱动 pan，音频采样级精度，零断层
@@ -2265,92 +2259,6 @@ document.getElementById('btnCopyQQ').addEventListener('click',function(e){
   document.addEventListener('mouseenter',function(){dot.style.opacity='1';ring.style.opacity='1';});
 })();
 
-// ====== 鼠标拖尾粒子流（Canvas 增强版 - 性能优化） ======
-(function(){
-  if(!window.matchMedia('(pointer:fine)').matches) return;
-  var canvas=document.getElementById('cursorTrailCanvas');
-  if(!canvas) return;
-  var ctx=canvas.getContext('2d');
-  var w,h,dpr=Math.min(window.devicePixelRatio||1,1.5);
-  function resize(){
-    w=window.innerWidth;h=window.innerHeight;
-    canvas.width=w*dpr;canvas.height=h*dpr;
-    canvas.style.width=w+'px';canvas.style.height=h+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  resize();
-  window.addEventListener('resize',resize);
-
-  // 预渲染粒子精灵（6种颜色各一张，避免每帧 createRadialGradient）
-  var SPRITE_SIZE=32;
-  var sprites=[];
-  var colors=[
-    [255,107,157],[196,77,255],[108,180,238],
-    [108,255,206],[255,217,61],[167,139,250]
-  ];
-  for(var ci=0;ci<colors.length;ci++){
-    var sc=document.createElement('canvas');
-    sc.width=SPRITE_SIZE; sc.height=SPRITE_SIZE;
-    var sctx=sc.getContext('2d');
-    var grad=sctx.createRadialGradient(SPRITE_SIZE/2,SPRITE_SIZE/2,0,SPRITE_SIZE/2,SPRITE_SIZE/2,SPRITE_SIZE/2);
-    grad.addColorStop(0,'rgba('+colors[ci][0]+','+colors[ci][1]+','+colors[ci][2]+',1)');
-    grad.addColorStop(1,'rgba('+colors[ci][0]+','+colors[ci][1]+','+colors[ci][2]+',0)');
-    sctx.fillStyle=grad;
-    sctx.fillRect(0,0,SPRITE_SIZE,SPRITE_SIZE);
-    sprites.push(sc);
-  }
-
-  var particles=[];
-  var maxParticles=50;
-  var mx=0,my=0,lastX=0,lastY=0,lastSpawn=0;
-
-  document.addEventListener('mousemove',function(e){
-    mx=e.clientX;my=e.clientY;
-    var now=performance.now();
-    if(now-lastSpawn<16) return;
-    lastSpawn=now;
-    var dx=mx-lastX,dy=my-lastY;
-    var dist=Math.sqrt(dx*dx+dy*dy);
-    var count=Math.min(3,Math.ceil(dist/8));
-    for(var i=0;i<count;i++){
-      var idx=Math.floor(Math.random()*colors.length);
-      particles.push({
-        x:mx+(Math.random()-.5)*6,
-        y:my+(Math.random()-.5)*6,
-        vx:dx*0.04+(Math.random()-.5)*1.8,
-        vy:dy*0.04+(Math.random()-.5)*1.8-0.4,
-        r:3+Math.random()*4,
-        life:1,
-        decay:0.015+Math.random()*0.02,
-        si:idx
-      });
-    }
-    lastX=mx;lastY=my;
-    while(particles.length>maxParticles) particles.shift();
-  });
-
-  function draw(){
-    ctx.clearRect(0,0,w,h);
-    ctx.globalCompositeOperation='lighter';
-    for(var i=particles.length-1;i>=0;i--){
-      var p=particles[i];
-      p.x+=p.vx; p.y+=p.vy;
-      p.vy+=0.03;
-      p.vx*=0.97; p.vy*=0.97;
-      p.life-=p.decay;
-      if(p.life<=0){ particles.splice(i,1); continue; }
-      var alpha=p.life*0.7;
-      var r=Math.max(1,p.r*p.life);
-      // 用预渲染精灵代替 createRadialGradient
-      ctx.globalAlpha=alpha;
-      ctx.drawImage(sprites[p.si],p.x-r,p.y-r,r*2,r*2);
-    }
-    ctx.globalAlpha=1;
-    ctx.globalCompositeOperation='source-over';
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
 </script>
 <style>
 @keyframes qrFadeIn{from{opacity:0}to{opacity:1}}
